@@ -1,25 +1,31 @@
 package ghost_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/rliebz/ghost"
 )
 
 func TestExample(t *testing.T) {
-	it := ghost.New(t)
+	g := ghost.New(t)
 
-	it.Should(ghost.BeTrue(true))
-	it.ShouldNot(ghost.BeTrue(false))
+	g.Should(ghost.BeTrue(true))
+	g.ShouldNot(ghost.BeTrue(false))
 
-	it.Should(ghost.Equal(1+1, 2))
-	it.Should(ghost.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
-	it.Should(ghost.Contain([]int{1, 2, 3}, 2))
-	it.Should(ghost.ContainString("foobar", "foo"))
+	g.Should(ghost.Equal(1+1, 2))
+	g.Should(ghost.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
+	g.Should(ghost.Contain([]int{1, 2, 3}, 2))
+	g.Should(ghost.ContainString("foobar", "foo"))
 
-	it.Should(ghost.Panic(func() { panic("oh no") }))
-	it.ShouldNot(ghost.Panic(func() {}))
+	g.Should(ghost.Panic(func() { panic("oh no") }))
+	g.ShouldNot(ghost.Panic(func() {}))
 
 	var err error
-	it.MustNot(ghost.Err(err))
+	g.Must(ghost.BeNil(err))
+	g.MustNot(ghost.Error(err))
+
+	err = errors.New("oh my god")
+	g.Should(ghost.ErrorContaining(err, "my god"))
+	g.ShouldNot(ghost.ErrorContaining(err, "steve"))
 }

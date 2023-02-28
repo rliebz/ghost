@@ -4,24 +4,24 @@ import (
 	"testing"
 )
 
-// A Tester runs test assertions.
-type Tester struct {
+// A Runner runs test assertions.
+type Runner struct {
 	t *testing.T
 }
 
-// New creates a new [Tester].
-func New(t *testing.T) Tester {
-	return Tester{t}
+// New creates a new [Runner].
+func New(t *testing.T) Runner {
+	return Runner{t}
 }
 
 // Should runs an assertion, returning true if the assertion was successful.
-func (t Tester) Should(a Assertion) bool {
-	t.t.Helper()
+func (r Runner) Should(a Assertion) bool {
+	r.t.Helper()
 
 	result := a()
 
 	if !result.Success {
-		t.t.Error(result.Message)
+		r.t.Error(result.Message)
 		return false
 	}
 
@@ -30,13 +30,13 @@ func (t Tester) Should(a Assertion) bool {
 
 // ShouldNot runs an assertion that should not be successful, returning true if
 // the assertion was not successful.
-func (t Tester) ShouldNot(a Assertion) bool {
-	t.t.Helper()
+func (r Runner) ShouldNot(a Assertion) bool {
+	r.t.Helper()
 
 	result := a()
 
 	if result.Success {
-		t.t.Error(result.Message)
+		r.t.Error(result.Message)
 		return false
 	}
 
@@ -44,20 +44,20 @@ func (t Tester) ShouldNot(a Assertion) bool {
 }
 
 // Must runs an assertion that must be successful, failing the test if it is not.
-func (t Tester) Must(a Assertion) {
-	t.t.Helper()
+func (r Runner) Must(a Assertion) {
+	r.t.Helper()
 
-	if !t.Should(a) {
-		t.t.FailNow()
+	if !r.Should(a) {
+		r.t.FailNow()
 	}
 }
 
 // Must not runs an assertion that must not be successful, failing the test if it is.
-func (t Tester) MustNot(a Assertion) {
-	t.t.Helper()
+func (r Runner) MustNot(a Assertion) {
+	r.t.Helper()
 
-	if !t.ShouldNot(a) {
-		t.t.FailNow()
+	if !r.ShouldNot(a) {
+		r.t.FailNow()
 	}
 }
 
