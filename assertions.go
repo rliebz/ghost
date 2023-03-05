@@ -38,7 +38,7 @@ func BeTrue(b bool) Assertion {
 	return func() Result {
 		return Result{
 			Success: b,
-			Message: fmt.Sprintf("%v was %t", fb, b),
+			Message: fmt.Sprintf("%v is %t", fb, b),
 		}
 	}
 }
@@ -144,18 +144,23 @@ func Equal[T comparable](want T, got T) Assertion {
 		fwant, fgot = args[0], args[1]
 	}
 
-	// TODO: Print the values
 	return func() Result {
 		if want == got {
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v == %v", fwant, fgot),
+				Message: fmt.Sprintf(`%v == %v
+want: %v
+got:  %v
+`, fwant, fgot, want, got),
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v != %v", fwant, fgot),
+			Message: fmt.Sprintf(`%v != %v
+want: %v
+got:  %v
+`, fwant, fgot, want, got),
 		}
 	}
 }

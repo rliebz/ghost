@@ -35,3 +35,31 @@ func TestBeNil(t *testing.T) {
 		g.Should(ghost.Equal("-1 + 1 is 0, not nil", result.Message))
 	})
 }
+
+func TestBeTrue(t *testing.T) {
+	t.Run("true", func(t *testing.T) {
+		g := ghost.New(t)
+
+		v := true
+		result := ghost.BeTrue(v)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("v is true", result.Message))
+
+		result = ghost.BeTrue(true)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("true is true", result.Message))
+	})
+
+	t.Run("false", func(t *testing.T) {
+		g := ghost.New(t)
+
+		v := false
+		result := ghost.BeTrue(v)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("v is false", result.Message))
+
+		result = ghost.BeTrue(false)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("false is false", result.Message))
+	})
+}
