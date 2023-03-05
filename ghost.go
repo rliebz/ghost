@@ -1,27 +1,33 @@
 package ghost
 
-import (
-	"testing"
-)
+// T is the subset of [*testing.T] used in assertions.
+type T interface {
+	Log(args ...any)
+	Fail()
+	FailNow()
+}
 
 // A Runner runs test assertions.
 type Runner struct {
-	t *testing.T
+	t T
 }
 
 // New creates a new [Runner].
-func New(t *testing.T) Runner {
+func New(t T) Runner {
 	return Runner{t}
 }
 
 // Should runs an assertion, returning true if the assertion was successful.
 func (r Runner) Should(a Assertion) bool {
-	r.t.Helper()
+	if h, ok := r.t.(interface{ Helper() }); ok {
+		h.Helper()
+	}
 
 	result := a()
 
 	if !result.Success {
-		r.t.Error(result.Message)
+		r.t.Log(result.Message)
+		r.t.Fail()
 		return false
 	}
 
@@ -31,12 +37,15 @@ func (r Runner) Should(a Assertion) bool {
 // ShouldNot runs an assertion that should not be successful, returning true if
 // the assertion was not successful.
 func (r Runner) ShouldNot(a Assertion) bool {
-	r.t.Helper()
+	if h, ok := r.t.(interface{ Helper() }); ok {
+		h.Helper()
+	}
 
 	result := a()
 
 	if result.Success {
-		r.t.Error(result.Message)
+		r.t.Log(result.Message)
+		r.t.Fail()
 		return false
 	}
 
@@ -45,7 +54,9 @@ func (r Runner) ShouldNot(a Assertion) bool {
 
 // Must runs an assertion that must be successful, failing the test if it is not.
 func (r Runner) Must(a Assertion) {
-	r.t.Helper()
+	if h, ok := r.t.(interface{ Helper() }); ok {
+		h.Helper()
+	}
 
 	if !r.Should(a) {
 		r.t.FailNow()
@@ -54,7 +65,9 @@ func (r Runner) Must(a Assertion) {
 
 // Must not runs an assertion that must not be successful, failing the test if it is.
 func (r Runner) MustNot(a Assertion) {
-	r.t.Helper()
+	if h, ok := r.t.(interface{ Helper() }); ok {
+		h.Helper()
+	}
 
 	if !r.ShouldNot(a) {
 		r.t.FailNow()
