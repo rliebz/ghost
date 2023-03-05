@@ -197,3 +197,69 @@ element: 5
 `, result.Message))
 	})
 }
+
+func TestContainString(t *testing.T) {
+	t.Run("contains", func(t *testing.T) {
+		g := ghost.New(t)
+
+		outer := "foobar"
+		inner := "oob"
+
+		result := ghost.ContainString(outer, inner)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`outer contains inner
+str:    "foobar"
+substr: "oob"
+`, result.Message))
+
+		result = ghost.ContainString("foobar", "oob")()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`"foobar" contains "oob"
+str:    "foobar"
+substr: "oob"
+`, result.Message))
+	})
+
+	t.Run("does not contain", func(t *testing.T) {
+		g := ghost.New(t)
+
+		outer := "foobar"
+		inner := "boo"
+
+		result := ghost.ContainString(outer, inner)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`outer does not contain inner
+str:    "foobar"
+substr: "boo"
+`, result.Message))
+
+		result = ghost.ContainString("foobar", "boo")()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`"foobar" does not contain "boo"
+str:    "foobar"
+substr: "boo"
+`, result.Message))
+	})
+
+	t.Run("multiline", func(t *testing.T) {
+		g := ghost.New(t)
+
+		outer := `one
+two
+three
+`
+
+		result := ghost.ContainString(outer, "two")()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`outer contains "two"
+str:    `+`
+"""
+one
+two
+three
+
+"""
+substr: "two"
+`, result.Message))
+	})
+}

@@ -143,20 +143,37 @@ func ContainString(str, substr string) Assertion {
 		fstr, fsubstr = args[0], args[1]
 	}
 
-	// TODO: Print the values
 	return func() Result {
 		if strings.Contains(str, substr) {
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v contains %v", fstr, fsubstr),
+				Message: fmt.Sprintf(`%v contains %v
+str:    %s
+substr: %s
+`, fstr, fsubstr, quoteString(str), quoteString(substr)),
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%q does not contain %q", fstr, fsubstr),
+			Message: fmt.Sprintf(`%v does not contain %v
+str:    %s
+substr: %s
+`, fstr, fsubstr, quoteString(str), quoteString(substr)),
 		}
 	}
+}
+
+// quoteString prints a string as a single quoted line, or multiline block.
+func quoteString(s string) string {
+	if strings.ContainsAny(s, "\n\r") {
+		return fmt.Sprintf(`
+"""
+%s
+"""`, s)
+	}
+
+	return fmt.Sprintf("%q", s)
 }
 
 // DeepEqual asserts that two elements are deeply equal.
