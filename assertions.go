@@ -45,7 +45,8 @@ func BeTrue(b bool) Assertion {
 
 // BeZero asserts that the given value equals its zero value.
 func BeZero[T comparable](v T) Assertion {
-	fv := fmt.Sprintf("%v", v)
+	sv := fmt.Sprintf("%v", v)
+	fv := sv
 	if args, ok := getFormattedArgs(1); ok {
 		fv = args[0]
 	}
@@ -56,6 +57,13 @@ func BeZero[T comparable](v T) Assertion {
 			return Result{
 				Success: true,
 				Message: fmt.Sprintf("%v is the zero value", fv),
+			}
+		}
+
+		if fv != sv {
+			return Result{
+				Success: false,
+				Message: fmt.Sprintf("%v is non-zero\nvalue: %v", fv, v),
 			}
 		}
 
@@ -157,8 +165,11 @@ value: %v
 		return Result{
 			Success: false,
 			Message: fmt.Sprintf(`%v != %v
-want: %v
-got:  %v
+want:
+%v
+
+got:
+%v
 `, fwant, fgot, want, got),
 		}
 	}

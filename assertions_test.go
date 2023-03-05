@@ -63,3 +63,31 @@ func TestBeTrue(t *testing.T) {
 		g.Should(ghost.Equal("false is false", result.Message))
 	})
 }
+
+func TestBeZero(t *testing.T) {
+	t.Run("zero", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var v int
+		result := ghost.BeZero(v)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("v is the zero value", result.Message))
+
+		result = ghost.BeZero(0)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("0 is the zero value", result.Message))
+	})
+
+	t.Run("non-zero", func(t *testing.T) {
+		g := ghost.New(t)
+
+		v := 1
+		result := ghost.BeZero(v)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("v is non-zero\nvalue: 1", result.Message))
+
+		result = ghost.BeZero(1)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("1 is non-zero", result.Message))
+	})
+}
