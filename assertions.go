@@ -23,7 +23,7 @@ func BeNil(v any) Assertion {
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v is %q, not nil", fv, v),
+			Message: fmt.Sprintf("%v is %v, not nil", fv, v),
 		}
 	}
 }

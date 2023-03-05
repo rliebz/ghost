@@ -3,7 +3,6 @@ package ghost
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -81,11 +80,9 @@ func describesCallExpr(want *runtime.Func, callExpr *ast.CallExpr) bool {
 		return strings.Contains(want.Name(), fun.Name)
 	case *ast.SelectorExpr:
 		return strings.Contains(want.Name(), nodeToString(fun))
-	case *ast.FuncLit:
-		return false
 	}
 
-	panic(fmt.Sprintf("unexpected *ast.CallExpr.Fun type: %T", callExpr.Fun))
+	return false
 }
 
 func nodeToString(node ast.Node) string {
