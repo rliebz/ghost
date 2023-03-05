@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"golang.org/x/exp/slices"
 )
 
 // BeNil asserts that the given value is nil.
@@ -56,10 +54,12 @@ func BeZero[T comparable](v T) Assertion {
 // Contain asserts that a slice contains a particular element.
 func Contain[T comparable](slice []T, element T) Assertion {
 	return func() Result {
-		if slices.Contains(slice, element) {
-			return Result{
-				Success: true,
-				Message: fmt.Sprintf("%v present in %v", element, slice),
+		for _, x := range slice {
+			if x == element {
+				return Result{
+					Success: true,
+					Message: fmt.Sprintf("%v present in %v", element, slice),
+				}
 			}
 		}
 
