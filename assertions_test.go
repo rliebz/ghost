@@ -91,3 +91,109 @@ func TestBeZero(t *testing.T) {
 		g.Should(ghost.Equal("1 is non-zero", result.Message))
 	})
 }
+
+func TestContain(t *testing.T) {
+	t.Run("contains <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3}
+		elem := 2
+
+		result := ghost.Contain(slice, elem)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`slice contains elem
+slice:   [1 2 3]
+element: 2
+`, result.Message))
+
+		result = ghost.Contain([]int{1, 2, 3}, 2)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`[]int{1, 2, 3} contains 2
+slice:   [1 2 3]
+element: 2
+`, result.Message))
+	})
+
+	t.Run("contains > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3, 4}
+		elem := 2
+
+		result := ghost.Contain(slice, elem)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`slice contains elem
+slice:   [
+	1
+>	2
+	3
+	4
+]
+element: 2
+`, result.Message))
+
+		result = ghost.Contain([]int{1, 2, 3, 4}, 2)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`[]int{1, 2, 3, 4} contains 2
+slice:   [
+	1
+>	2
+	3
+	4
+]
+element: 2
+`, result.Message))
+	})
+
+	t.Run("does not contain <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3}
+		elem := 5
+
+		result := ghost.Contain(slice, elem)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`slice does not contain elem
+slice:   [1 2 3]
+element: 5
+`, result.Message))
+
+		result = ghost.Contain([]int{1, 2, 3}, 5)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`[]int{1, 2, 3} does not contain 5
+slice:   [1 2 3]
+element: 5
+`, result.Message))
+	})
+
+	t.Run("does not contain > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3, 4}
+		elem := 5
+
+		result := ghost.Contain(slice, elem)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`slice does not contain elem
+slice:   [
+	1
+	2
+	3
+	4
+]
+element: 5
+`, result.Message))
+
+		result = ghost.Contain([]int{1, 2, 3, 4}, 5)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`[]int{1, 2, 3, 4} does not contain 5
+slice:   [
+	1
+	2
+	3
+	4
+]
+element: 5
+`, result.Message))
+	})
+}

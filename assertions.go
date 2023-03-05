@@ -76,27 +76,64 @@ func BeZero[T comparable](v T) Assertion {
 
 // Contain asserts that a slice contains a particular element.
 func Contain[T comparable](slice []T, element T) Assertion {
-	fslice, felement := fmt.Sprintf("%v", slice), fmt.Sprintf("%v", element)
+	sslice, selement := fmt.Sprintf("%v", slice), fmt.Sprintf("%v", element)
+	fslice, felement := sslice, selement
 	if args, ok := getFormattedArgs(1); ok {
 		fslice, felement = args[0], args[1]
 	}
 
-	// TODO: Print the values of the slices / elements
 	return func() Result {
 		for _, x := range slice {
 			if x == element {
 				return Result{
 					Success: true,
-					Message: fmt.Sprintf("%v contains %v", fslice, felement),
+					Message: fmt.Sprintf(`%v contains %v
+slice:   %v
+element: %v
+`,
+						fslice,
+						felement,
+						sliceToString(slice, element),
+						selement,
+					),
 				}
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v does not contain %v", fslice, felement),
+			Message: fmt.Sprintf(`%v does not contain %v
+slice:   %v
+element: %v
+`,
+				fslice,
+				felement,
+				sliceToString(slice, element),
+				selement,
+			),
 		}
 	}
+}
+
+// sliceToString pretty prints a slice, highlighting an element if it exists.
+func sliceToString[T comparable](slice []T, element T) string {
+	if len(slice) <= 3 {
+		return fmt.Sprint(slice)
+	}
+
+	var sb strings.Builder
+	sb.WriteString("[\n")
+	for _, e := range slice {
+		if e == element {
+			sb.WriteByte('>')
+		}
+
+		sb.WriteByte('\t')
+		fmt.Fprint(&sb, e)
+		sb.WriteByte('\n')
+	}
+	sb.WriteString("]")
+	return sb.String()
 }
 
 // ContainString asserts that a string contains a particular substring.
