@@ -1,6 +1,8 @@
 package ghost
 
 // T is the subset of [*testing.T] used in assertions.
+//
+// The Helper() method will be called if available.
 type T interface {
 	Log(args ...any)
 	Fail()
