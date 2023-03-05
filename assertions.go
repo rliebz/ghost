@@ -149,9 +149,8 @@ func Equal[T comparable](want T, got T) Assertion {
 			return Result{
 				Success: true,
 				Message: fmt.Sprintf(`%v == %v
-want: %v
-got:  %v
-`, fwant, fgot, want, got),
+value: %v
+`, fwant, fgot, want),
 			}
 		}
 
