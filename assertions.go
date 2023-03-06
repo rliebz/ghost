@@ -240,13 +240,13 @@ func Error(err error) Assertion {
 		if err == nil {
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf("%s was nil", ferr),
+				Message: fmt.Sprintf("%s is nil", ferr),
 			}
 		}
 
 		return Result{
 			Success: true,
-			Message: fmt.Sprintf("%s contains error: %s", ferr, err),
+			Message: fmt.Sprintf("%s is error: %s", ferr, err),
 		}
 	}
 }
@@ -262,7 +262,7 @@ func ErrorContaining(err error, msg string) Assertion {
 		if err == nil {
 			return Result{
 				Success: false,
-				Message: "error was nil",
+				Message: "error is nil",
 			}
 		}
 
