@@ -1,6 +1,7 @@
 package ghost_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/rliebz/ghost"
@@ -261,5 +262,74 @@ three
 """
 substr: "two"
 `, result.Message))
+	})
+}
+
+func TestDeepEqual(t *testing.T) {
+	t.Run("equal", func(t *testing.T) {
+		g := ghost.New(t)
+
+		type T struct {
+			A string
+			B []int
+		}
+
+		want := T{"foo", []int{1, 2}}
+		got := T{"foo", []int{1, 2}}
+
+		result := ghost.DeepEqual(want, got)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`want == got
+value: {foo [1 2]}`, result.Message))
+
+		result = ghost.DeepEqual(T{"foo", []int{1}}, T{"foo", []int{1}})()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`T{"foo", []int{1}} == T{"foo", []int{1}}
+value: {foo [1]}`, result.Message))
+	})
+
+	t.Run("unequal", func(t *testing.T) {
+		g := ghost.New(t)
+
+		type T struct {
+			A string
+			B int
+		}
+
+		want := T{"foo", 1}
+		got := T{"bar", 0}
+
+		result := ghost.DeepEqual(want, got)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		// Keep the diff small, because we don't want to test cmp.Diff
+		wantText := `want != got
+diff (-want +got):
+  ghost_test.T{
+- 	A: "foo",
++ 	A: "bar",
+- 	B: 1,
++ 	B: 0,
+  }
+
+`
+		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
+		g.Should(ghost.Equal(wantText, result.Message))
+
+		result = ghost.DeepEqual(T{"foo", 1}, T{"bar", 0})()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText = `T{"foo", 1} != T{"bar", 0}
+diff (-want +got):
+  ghost_test.T{
+- 	A: "foo",
++ 	A: "bar",
+- 	B: 1,
++ 	B: 0,
+  }
+
+`
+		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
+		g.Should(ghost.Equal(wantText, result.Message))
 	})
 }

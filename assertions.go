@@ -2,9 +2,9 @@ package ghost
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/nsf/jsondiff"
 )
 
@@ -185,18 +185,21 @@ func DeepEqual[T any](want, got T) Assertion {
 		fwant, fgot = args[0], args[1]
 	}
 
-	// TODO: Print the values
 	return func() Result {
-		if reflect.DeepEqual(want, got) {
+		if diff := cmp.Diff(want, got); diff != "" {
 			return Result{
-				Success: true,
-				Message: fmt.Sprintf("%v == %v", fwant, fgot),
+				Success: false,
+				Message: fmt.Sprintf(`%v != %v
+diff (-want +got):
+%v
+`, fwant, fgot, diff),
 			}
 		}
 
 		return Result{
-			Success: false,
-			Message: fmt.Sprintf("%v != %v", fwant, fgot),
+			Success: true,
+			Message: fmt.Sprintf(`%v == %v
+value: %v`, fwant, fgot, want),
 		}
 	}
 }
@@ -221,12 +224,9 @@ value: %v
 		return Result{
 			Success: false,
 			Message: fmt.Sprintf(`%v != %v
-want:
+diff (-want +got):
 %v
-
-got:
-%v
-`, fwant, fgot, want, got),
+`, fwant, fgot, cmp.Diff(want, got)),
 		}
 	}
 }
