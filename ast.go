@@ -79,6 +79,11 @@ func describesCallExpr(want *runtime.Func, callExpr *ast.CallExpr) bool {
 	case *ast.Ident:
 		return strings.Contains(want.Name(), fun.Name)
 	case *ast.SelectorExpr:
+		// TODO: This is an incredibly dirty hack to special case one function.
+		if fun.Sel.Name == "NoErr" {
+			return true
+		}
+
 		return strings.Contains(want.Name(), nodeToString(fun))
 	}
 

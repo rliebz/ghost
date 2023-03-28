@@ -1,5 +1,7 @@
 package ghost
 
+import "fmt"
+
 // T is the subset of [*testing.T] used in assertions.
 //
 // The Helper() method will be called if available.
@@ -65,13 +67,30 @@ func (r Runner) Must(a Assertion) {
 	}
 }
 
-// Must not runs an assertion that must not be successful, failing the test if it is.
+// MustNot runs an assertion that must not be successful, failing the test if it is.
 func (r Runner) MustNot(a Assertion) {
 	if h, ok := r.t.(interface{ Helper() }); ok {
 		h.Helper()
 	}
 
 	if !r.ShouldNot(a) {
+		r.t.FailNow()
+	}
+}
+
+// NoErr asserts that an error should be nil, failing the test if it is not.
+func (r Runner) NoErr(err error) {
+	if h, ok := r.t.(interface{ Helper() }); ok {
+		h.Helper()
+	}
+
+	ferr := fmt.Sprintf("%v", err)
+	if args, ok := getFormattedArgs(1); ok {
+		ferr = args[0]
+	}
+
+	if err != nil {
+		r.t.Log(fmt.Sprintf("%s has error value: %s", ferr, err))
 		r.t.FailNow()
 	}
 }

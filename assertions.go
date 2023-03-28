@@ -248,7 +248,7 @@ func Error(err error) Assertion {
 
 		return Result{
 			Success: true,
-			Message: fmt.Sprintf("%s is error: %s", ferr, err),
+			Message: fmt.Sprintf("%s has error value: %s", ferr, err),
 		}
 	}
 }
