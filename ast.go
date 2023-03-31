@@ -26,21 +26,25 @@ func getFormattedArgs(skip int) ([]string, bool) {
 }
 
 func callExprArgs(skip int) ([]ast.Expr, error) {
-	pc, _, _, _ := runtime.Caller(skip)
+	pc, _, _, ok := runtime.Caller(skip)
+	if !ok {
+		return nil, errors.New("failed to get file/line")
+	}
+
 	_, filename, line, ok := runtime.Caller(skip + 1)
 	if !ok {
 		return nil, errors.New("failed to get file/line")
 	}
 
-	fn := runtime.FuncForPC(pc)
+	wantFunc := runtime.FuncForPC(pc)
 
-	fileset := token.NewFileSet()
-	astFile, err := parser.ParseFile(fileset, filename, nil, parser.AllErrors)
+	fset := token.NewFileSet()
+	astFile, err := parser.ParseFile(fset, filename, nil, parser.AllErrors)
 	if err != nil {
 		return nil, err
 	}
 
-	node := callExprForFunc(fn, fileset, astFile, line)
+	node := callExprForFunc(wantFunc, fset, astFile, line)
 	if node == nil {
 		return nil, errors.New("no node found at line")
 	}
@@ -49,22 +53,23 @@ func callExprArgs(skip int) ([]ast.Expr, error) {
 }
 
 func callExprForFunc(
-	want *runtime.Func,
-	fileset *token.FileSet,
-	node ast.Node,
+	wantFunc *runtime.Func,
+	fset *token.FileSet,
+	file *ast.File,
 	lineNum int,
 ) *ast.CallExpr {
 	var out *ast.CallExpr
-	ast.Inspect(node, func(node ast.Node) bool {
+	ast.Inspect(file, func(node ast.Node) bool {
 		if node == nil {
 			return false
 		}
 
-		if fileset.Position(node.Pos()).Line != lineNum {
+		if fset.Position(node.Pos()).Line != lineNum {
 			return true
 		}
 
-		if callExpr, ok := node.(*ast.CallExpr); ok && describesCallExpr(want, callExpr) {
+		callExpr, ok := node.(*ast.CallExpr)
+		if ok && describesCallExpr(wantFunc, callExpr, fset, file) {
 			out = callExpr
 		}
 
@@ -73,18 +78,23 @@ func callExprForFunc(
 	return out
 }
 
-// TODO: There are likely more reliable ways to compare functions.
-func describesCallExpr(want *runtime.Func, callExpr *ast.CallExpr) bool {
+// This comparison isn't perfect, but it works well enough so far.
+func describesCallExpr(
+	wantFn *runtime.Func,
+	callExpr *ast.CallExpr,
+	fset *token.FileSet,
+	file *ast.File,
+) bool {
+	wantName := wantFn.Name()
+	wantName = strings.TrimSuffix(wantName, "[...]")
+	dotIndex := strings.LastIndex(wantName, ".")
+	wantName = wantName[dotIndex+1:]
+
 	switch fun := callExpr.Fun.(type) {
 	case *ast.Ident:
-		return strings.Contains(want.Name(), fun.Name)
+		return wantName == fun.Name
 	case *ast.SelectorExpr:
-		// TODO: This is an incredibly dirty hack to special case one function.
-		if fun.Sel.Name == "NoErr" {
-			return true
-		}
-
-		return strings.Contains(want.Name(), nodeToString(fun))
+		return wantName == fun.Sel.Name
 	}
 
 	return false
