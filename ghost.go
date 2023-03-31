@@ -84,13 +84,10 @@ func (r Runner) NoErr(err error) {
 		h.Helper()
 	}
 
-	ferr := fmt.Sprintf("%v", err)
-	if args, ok := getFormattedArgs(1); ok {
-		ferr = args[0]
-	}
+	args := getFormattedArgs([]any{err})
 
 	if err != nil {
-		r.t.Log(fmt.Sprintf("%s has error value: %s", ferr, err))
+		r.t.Log(fmt.Sprintf("%s has error value: %s", args[0], err))
 		r.t.FailNow()
 	}
 }

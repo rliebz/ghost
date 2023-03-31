@@ -10,79 +10,65 @@ import (
 
 // BeNil asserts that the given value is nil.
 func BeNil(v any) Assertion {
-	fv := fmt.Sprintf("%v", v)
-	if args, ok := getFormattedArgs(1); ok {
-		fv = args[0]
-	}
+	args := getFormattedArgs([]any{v})
 
 	return func() Result {
 		if v == nil {
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v is nil", fv),
+				Message: fmt.Sprintf("%v is nil", args[0]),
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v is %v, not nil", fv, v),
+			Message: fmt.Sprintf("%v is %v, not nil", args[0], v),
 		}
 	}
 }
 
 // BeTrue asserts that a value is true.
 func BeTrue(b bool) Assertion {
-	fb := fmt.Sprintf("%v", b)
-	if args, ok := getFormattedArgs(1); ok {
-		fb = args[0]
-	}
+	args := getFormattedArgs([]any{b})
 
 	return func() Result {
 		return Result{
 			Success: b,
-			Message: fmt.Sprintf("%v is %t", fb, b),
+			Message: fmt.Sprintf("%v is %t", args[0], b),
 		}
 	}
 }
 
 // BeZero asserts that the given value equals its zero value.
 func BeZero[T comparable](v T) Assertion {
-	sv := fmt.Sprintf("%v", v)
-	fv := sv
-	if args, ok := getFormattedArgs(1); ok {
-		fv = args[0]
-	}
+	args := getFormattedArgs([]any{v})
 
 	return func() Result {
 		var zero T
 		if v == zero {
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v is the zero value", fv),
+				Message: fmt.Sprintf("%v is the zero value", args[0]),
 			}
 		}
 
-		if fv != sv {
+		if args[0] != fmt.Sprintf("%v", v) {
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf("%v is non-zero\nvalue: %v", fv, v),
+				Message: fmt.Sprintf("%v is non-zero\nvalue: %v", args[0], v),
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v is non-zero", fv),
+			Message: fmt.Sprintf("%v is non-zero", args[0]),
 		}
 	}
 }
 
 // Contain asserts that a slice contains a particular element.
 func Contain[T comparable](slice []T, element T) Assertion {
-	sslice, selement := fmt.Sprintf("%v", slice), fmt.Sprintf("%v", element)
-	fslice, felement := sslice, selement
-	if args, ok := getFormattedArgs(1); ok {
-		fslice, felement = args[0], args[1]
-	}
+	args := getFormattedArgs([]any{slice, element})
 
 	return func() Result {
 		for _, x := range slice {
@@ -93,10 +79,10 @@ func Contain[T comparable](slice []T, element T) Assertion {
 slice:   %v
 element: %v
 `,
-						fslice,
-						felement,
+						args[0],
+						args[1],
 						sliceToString(slice, element),
-						selement,
+						element,
 					),
 				}
 			}
@@ -108,10 +94,10 @@ element: %v
 slice:   %v
 element: %v
 `,
-				fslice,
-				felement,
+				args[0],
+				args[1],
 				sliceToString(slice, element),
-				selement,
+				element,
 			),
 		}
 	}
@@ -140,10 +126,7 @@ func sliceToString[T comparable](slice []T, element T) string {
 
 // ContainString asserts that a string contains a particular substring.
 func ContainString(str, substr string) Assertion {
-	fstr, fsubstr := fmt.Sprintf("%v", str), fmt.Sprintf("%v", substr)
-	if args, ok := getFormattedArgs(1); ok {
-		fstr, fsubstr = args[0], args[1]
-	}
+	args := getFormattedArgs([]any{str, substr})
 
 	return func() Result {
 		if strings.Contains(str, substr) {
@@ -152,7 +135,7 @@ func ContainString(str, substr string) Assertion {
 				Message: fmt.Sprintf(`%v contains %v
 str:    %s
 substr: %s
-`, fstr, fsubstr, quoteString(str), quoteString(substr)),
+`, args[0], args[1], quoteString(str), quoteString(substr)),
 			}
 		}
 
@@ -161,7 +144,7 @@ substr: %s
 			Message: fmt.Sprintf(`%v does not contain %v
 str:    %s
 substr: %s
-`, fstr, fsubstr, quoteString(str), quoteString(substr)),
+`, args[0], args[1], quoteString(str), quoteString(substr)),
 		}
 	}
 }
@@ -180,10 +163,7 @@ func quoteString(s string) string {
 
 // DeepEqual asserts that two elements are deeply equal.
 func DeepEqual[T any](want, got T) Assertion {
-	fwant, fgot := fmt.Sprintf("%v", want), fmt.Sprintf("%v", got)
-	if args, ok := getFormattedArgs(1); ok {
-		fwant, fgot = args[0], args[1]
-	}
+	args := getFormattedArgs([]any{want, got})
 
 	return func() Result {
 		if diff := cmp.Diff(want, got); diff != "" {
@@ -192,24 +172,21 @@ func DeepEqual[T any](want, got T) Assertion {
 				Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
 %v
-`, fwant, fgot, diff),
+`, args[0], args[1], diff),
 			}
 		}
 
 		return Result{
 			Success: true,
 			Message: fmt.Sprintf(`%v == %v
-value: %v`, fwant, fgot, want),
+value: %v`, args[0], args[1], want),
 		}
 	}
 }
 
 // Equal asserts that two elements are equal.
 func Equal[T comparable](want T, got T) Assertion {
-	fwant, fgot := fmt.Sprintf("%v", want), fmt.Sprintf("%v", got)
-	if args, ok := getFormattedArgs(1); ok {
-		fwant, fgot = args[0], args[1]
-	}
+	args := getFormattedArgs([]any{want, got})
 
 	return func() Result {
 		if want == got {
@@ -217,7 +194,7 @@ func Equal[T comparable](want T, got T) Assertion {
 				Success: true,
 				Message: fmt.Sprintf(`%v == %v
 value: %v
-`, fwant, fgot, want),
+`, args[0], args[1], want),
 			}
 		}
 
@@ -226,39 +203,33 @@ value: %v
 			Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
 %v
-`, fwant, fgot, cmp.Diff(want, got)),
+`, args[0], args[1], cmp.Diff(want, got)),
 		}
 	}
 }
 
 // Error asserts that an error is non-nil.
 func Error(err error) Assertion {
-	ferr := fmt.Sprintf("%v", err)
-	if args, ok := getFormattedArgs(1); ok {
-		ferr = args[0]
-	}
+	args := getFormattedArgs([]any{err})
 
 	return func() Result {
 		if err == nil {
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf("%s is nil", ferr),
+				Message: fmt.Sprintf("%s is nil", args[0]),
 			}
 		}
 
 		return Result{
 			Success: true,
-			Message: fmt.Sprintf("%s has error value: %s", ferr, err),
+			Message: fmt.Sprintf("%s has error value: %s", args[0], err),
 		}
 	}
 }
 
 // ErrorContaining asserts that a string contains a particular substring.
 func ErrorContaining(err error, msg string) Assertion {
-	ferr := fmt.Sprintf("%v", err)
-	if args, ok := getFormattedArgs(1); ok {
-		ferr = args[0]
-	}
+	args := getFormattedArgs([]any{err, msg})
 
 	return func() Result {
 		if err == nil {
@@ -271,13 +242,13 @@ func ErrorContaining(err error, msg string) Assertion {
 		if strings.Contains(err.Error(), msg) {
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v contains message %q: %v", ferr, msg, err),
+				Message: fmt.Sprintf("%v contains message %q: %v", args[0], msg, err),
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v does not contain message %q: %v", ferr, msg, err),
+			Message: fmt.Sprintf("%v does not contain message %q: %v", args[0], msg, err),
 		}
 	}
 }
@@ -285,10 +256,7 @@ func ErrorContaining(err error, msg string) Assertion {
 var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
 
 func JSONEqual[T ~string | ~[]byte](want, got T) Assertion {
-	fwant, fgot := fmt.Sprintf("%v", want), fmt.Sprintf("%v", got)
-	if args, ok := getFormattedArgs(1); ok {
-		fwant, fgot = args[0], args[1]
-	}
+	args := getFormattedArgs([]any{want, got})
 
 	return func() Result {
 		diff, msg := jsondiff.Compare([]byte(want), []byte(got), &jsonCompareOpts)
@@ -297,19 +265,19 @@ func JSONEqual[T ~string | ~[]byte](want, got T) Assertion {
 		case jsondiff.FullMatch:
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v and %v are JSON equal", fwant, fgot),
+				Message: fmt.Sprintf("%v and %v are JSON equal", args[0], args[1]),
 			}
 		case jsondiff.FirstArgIsInvalidJson:
 			return Result{
 				Success: false,
 				Message: fmt.Sprintf(`%v is not valid JSON
-value: %s`, fwant, want),
+value: %s`, args[0], want),
 			}
 		case jsondiff.SecondArgIsInvalidJson:
 			return Result{
 				Success: false,
 				Message: fmt.Sprintf(`%v is not valid JSON
-value: %s`, fgot, got),
+value: %s`, args[1], got),
 			}
 		case jsondiff.BothArgsAreInvalidJson:
 			return Result{
@@ -319,7 +287,7 @@ want:
 %s
 
 got:
-%s`, fwant, fgot, want, got),
+%s`, args[0], args[1], want, got),
 			}
 		}
 

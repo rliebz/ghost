@@ -3,6 +3,7 @@ package ghost
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
@@ -11,10 +12,13 @@ import (
 	"strings"
 )
 
-func getFormattedArgs(skip int) ([]string, bool) {
-	args, err := callExprArgs(skip + 1)
+// getArgsFromAST gets the string representation of the caller's arguments from
+// the AST. To handle situations where this cannot be done reliably, the raw
+// arguments should be passed so their values can be used as a backup.
+func getArgsFromAST(unformatted []any) []string {
+	args, err := callExprArgs(2)
 	if err != nil {
-		return nil, false
+		return mapString(unformatted)
 	}
 
 	out := make([]string, 0, len(args))
@@ -22,7 +26,15 @@ func getFormattedArgs(skip int) ([]string, bool) {
 		out = append(out, nodeToString(arg))
 	}
 
-	return out, true
+	return out
+}
+
+func mapString(s []any) []string {
+	out := make([]string, 0, len(s))
+	for _, ss := range s {
+		out = append(out, fmt.Sprintf("%v", ss))
+	}
+	return out
 }
 
 func callExprArgs(skip int) ([]ast.Expr, error) {
