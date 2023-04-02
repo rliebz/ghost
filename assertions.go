@@ -10,7 +10,7 @@ import (
 
 // BeNil asserts that the given value is nil.
 func BeNil(v any) Assertion {
-	args := getFormattedArgs([]any{v})
+	args := getArgsFromAST([]any{v})
 
 	return func() Result {
 		if v == nil {
@@ -29,7 +29,7 @@ func BeNil(v any) Assertion {
 
 // BeTrue asserts that a value is true.
 func BeTrue(b bool) Assertion {
-	args := getFormattedArgs([]any{b})
+	args := getArgsFromAST([]any{b})
 
 	return func() Result {
 		return Result{
@@ -41,7 +41,7 @@ func BeTrue(b bool) Assertion {
 
 // BeZero asserts that the given value equals its zero value.
 func BeZero[T comparable](v T) Assertion {
-	args := getFormattedArgs([]any{v})
+	args := getArgsFromAST([]any{v})
 
 	return func() Result {
 		var zero T
@@ -68,7 +68,7 @@ func BeZero[T comparable](v T) Assertion {
 
 // Contain asserts that a slice contains a particular element.
 func Contain[T comparable](slice []T, element T) Assertion {
-	args := getFormattedArgs([]any{slice, element})
+	args := getArgsFromAST([]any{slice, element})
 
 	return func() Result {
 		for _, x := range slice {
@@ -126,7 +126,7 @@ func sliceToString[T comparable](slice []T, element T) string {
 
 // ContainString asserts that a string contains a particular substring.
 func ContainString(str, substr string) Assertion {
-	args := getFormattedArgs([]any{str, substr})
+	args := getArgsFromAST([]any{str, substr})
 
 	return func() Result {
 		if strings.Contains(str, substr) {
@@ -163,7 +163,7 @@ func quoteString(s string) string {
 
 // DeepEqual asserts that two elements are deeply equal.
 func DeepEqual[T any](want, got T) Assertion {
-	args := getFormattedArgs([]any{want, got})
+	args := getArgsFromAST([]any{want, got})
 
 	return func() Result {
 		if diff := cmp.Diff(want, got); diff != "" {
@@ -186,7 +186,7 @@ value: %v`, args[0], args[1], want),
 
 // Equal asserts that two elements are equal.
 func Equal[T comparable](want T, got T) Assertion {
-	args := getFormattedArgs([]any{want, got})
+	args := getArgsFromAST([]any{want, got})
 
 	return func() Result {
 		if want == got {
@@ -210,7 +210,7 @@ diff (-want +got):
 
 // Error asserts that an error is non-nil.
 func Error(err error) Assertion {
-	args := getFormattedArgs([]any{err})
+	args := getArgsFromAST([]any{err})
 
 	return func() Result {
 		if err == nil {
@@ -229,7 +229,7 @@ func Error(err error) Assertion {
 
 // ErrorContaining asserts that a string contains a particular substring.
 func ErrorContaining(err error, msg string) Assertion {
-	args := getFormattedArgs([]any{err, msg})
+	args := getArgsFromAST([]any{err, msg})
 
 	return func() Result {
 		if err == nil {
@@ -256,7 +256,7 @@ func ErrorContaining(err error, msg string) Assertion {
 var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
 
 func JSONEqual[T ~string | ~[]byte](want, got T) Assertion {
-	args := getFormattedArgs([]any{want, got})
+	args := getArgsFromAST([]any{want, got})
 
 	return func() Result {
 		diff, msg := jsondiff.Compare([]byte(want), []byte(got), &jsonCompareOpts)
