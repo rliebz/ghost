@@ -232,23 +232,55 @@ func ErrorContaining(err error, msg string) Assertion {
 	args := getArgsFromAST([]any{err, msg})
 
 	return func() Result {
+		switch {
+		case err == nil && args[1] == fmt.Sprintf("%q", msg):
+			return Result{
+				Success: false,
+				Message: fmt.Sprintf(`error %v is nil; missing message: %v`, args[0], msg),
+			}
+		case err == nil:
+			return Result{
+				Success: false,
+				Message: fmt.Sprintf(`error %v is nil; missing message %v: %v`, args[0], args[1], msg),
+			}
+		case strings.Contains(err.Error(), msg):
+			return Result{
+				Success: true,
+				Message: fmt.Sprintf("error %v contains message %q: %v", args[0], msg, err),
+			}
+		default:
+			return Result{
+				Success: false,
+				Message: fmt.Sprintf("error %v does not contain message %q: %v", args[0], msg, err),
+			}
+		}
+	}
+}
+
+// ErrorEqual asserts that a string equals a particular message.
+func ErrorEqual(err error, msg string) Assertion {
+	args := getArgsFromAST([]any{err, msg})
+
+	return func() Result {
 		if err == nil {
 			return Result{
 				Success: false,
-				Message: "error is nil",
+				Message: fmt.Sprintf(`error is nil
+want message: %v
+`, msg),
 			}
 		}
 
-		if strings.Contains(err.Error(), msg) {
+		if err.Error() == msg {
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v contains message %q: %v", args[0], msg, err),
+				Message: fmt.Sprintf("%v equals error message %q: %v", args[0], msg, err),
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v does not contain message %q: %v", args[0], msg, err),
+			Message: fmt.Sprintf("%v does not equal error message %q: %v", args[0], msg, err),
 		}
 	}
 }

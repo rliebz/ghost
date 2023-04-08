@@ -1,6 +1,7 @@
 package ghost_test
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
@@ -331,5 +332,60 @@ diff (-want +got):
 `
 		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(ghost.Equal(wantText, result.Message))
+	})
+}
+
+func TestEqual(t *testing.T) {
+	// TODO
+}
+
+func TestError(t *testing.T) {
+	// TODO
+}
+
+func TestErrorContaining(t *testing.T) {
+	t.Run("contains", func(t *testing.T) {
+		g := ghost.New(t)
+
+		err := errors.New("foobar")
+		msg := "oob"
+
+		result := ghost.ErrorContaining(err, msg)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`error err contains message "oob": foobar`, result.Message))
+
+		result = ghost.ErrorContaining(errors.New("foobar"), "oob")()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`error errors.New("foobar") contains message "oob": foobar`, result.Message))
+	})
+
+	t.Run("does not contain", func(t *testing.T) {
+		g := ghost.New(t)
+
+		err := errors.New("foobar")
+		msg := "boo"
+
+		result := ghost.ErrorContaining(err, msg)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`error err does not contain message "boo": foobar`, result.Message))
+
+		result = ghost.ErrorContaining(errors.New("foobar"), "boo")()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`error errors.New("foobar") does not contain message "boo": foobar`, result.Message))
+	})
+
+	t.Run("nil", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var err error
+		msg := "boo"
+
+		result := ghost.ErrorContaining(err, msg)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`error err is nil; missing message msg: boo`, result.Message))
+
+		result = ghost.ErrorContaining(nil, "boo")()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`error nil is nil; missing message: boo`, result.Message))
 	})
 }
