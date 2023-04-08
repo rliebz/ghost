@@ -236,22 +236,22 @@ func ErrorContaining(err error, msg string) Assertion {
 		case err == nil && args[1] == fmt.Sprintf("%q", msg):
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf(`error %v is nil; missing message: %v`, args[0], msg),
+				Message: fmt.Sprintf(`%v is nil; missing error message: %v`, args[0], msg),
 			}
 		case err == nil:
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf(`error %v is nil; missing message %v: %v`, args[0], args[1], msg),
+				Message: fmt.Sprintf(`%v is nil; missing error message %v: %v`, args[0], args[1], msg),
 			}
 		case strings.Contains(err.Error(), msg):
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("error %v contains message %q: %v", args[0], msg, err),
+				Message: fmt.Sprintf("%v contains error message %q: %v", args[0], msg, err),
 			}
 		default:
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf("error %v does not contain message %q: %v", args[0], msg, err),
+				Message: fmt.Sprintf("%v does not contain error message %q: %v", args[0], msg, err),
 			}
 		}
 	}
