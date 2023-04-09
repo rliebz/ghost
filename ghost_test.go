@@ -15,7 +15,7 @@ func TestRunner_NoErr(t *testing.T) {
 	testG := ghost.New(mockT)
 
 	myErr := errors.New("oh no")
-	testG.NoErr(myErr)
+	testG.NoError(myErr)
 
 	if g.Should(ghost.Equal(1, len(mockT.logCalls))) {
 		g.Should(ghost.DeepEqual(

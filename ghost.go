@@ -78,8 +78,8 @@ func (r Runner) MustNot(a Assertion) {
 	}
 }
 
-// NoErr asserts that an error should be nil, failing the test if it is not.
-func (r Runner) NoErr(err error) {
+// NoError asserts that an error should be nil, failing the test if it is not.
+func (r Runner) NoError(err error) {
 	if h, ok := r.t.(interface{ Helper() }); ok {
 		h.Helper()
 	}

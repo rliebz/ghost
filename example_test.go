@@ -22,7 +22,7 @@ func TestExample(t *testing.T) {
 	g.ShouldNot(ghost.Panic(func() {}))
 
 	var err error
-	g.NoErr(err)
+	g.NoError(err)
 	g.Must(ghost.BeNil(err))
 	g.MustNot(ghost.Error(err))
 
