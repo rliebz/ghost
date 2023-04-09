@@ -415,3 +415,61 @@ func TestErrorContaining(t *testing.T) {
 		g.Should(ghost.Equal(`nil is nil; missing error message: boo`, result.Message))
 	})
 }
+
+func TestJSONEqual(t *testing.T) {
+	// TODO
+}
+
+func TestLen(t *testing.T) {
+	t.Run("equal <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 3
+		slice := []string{"a", "b", "c"}
+
+		result := ghost.Len(wantLen, slice)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`want slice length 3, got 3
+slice: [a b c]
+`, result.Message))
+
+		result = ghost.Len(3, []string{"a", "b", "c"})()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`want []string{"a", "b", "c"} length 3, got 3
+slice: [a b c]
+`, result.Message))
+	})
+
+	t.Run("equal > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 4
+		slice := []string{"a", "b", "c", "d"}
+
+		result := ghost.Len(wantLen, slice)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`want slice length 4, got 4
+slice: [
+	a
+	b
+	c
+	d
+]
+`, result.Message))
+
+		result = ghost.Len(4, []string{"a", "b", "c", "d"})()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`want []string{"a", "b", "c", "d"} length 4, got 4
+slice: [
+	a
+	b
+	c
+	d
+]
+`, result.Message))
+	})
+}
+
+func TestPanic(t *testing.T) {
+	// TODO
+}

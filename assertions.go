@@ -81,7 +81,7 @@ element: %v
 `,
 						args[0],
 						args[1],
-						sliceToString(slice, element),
+						sliceElementToString(slice, element),
 						element,
 					),
 				}
@@ -96,32 +96,11 @@ element: %v
 `,
 				args[0],
 				args[1],
-				sliceToString(slice, element),
+				sliceElementToString(slice, element),
 				element,
 			),
 		}
 	}
-}
-
-// sliceToString pretty prints a slice, highlighting an element if it exists.
-func sliceToString[T comparable](slice []T, element T) string {
-	if len(slice) <= 3 {
-		return fmt.Sprint(slice)
-	}
-
-	var sb strings.Builder
-	sb.WriteString("[\n")
-	for _, e := range slice {
-		if e == element {
-			sb.WriteByte('>')
-		}
-
-		sb.WriteByte('\t')
-		fmt.Fprint(&sb, e)
-		sb.WriteByte('\n')
-	}
-	sb.WriteString("]")
-	return sb.String()
 }
 
 // ContainString asserts that a string contains a particular substring.
@@ -326,6 +305,19 @@ got:
 		return Result{
 			Success: false,
 			Message: msg,
+		}
+	}
+}
+
+func Len[T any](want int, got []T) Assertion {
+	args := getArgsFromAST([]any{want, got})
+
+	return func() Result {
+		return Result{
+			Success: want == len(got),
+			Message: fmt.Sprintf(`want %v length %d, got %d
+slice: %v
+`, args[1], want, len(got), sliceToString(got)),
 		}
 	}
 }
