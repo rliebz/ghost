@@ -261,6 +261,7 @@ two
 three
 
 """
+
 substr: "two"
 `, result.Message))
 	})
@@ -281,12 +282,14 @@ func TestDeepEqual(t *testing.T) {
 		result := ghost.DeepEqual(want, got)()
 		g.Should(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`want == got
-value: {foo [1 2]}`, result.Message))
+value: {foo [1 2]}
+`, result.Message))
 
 		result = ghost.DeepEqual(T{"foo", []int{1}}, T{"foo", []int{1}})()
 		g.Should(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`T{"foo", []int{1}} == T{"foo", []int{1}}
-value: {foo [1]}`, result.Message))
+value: {foo [1]}
+`, result.Message))
 	})
 
 	t.Run("unequal", func(t *testing.T) {
@@ -336,7 +339,161 @@ diff (-want +got):
 }
 
 func TestEqual(t *testing.T) {
-	// TODO
+	t.Run("equal", func(t *testing.T) {
+		g := ghost.New(t)
+
+		type T struct {
+			A string
+			B int
+		}
+
+		want := T{"foo", 1}
+		got := T{"foo", 1}
+
+		result := ghost.Equal(want, got)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`want == got
+value: {foo 1}
+`, result.Message))
+
+		result = ghost.Equal(T{"foo", 1}, T{"foo", 1})()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`T{"foo", 1} == T{"foo", 1}
+value: {foo 1}
+`, result.Message))
+	})
+
+	t.Run("unequal int", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := 1
+		got := 0
+
+		result := ghost.Equal(want, got)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText := `want != got
+want: 1
+got:  0
+`
+		g.Should(ghost.Equal(wantText, result.Message))
+
+		result = ghost.Equal(1, 0)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText = `1 != 0
+want: 1
+got:  0
+`
+		g.Should(ghost.Equal(wantText, result.Message))
+	})
+
+	t.Run("unequal string short", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := "foo"
+		got := "bar"
+
+		result := ghost.Equal(want, got)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText := `want != got
+want: "foo"
+got:  "bar"
+`
+		g.Should(ghost.Equal(wantText, result.Message))
+
+		result = ghost.Equal("foo", "bar")()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText = `"foo" != "bar"
+want: "foo"
+got:  "bar"
+`
+		g.Should(ghost.Equal(wantText, result.Message))
+	})
+
+	t.Run("unequal string long", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := "foo\nbar\nbaz"
+		got := "bar"
+
+		result := ghost.Equal(want, got)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText := `want != got
+want: ` + `
+"""
+foo
+bar
+baz
+"""
+
+got:  "bar"
+`
+		g.Should(ghost.Equal(wantText, result.Message))
+
+		result = ghost.Equal("foo\nbar\nbaz", "bar")()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText = `"foo\nbar\nbaz" != "bar"
+want: ` + `
+"""
+foo
+bar
+baz
+"""
+
+got:  "bar"
+`
+		g.Should(ghost.Equal(wantText, result.Message))
+	})
+
+	t.Run("unequal struct", func(t *testing.T) {
+		g := ghost.New(t)
+
+		type T struct {
+			A string
+			B int
+		}
+
+		want := T{"foo", 1}
+		got := T{"bar", 0}
+
+		result := ghost.Equal(want, got)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		// Keep the diff small, because we don't want to test cmp.Diff
+		wantText := `want != got
+diff (-want +got):
+  ghost_test.T{
+- 	A: "foo",
++ 	A: "bar",
+- 	B: 1,
++ 	B: 0,
+  }
+
+`
+		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
+		g.Should(ghost.Equal(wantText, result.Message))
+
+		result = ghost.Equal(T{"foo", 1}, T{"bar", 0})()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+
+		wantText = `T{"foo", 1} != T{"bar", 0}
+diff (-want +got):
+  ghost_test.T{
+- 	A: "foo",
++ 	A: "bar",
+- 	B: 1,
++ 	B: 0,
+  }
+
+`
+		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
+		g.Should(ghost.Equal(wantText, result.Message))
+	})
 }
 
 func TestError(t *testing.T) {

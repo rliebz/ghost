@@ -2,6 +2,7 @@ package ghost
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
@@ -134,7 +135,8 @@ func quoteString(s string) string {
 		return fmt.Sprintf(`
 """
 %s
-"""`, s)
+"""
+`, s)
 	}
 
 	return fmt.Sprintf("%q", s)
@@ -158,7 +160,8 @@ diff (-want +got):
 		return Result{
 			Success: true,
 			Message: fmt.Sprintf(`%v == %v
-value: %v`, args[0], args[1], want),
+value: %v
+`, args[0], args[1], want),
 		}
 	}
 }
@@ -177,12 +180,44 @@ value: %v
 			}
 		}
 
-		return Result{
-			Success: false,
-			Message: fmt.Sprintf(`%v != %v
+		switch v := reflect.ValueOf(want); v.Kind() {
+		// These are types cmp tends to do particularly well
+		case
+			reflect.Array,
+			reflect.Interface,
+			reflect.Map,
+			reflect.Pointer,
+			reflect.Slice,
+			reflect.Struct:
+
+			return Result{
+				Success: false,
+				Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
 %v
 `, args[0], args[1], cmp.Diff(want, got)),
+			}
+		case reflect.String:
+			return Result{
+				Success: false,
+				Message: fmt.Sprintf(`%v != %v
+want: %v
+got:  %v
+`,
+					args[0],
+					args[1],
+					quoteString(interface{}(want).(string)),
+					quoteString(interface{}(got).(string)),
+				),
+			}
+		}
+
+		return Result{
+			Success: false,
+			Message: fmt.Sprintf(`%v != %v
+want: %v
+got:  %v
+`, args[0], args[1], want, got),
 		}
 	}
 }
