@@ -241,39 +241,39 @@ func Error(err error) Assertion {
 	}
 }
 
-// ErrorContaining asserts that a string contains a particular substring.
-func ErrorContaining(err error, msg string) Assertion {
-	args := getArgsFromAST([]any{err, msg})
+// ErrorContaining asserts that an error string contains a particular substring.
+func ErrorContaining(msg string, err error) Assertion {
+	args := getArgsFromAST([]any{msg, err})
 
 	return func() Result {
 		switch {
-		case err == nil && args[1] == fmt.Sprintf("%q", msg):
+		case err == nil && args[0] == fmt.Sprintf("%q", msg):
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf(`%v is nil; missing error message: %v`, args[0], msg),
+				Message: fmt.Sprintf(`%v is nil; missing error message: %v`, args[1], msg),
 			}
 		case err == nil:
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf(`%v is nil; missing error message %v: %v`, args[0], args[1], msg),
+				Message: fmt.Sprintf(`%v is nil; missing error message %v: %v`, args[1], args[0], msg),
 			}
 		case strings.Contains(err.Error(), msg):
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v contains error message %q: %v", args[0], msg, err),
+				Message: fmt.Sprintf("%v contains error message %q: %v", args[1], msg, err),
 			}
 		default:
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf("%v does not contain error message %q: %v", args[0], msg, err),
+				Message: fmt.Sprintf("%v does not contain error message %q: %v", args[1], msg, err),
 			}
 		}
 	}
 }
 
-// ErrorEqual asserts that a string equals a particular message.
-func ErrorEqual(err error, msg string) Assertion {
-	args := getArgsFromAST([]any{err, msg})
+// ErrorEqual asserts that an error string equals a particular message.
+func ErrorEqual(msg string, err error) Assertion {
+	args := getArgsFromAST([]any{msg, err})
 
 	return func() Result {
 		if err == nil {
@@ -288,13 +288,13 @@ want message: %v
 		if err.Error() == msg {
 			return Result{
 				Success: true,
-				Message: fmt.Sprintf("%v equals error message %q: %v", args[0], msg, err),
+				Message: fmt.Sprintf("%v equals error message %q: %v", args[1], msg, err),
 			}
 		}
 
 		return Result{
 			Success: false,
-			Message: fmt.Sprintf("%v does not equal error message %q: %v", args[0], msg, err),
+			Message: fmt.Sprintf("%v does not equal error message %q: %v", args[1], msg, err),
 		}
 	}
 }

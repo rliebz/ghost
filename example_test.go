@@ -27,8 +27,8 @@ func TestExample(t *testing.T) {
 	g.MustNot(ghost.Error(err))
 
 	err = errors.New("oh my god")
-	g.Should(ghost.ErrorContaining(err, "my god"))
-	g.ShouldNot(ghost.ErrorContaining(err, "steve"))
+	g.Should(ghost.ErrorContaining("my god", err))
+	g.ShouldNot(ghost.ErrorContaining("steve", err))
 
 	g.Should(ghost.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
 	g.ShouldNot(ghost.JSONEqual(`{"a":1}`, `{"a":2}`))

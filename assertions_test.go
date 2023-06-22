@@ -533,11 +533,11 @@ func TestErrorContaining(t *testing.T) {
 		err := errors.New("foobar")
 		msg := "oob"
 
-		result := ghost.ErrorContaining(err, msg)()
+		result := ghost.ErrorContaining(msg, err)()
 		g.Should(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`err contains error message "oob": foobar`, result.Message))
 
-		result = ghost.ErrorContaining(errors.New("foobar"), "oob")()
+		result = ghost.ErrorContaining("oob", errors.New("foobar"))()
 		g.Should(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`errors.New("foobar") contains error message "oob": foobar`, result.Message))
 	})
@@ -548,11 +548,11 @@ func TestErrorContaining(t *testing.T) {
 		err := errors.New("foobar")
 		msg := "boo"
 
-		result := ghost.ErrorContaining(err, msg)()
+		result := ghost.ErrorContaining(msg, err)()
 		g.ShouldNot(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`err does not contain error message "boo": foobar`, result.Message))
 
-		result = ghost.ErrorContaining(errors.New("foobar"), "boo")()
+		result = ghost.ErrorContaining("boo", errors.New("foobar"))()
 		g.ShouldNot(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`errors.New("foobar") does not contain error message "boo": foobar`, result.Message))
 	})
@@ -563,11 +563,11 @@ func TestErrorContaining(t *testing.T) {
 		var err error
 		msg := "boo"
 
-		result := ghost.ErrorContaining(err, msg)()
+		result := ghost.ErrorContaining(msg, err)()
 		g.ShouldNot(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`err is nil; missing error message msg: boo`, result.Message))
 
-		result = ghost.ErrorContaining(nil, "boo")()
+		result = ghost.ErrorContaining("boo", nil)()
 		g.ShouldNot(ghost.BeTrue(result.Success))
 		g.Should(ghost.Equal(`nil is nil; missing error message: boo`, result.Message))
 	})
