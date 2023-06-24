@@ -573,6 +573,53 @@ func TestErrorContaining(t *testing.T) {
 	})
 }
 
+func TestErrorEqual(t *testing.T) {
+	t.Run("equal", func(t *testing.T) {
+		g := ghost.New(t)
+
+		err := errors.New("foobar")
+		msg := "foobar"
+
+		result := ghost.ErrorEqual(msg, err)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`err equals error message "foobar": foobar`, result.Message))
+
+		result = ghost.ErrorEqual("foobar", errors.New("foobar"))()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`errors.New("foobar") equals error message "foobar": foobar`, result.Message))
+	})
+
+	t.Run("not equal", func(t *testing.T) {
+		g := ghost.New(t)
+
+		err := errors.New("foobar")
+		msg := "boo"
+
+		result := ghost.ErrorEqual(msg, err)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`err does not equal error message "boo": foobar`, result.Message))
+
+		result = ghost.ErrorEqual("boo", errors.New("foobar"))()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`errors.New("foobar") does not equal error message "boo": foobar`, result.Message))
+	})
+
+	t.Run("nil", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var err error
+		msg := "boo"
+
+		result := ghost.ErrorEqual(msg, err)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`err is nil; want message: boo`, result.Message))
+
+		result = ghost.ErrorEqual("boo", nil)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`nil is nil; want message: boo`, result.Message))
+	})
+}
+
 func TestJSONEqual(t *testing.T) {
 	// TODO: Write me
 	_ = t

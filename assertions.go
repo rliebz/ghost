@@ -279,9 +279,7 @@ func ErrorEqual(msg string, err error) Assertion {
 		if err == nil {
 			return Result{
 				Success: false,
-				Message: fmt.Sprintf(`error is nil
-want message: %v
-`, msg),
+				Message: fmt.Sprintf(`%v is nil; want message: %v`, args[1], msg),
 			}
 		}
 
