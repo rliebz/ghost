@@ -81,7 +81,7 @@ func callExprForFunc(
 		}
 
 		callExpr, ok := node.(*ast.CallExpr)
-		if ok && describesCallExpr(wantFunc, callExpr, fset, file) {
+		if ok && describesCallExpr(wantFunc, callExpr) {
 			out = callExpr
 		}
 
@@ -91,12 +91,7 @@ func callExprForFunc(
 }
 
 // This comparison isn't perfect, but it works well enough so far.
-func describesCallExpr(
-	wantFn *runtime.Func,
-	callExpr *ast.CallExpr,
-	fset *token.FileSet,
-	file *ast.File,
-) bool {
+func describesCallExpr(wantFn *runtime.Func, callExpr *ast.CallExpr) bool {
 	wantName := wantFn.Name()
 	wantName = strings.TrimSuffix(wantName, "[...]")
 	dotIndex := strings.LastIndex(wantName, ".")

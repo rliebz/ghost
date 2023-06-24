@@ -301,6 +301,7 @@ want message: %v
 
 var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
 
+// JSONEqual asserts that two sets of JSON-encoded data are equivalent.
 func JSONEqual[T ~string | ~[]byte](want, got T) Assertion {
 	args := getArgsFromAST([]any{want, got})
 
@@ -344,6 +345,7 @@ got:
 	}
 }
 
+// Len asserts that the length of a slice is a particular size.
 func Len[T any](want int, got []T) Assertion {
 	args := getArgsFromAST([]any{want, got})
 

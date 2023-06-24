@@ -1,0 +1,83 @@
+issues:
+  max-same-issues: 0
+  exclude-use-default: 0
+  exclude-rules:
+    path: _test\.go
+    linters:
+      - dupl
+      - gosec
+
+linters:
+  enable:
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - dupl
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exportloopref
+    - gocritic
+    - gofumpt
+    - gosec
+    - lll
+    - makezero
+    - mirror
+    - misspell
+    - nakedret
+    - nilerr
+    - noctx
+    - nolintlint
+    - prealloc
+    - predeclared
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - tenv
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+
+linters-settings:
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+      - experimental
+      - opinionated
+    disabled-checks:
+      - paramTypeCombine
+      - ptrToRefParam
+      - sloppyTestFuncName
+
+  gofumpt:
+    module-path: github.com/rliebz/ghost
+
+  gosec:
+    excludes:
+      - G104 # duplicate of errcheck
+      - G307 # duplicate of errcheck
+
+  govet:
+    check-shadowing: true
+
+  misspell:
+    locale: US
+
+  nakedret:
+    max-func-lines: 0
+
+  revive:
+    confidence: 0
+    rules:
+      - name: cognitive-complexity
+        disabled: false
+        arguments: [10]
+      - name: if-return
+        disabled: true

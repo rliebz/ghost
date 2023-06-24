@@ -1,0 +1,16 @@
+tasks:
+  fmt:
+    usage: Clean up and format the code
+    run:
+      - go mod tidy
+      - go run mvdan.cc/gofumpt@latest -l -w .
+
+  lint:
+    usage: Run static analysis
+    description: |
+      Run golangci-lint using the project configuration.
+    run: go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3 run ./...
+
+  test:
+    usage: Run unit tests
+    run: go test ./...

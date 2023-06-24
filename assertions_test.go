@@ -574,7 +574,8 @@ func TestErrorContaining(t *testing.T) {
 }
 
 func TestJSONEqual(t *testing.T) {
-	// TODO
+	// TODO: Write me
+	_ = t
 }
 
 func TestLen(t *testing.T) {
@@ -628,5 +629,6 @@ slice: [
 }
 
 func TestPanic(t *testing.T) {
-	// TODO
+	// TODO: Write me
+	_ = t
 }
