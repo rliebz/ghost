@@ -29,7 +29,7 @@ func (r Runner) Should(a Assertion) bool {
 
 	result := a()
 
-	if !result.Success {
+	if !result.Ok {
 		r.t.Log(result.Message)
 		r.t.Fail()
 		return false
@@ -47,7 +47,7 @@ func (r Runner) ShouldNot(a Assertion) bool {
 
 	result := a()
 
-	if result.Success {
+	if result.Ok {
 		r.t.Log(result.Message)
 		r.t.Fail()
 		return false
@@ -97,8 +97,8 @@ type Assertion func() Result
 
 // A Result represents the result of an assertion.
 type Result struct {
-	// Success returns whether the assertion was successful.
-	Success bool
+	// Ok returns whether the assertion was successful.
+	Ok bool
 
 	// Message returns a message describing the assertion.
 	//

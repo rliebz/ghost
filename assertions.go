@@ -16,13 +16,13 @@ func BeNil(v any) Assertion {
 	return func() Result {
 		if v == nil {
 			return Result{
-				Success: true,
+				Ok:      true,
 				Message: fmt.Sprintf("%v is nil", args[0]),
 			}
 		}
 
 		return Result{
-			Success: false,
+			Ok:      false,
 			Message: fmt.Sprintf("%v is %v, not nil", args[0], v),
 		}
 	}
@@ -34,7 +34,7 @@ func BeTrue(b bool) Assertion {
 
 	return func() Result {
 		return Result{
-			Success: b,
+			Ok:      b,
 			Message: fmt.Sprintf("%v is %t", args[0], b),
 		}
 	}
@@ -48,20 +48,20 @@ func BeZero[T comparable](v T) Assertion {
 		var zero T
 		if v == zero {
 			return Result{
-				Success: true,
+				Ok:      true,
 				Message: fmt.Sprintf("%v is the zero value", args[0]),
 			}
 		}
 
 		if args[0] != fmt.Sprintf("%v", v) {
 			return Result{
-				Success: false,
+				Ok:      false,
 				Message: fmt.Sprintf("%v is non-zero\nvalue: %v", args[0], v),
 			}
 		}
 
 		return Result{
-			Success: false,
+			Ok:      false,
 			Message: fmt.Sprintf("%v is non-zero", args[0]),
 		}
 	}
@@ -75,7 +75,7 @@ func Contain[T comparable](slice []T, element T) Assertion {
 		for _, x := range slice {
 			if x == element {
 				return Result{
-					Success: true,
+					Ok: true,
 					Message: fmt.Sprintf(`%v contains %v
 slice:   %v
 element: %v
@@ -90,7 +90,7 @@ element: %v
 		}
 
 		return Result{
-			Success: false,
+			Ok: false,
 			Message: fmt.Sprintf(`%v does not contain %v
 slice:   %v
 element: %v
@@ -111,7 +111,7 @@ func ContainString(str, substr string) Assertion {
 	return func() Result {
 		if strings.Contains(str, substr) {
 			return Result{
-				Success: true,
+				Ok: true,
 				Message: fmt.Sprintf(`%v contains %v
 str:    %s
 substr: %s
@@ -120,7 +120,7 @@ substr: %s
 		}
 
 		return Result{
-			Success: false,
+			Ok: false,
 			Message: fmt.Sprintf(`%v does not contain %v
 str:    %s
 substr: %s
@@ -149,7 +149,7 @@ func DeepEqual[T any](want, got T) Assertion {
 	return func() Result {
 		if diff := cmp.Diff(want, got); diff != "" {
 			return Result{
-				Success: false,
+				Ok: false,
 				Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
 %v
@@ -158,7 +158,7 @@ diff (-want +got):
 		}
 
 		return Result{
-			Success: true,
+			Ok: true,
 			Message: fmt.Sprintf(`%v == %v
 value: %v
 `, args[0], args[1], want),
@@ -173,7 +173,7 @@ func Equal[T comparable](want T, got T) Assertion {
 	return func() Result {
 		if want == got {
 			return Result{
-				Success: true,
+				Ok: true,
 				Message: fmt.Sprintf(`%v == %v
 value: %v
 `, args[0], args[1], want),
@@ -191,7 +191,7 @@ value: %v
 			reflect.Struct:
 
 			return Result{
-				Success: false,
+				Ok: false,
 				Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
 %v
@@ -199,7 +199,7 @@ diff (-want +got):
 			}
 		case reflect.String:
 			return Result{
-				Success: false,
+				Ok: false,
 				Message: fmt.Sprintf(`%v != %v
 want: %v
 got:  %v
@@ -213,7 +213,7 @@ got:  %v
 		}
 
 		return Result{
-			Success: false,
+			Ok: false,
 			Message: fmt.Sprintf(`%v != %v
 want: %v
 got:  %v
@@ -229,13 +229,13 @@ func Error(err error) Assertion {
 	return func() Result {
 		if err == nil {
 			return Result{
-				Success: false,
+				Ok:      false,
 				Message: fmt.Sprintf("%s is nil", args[0]),
 			}
 		}
 
 		return Result{
-			Success: true,
+			Ok:      true,
 			Message: fmt.Sprintf("%s has error value: %s", args[0], err),
 		}
 	}
@@ -249,22 +249,22 @@ func ErrorContaining(msg string, err error) Assertion {
 		switch {
 		case err == nil && args[0] == fmt.Sprintf("%q", msg):
 			return Result{
-				Success: false,
+				Ok:      false,
 				Message: fmt.Sprintf(`%v is nil; missing error message: %v`, args[1], msg),
 			}
 		case err == nil:
 			return Result{
-				Success: false,
+				Ok:      false,
 				Message: fmt.Sprintf(`%v is nil; missing error message %v: %v`, args[1], args[0], msg),
 			}
 		case strings.Contains(err.Error(), msg):
 			return Result{
-				Success: true,
+				Ok:      true,
 				Message: fmt.Sprintf("%v contains error message %q: %v", args[1], msg, err),
 			}
 		default:
 			return Result{
-				Success: false,
+				Ok:      false,
 				Message: fmt.Sprintf("%v does not contain error message %q: %v", args[1], msg, err),
 			}
 		}
@@ -278,20 +278,20 @@ func ErrorEqual(msg string, err error) Assertion {
 	return func() Result {
 		if err == nil {
 			return Result{
-				Success: false,
+				Ok:      false,
 				Message: fmt.Sprintf(`%v is nil; want message: %v`, args[1], msg),
 			}
 		}
 
 		if err.Error() == msg {
 			return Result{
-				Success: true,
+				Ok:      true,
 				Message: fmt.Sprintf("%v equals error message %q: %v", args[1], msg, err),
 			}
 		}
 
 		return Result{
-			Success: false,
+			Ok:      false,
 			Message: fmt.Sprintf("%v does not equal error message %q: %v", args[1], msg, err),
 		}
 	}
@@ -309,24 +309,24 @@ func JSONEqual[T ~string | ~[]byte](want, got T) Assertion {
 		switch diff {
 		case jsondiff.FullMatch:
 			return Result{
-				Success: true,
+				Ok:      true,
 				Message: fmt.Sprintf("%v and %v are JSON equal", args[0], args[1]),
 			}
 		case jsondiff.FirstArgIsInvalidJson:
 			return Result{
-				Success: false,
+				Ok: false,
 				Message: fmt.Sprintf(`%v is not valid JSON
 value: %s`, args[0], want),
 			}
 		case jsondiff.SecondArgIsInvalidJson:
 			return Result{
-				Success: false,
+				Ok: false,
 				Message: fmt.Sprintf(`%v is not valid JSON
 value: %s`, args[1], got),
 			}
 		case jsondiff.BothArgsAreInvalidJson:
 			return Result{
-				Success: false,
+				Ok: false,
 				Message: fmt.Sprintf(`%v and %v are not valid JSON
 want:
 %s
@@ -337,7 +337,7 @@ got:
 		}
 
 		return Result{
-			Success: false,
+			Ok:      false,
 			Message: msg,
 		}
 	}
@@ -349,7 +349,7 @@ func Len[T any](want int, got []T) Assertion {
 
 	return func() Result {
 		return Result{
-			Success: want == len(got),
+			Ok: want == len(got),
 			Message: fmt.Sprintf(`want %v length %d, got %d
 slice: %v
 `, args[1], want, len(got), sliceToString(got)),
@@ -366,14 +366,14 @@ func Panic(f func()) Assertion {
 			if r := recover(); r != nil {
 				if strings.Contains(args[0], "\n") {
 					result = Result{
-						Success: true,
+						Ok: true,
 						Message: fmt.Sprintf(`function panicked with value: %v
 %v
 `, r, args[0]),
 					}
 				} else {
 					result = Result{
-						Success: true,
+						Ok:      true,
 						Message: fmt.Sprintf(`function %v panicked with value: %v`, args[0], r),
 					}
 				}
@@ -384,7 +384,7 @@ func Panic(f func()) Assertion {
 
 		if strings.Contains(args[0], "\n") {
 			return Result{
-				Success: false,
+				Ok: false,
 				Message: fmt.Sprintf(`function did not panic
 %v
 `, args[0]),
@@ -392,7 +392,7 @@ func Panic(f func()) Assertion {
 		}
 
 		return Result{
-			Success: false,
+			Ok:      false,
 			Message: fmt.Sprintf("function %v did not panic", args[0]),
 		}
 	}
