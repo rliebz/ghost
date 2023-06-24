@@ -676,6 +676,38 @@ slice: [
 }
 
 func TestPanic(t *testing.T) {
-	// TODO: Write me
-	_ = t
+	t.Run("panic", func(t *testing.T) {
+		g := ghost.New(t)
+
+		f := func() { panic(errors.New("oh no")) }
+
+		result := ghost.Panic(f)()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("function f panicked with value: oh no", result.Message))
+
+		result = ghost.Panic(func() { panic(errors.New("oh no")) })()
+		g.Should(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`function panicked with value: oh no
+func() {
+	panic(errors.New("oh no"))
+}
+`, result.Message))
+	})
+
+	t.Run("no panic", func(t *testing.T) {
+		g := ghost.New(t)
+
+		f := func() {}
+
+		result := ghost.Panic(f)()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal("function f did not panic", result.Message))
+
+		result = ghost.Panic(func() {})()
+		g.ShouldNot(ghost.BeTrue(result.Success))
+		g.Should(ghost.Equal(`function did not panic
+func() {
+}
+`, result.Message))
+	})
 }

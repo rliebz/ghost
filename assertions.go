@@ -359,21 +359,41 @@ slice: %v
 
 // Panic asserts that the given function panics when invoked.
 func Panic(f func()) Assertion {
+	args := getArgsFromAST([]any{f})
+
 	return func() (result Result) {
 		defer func() {
 			if r := recover(); r != nil {
-				result = Result{
-					Success: true,
-					Message: fmt.Sprintf("function panicked with value: %q", r),
+				if strings.Contains(args[0], "\n") {
+					result = Result{
+						Success: true,
+						Message: fmt.Sprintf(`function panicked with value: %v
+%v
+`, r, args[0]),
+					}
+				} else {
+					result = Result{
+						Success: true,
+						Message: fmt.Sprintf(`function %v panicked with value: %v`, args[0], r),
+					}
 				}
 			}
 		}()
 
 		f()
 
+		if strings.Contains(args[0], "\n") {
+			return Result{
+				Success: false,
+				Message: fmt.Sprintf(`function did not panic
+%v
+`, args[0]),
+			}
+		}
+
 		return Result{
 			Success: false,
-			Message: "function did not panic",
+			Message: fmt.Sprintf("function %v did not panic", args[0]),
 		}
 	}
 }
