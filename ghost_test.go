@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/rliebz/ghost"
+	"github.com/rliebz/ghost/be"
 )
 
 func TestRunner_NoError(t *testing.T) {
@@ -17,15 +18,15 @@ func TestRunner_NoError(t *testing.T) {
 	myErr := errors.New("oh no")
 	testG.NoError(myErr)
 
-	if g.Should(ghost.Len(1, mockT.logCalls)) {
-		g.Should(ghost.DeepEqual(
+	if g.Should(be.Len(1, mockT.logCalls)) {
+		g.Should(be.DeepEqual(
 			[]any{"myErr has error value: oh no"},
 			mockT.logCalls[0],
 		))
 	}
 
-	g.Should(ghost.Len(0, mockT.failCalls))
-	g.Should(ghost.Len(1, mockT.failNowCalls))
+	g.Should(be.Len(0, mockT.failCalls))
+	g.Should(be.Len(1, mockT.failNowCalls))
 }
 
 type mockT struct {

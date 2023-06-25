@@ -5,31 +5,32 @@ import (
 	"testing"
 
 	"github.com/rliebz/ghost"
+	"github.com/rliebz/ghost/be"
 )
 
 func TestExample(t *testing.T) {
 	g := ghost.New(t)
 
-	g.Should(ghost.BeTrue(true))
-	g.ShouldNot(ghost.BeTrue(false))
+	g.Should(be.True(true))
+	g.ShouldNot(be.True(false))
 
-	g.Should(ghost.Equal(1+1, 2))
-	g.Should(ghost.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
-	g.Should(ghost.Contain([]int{1, 2, 3}, 2))
-	g.Should(ghost.ContainString("foobar", "foo"))
+	g.Should(be.Equal(1+1, 2))
+	g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
+	g.Should(be.Containing([]int{1, 2, 3}, 2))
+	g.Should(be.ContainingString("foobar", "foo"))
 
-	g.Should(ghost.Panic(func() { panic("oh no") }))
-	g.ShouldNot(ghost.Panic(func() {}))
+	g.Should(be.Panic(func() { panic("oh no") }))
+	g.ShouldNot(be.Panic(func() {}))
 
 	var err error
 	g.NoError(err)
-	g.Must(ghost.BeNil(err))
-	g.MustNot(ghost.Error(err))
+	g.Must(be.Nil(err))
+	g.MustNot(be.Error(err))
 
 	err = errors.New("oh my god")
-	g.Should(ghost.ErrorContaining("my god", err))
-	g.ShouldNot(ghost.ErrorContaining("steve", err))
+	g.Should(be.ErrorContaining("my god", err))
+	g.ShouldNot(be.ErrorContaining("steve", err))
 
-	g.Should(ghost.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
-	g.ShouldNot(ghost.JSONEqual(`{"a":1}`, `{"a":2}`))
+	g.Should(be.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
+	g.ShouldNot(be.JSONEqual(`{"a":1}`, `{"a":2}`))
 }

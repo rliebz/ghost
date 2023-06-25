@@ -1,6 +1,10 @@
 package ghost
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/rliebz/ghost/ghostlib"
+)
 
 // T is the subset of [*testing.T] used in assertions.
 //
@@ -80,7 +84,7 @@ func (r Runner) NoError(err error) {
 		h.Helper()
 	}
 
-	args := getArgsFromAST([]any{err})
+	args := ghostlib.ArgsFromAST([]any{err})
 
 	if err != nil {
 		r.t.Log(fmt.Sprintf("%s has error value: %s", args[0], err))
