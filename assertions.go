@@ -33,14 +33,20 @@ func BeInDelta[T constraints.Integer | constraints.Float](want, got, delta T) Re
 
 	if diff <= delta {
 		return Result{
-			Ok:      true,
-			Message: fmt.Sprintf("delta %v between %s and %s is within %v", diff, wantStr, gotStr, delta),
+			Ok: true,
+			Message: fmt.Sprintf(
+				"delta %v between %s and %s is within %v",
+				diff, wantStr, gotStr, delta,
+			),
 		}
 	}
 
 	return Result{
-		Ok:      false,
-		Message: fmt.Sprintf("delta %v between %s and %s is not within %v", diff, wantStr, gotStr, delta),
+		Ok: false,
+		Message: fmt.Sprintf(
+			"delta %v between %s and %s is not within %v",
+			diff, wantStr, gotStr, delta,
+		),
 	}
 }
 

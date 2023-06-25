@@ -614,11 +614,17 @@ func TestErrorContaining(t *testing.T) {
 
 		result := ghost.ErrorContaining(msg, err)
 		g.Should(ghost.BeTrue(result.Ok))
-		g.Should(ghost.Equal(`err contains error message "oob": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`err contains error message "oob": foobar`,
+			result.Message,
+		))
 
 		result = ghost.ErrorContaining("oob", errors.New("foobar"))
 		g.Should(ghost.BeTrue(result.Ok))
-		g.Should(ghost.Equal(`errors.New("foobar") contains error message "oob": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`errors.New("foobar") contains error message "oob": foobar`,
+			result.Message,
+		))
 	})
 
 	t.Run("does not contain", func(t *testing.T) {
@@ -629,11 +635,17 @@ func TestErrorContaining(t *testing.T) {
 
 		result := ghost.ErrorContaining(msg, err)
 		g.Should(ghost.BeFalse(result.Ok))
-		g.Should(ghost.Equal(`err does not contain error message "boo": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`err does not contain error message "boo": foobar`,
+			result.Message,
+		))
 
 		result = ghost.ErrorContaining("boo", errors.New("foobar"))
 		g.Should(ghost.BeFalse(result.Ok))
-		g.Should(ghost.Equal(`errors.New("foobar") does not contain error message "boo": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`errors.New("foobar") does not contain error message "boo": foobar`,
+			result.Message,
+		))
 	})
 
 	t.Run("nil", func(t *testing.T) {
@@ -661,11 +673,17 @@ func TestErrorEqual(t *testing.T) {
 
 		result := ghost.ErrorEqual(msg, err)
 		g.Should(ghost.BeTrue(result.Ok))
-		g.Should(ghost.Equal(`err equals error message "foobar": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`err equals error message "foobar": foobar`,
+			result.Message,
+		))
 
 		result = ghost.ErrorEqual("foobar", errors.New("foobar"))
 		g.Should(ghost.BeTrue(result.Ok))
-		g.Should(ghost.Equal(`errors.New("foobar") equals error message "foobar": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`errors.New("foobar") equals error message "foobar": foobar`,
+			result.Message,
+		))
 	})
 
 	t.Run("not equal", func(t *testing.T) {
@@ -676,11 +694,17 @@ func TestErrorEqual(t *testing.T) {
 
 		result := ghost.ErrorEqual(msg, err)
 		g.Should(ghost.BeFalse(result.Ok))
-		g.Should(ghost.Equal(`err does not equal error message "boo": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`err does not equal error message "boo": foobar`,
+			result.Message,
+		))
 
 		result = ghost.ErrorEqual("boo", errors.New("foobar"))
 		g.Should(ghost.BeFalse(result.Ok))
-		g.Should(ghost.Equal(`errors.New("foobar") does not equal error message "boo": foobar`, result.Message))
+		g.Should(ghost.Equal(
+			`errors.New("foobar") does not equal error message "boo": foobar`,
+			result.Message,
+		))
 	})
 
 	t.Run("nil", func(t *testing.T) {
