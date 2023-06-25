@@ -71,6 +71,16 @@ func BeTrue(b bool) Result {
 	}
 }
 
+// BeFalse asserts that a value is false.
+func BeFalse(b bool) Result {
+	args := getArgsFromAST([]any{b})
+
+	return Result{
+		Ok:      !b,
+		Message: fmt.Sprintf("%v is %t", args[0], b),
+	}
+}
+
 // BeZero asserts that the given value equals its zero value.
 func BeZero[T comparable](v T) Result {
 	args := getArgsFromAST([]any{v})

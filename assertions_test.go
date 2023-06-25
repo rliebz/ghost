@@ -44,14 +44,14 @@ func TestBeInDelta(t *testing.T) {
 		got := 32.0
 
 		result := ghost.BeInDelta(want, got, 0.3)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(
 			"delta 0.5 between want (32.5) and got (32) is not within 0.3",
 			result.Message,
 		))
 
 		result = ghost.BeInDelta(32.5, 32.0, 0.3)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(
 			"delta 0.5 between 32.5 and 32.0 is not within 0.3",
 			result.Message,
@@ -80,11 +80,11 @@ func TestBeNil(t *testing.T) {
 		var v int
 
 		result := ghost.BeNil(v)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal("v is 0, not nil", result.Message))
 
 		result = ghost.BeNil(-1 + 1)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal("-1 + 1 is 0, not nil", result.Message))
 	})
 }
@@ -108,11 +108,39 @@ func TestBeTrue(t *testing.T) {
 
 		v := false
 		result := ghost.BeTrue(v)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal("v is false", result.Message))
 
 		result = ghost.BeTrue(false)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
+		g.Should(ghost.Equal("false is false", result.Message))
+	})
+}
+
+func TestBeFalse(t *testing.T) {
+	t.Run("true", func(t *testing.T) {
+		g := ghost.New(t)
+
+		v := true
+		result := ghost.BeFalse(v)
+		g.Should(ghost.BeFalse(result.Ok))
+		g.Should(ghost.Equal("v is true", result.Message))
+
+		result = ghost.BeFalse(true)
+		g.Should(ghost.BeFalse(result.Ok))
+		g.Should(ghost.Equal("true is true", result.Message))
+	})
+
+	t.Run("false", func(t *testing.T) {
+		g := ghost.New(t)
+
+		v := false
+		result := ghost.BeFalse(v)
+		g.Should(ghost.BeTrue(result.Ok))
+		g.Should(ghost.Equal("v is false", result.Message))
+
+		result = ghost.BeFalse(false)
+		g.Should(ghost.BeTrue(result.Ok))
 		g.Should(ghost.Equal("false is false", result.Message))
 	})
 }
@@ -136,11 +164,11 @@ func TestBeZero(t *testing.T) {
 
 		v := 1
 		result := ghost.BeZero(v)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal("v is non-zero\nvalue: 1", result.Message))
 
 		result = ghost.BeZero(1)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal("1 is non-zero", result.Message))
 	})
 }
@@ -205,14 +233,14 @@ element: 2
 		elem := 5
 
 		result := ghost.Contain(slice, elem)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`slice does not contain elem
 slice:   [1 2 3]
 element: 5
 `, result.Message))
 
 		result = ghost.Contain([]int{1, 2, 3}, 5)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`[]int{1, 2, 3} does not contain 5
 slice:   [1 2 3]
 element: 5
@@ -226,7 +254,7 @@ element: 5
 		elem := 5
 
 		result := ghost.Contain(slice, elem)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`slice does not contain elem
 slice:   [
 	1
@@ -238,7 +266,7 @@ element: 5
 `, result.Message))
 
 		result = ghost.Contain([]int{1, 2, 3, 4}, 5)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`[]int{1, 2, 3, 4} does not contain 5
 slice:   [
 	1
@@ -280,14 +308,14 @@ substr: "oob"
 		inner := "boo"
 
 		result := ghost.ContainString(outer, inner)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`outer does not contain inner
 str:    "foobar"
 substr: "boo"
 `, result.Message))
 
 		result = ghost.ContainString("foobar", "boo")
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`"foobar" does not contain "boo"
 str:    "foobar"
 substr: "boo"
@@ -355,7 +383,7 @@ value: {foo [1]}
 		got := T{"bar", 0}
 
 		result := ghost.DeepEqual(want, got)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		// Keep the diff small, because we don't want to test cmp.Diff
 		wantText := `want != got
@@ -372,7 +400,7 @@ diff (-want +got):
 		g.Should(ghost.Equal(wantText, result.Message))
 
 		result = ghost.DeepEqual(T{"foo", 1}, T{"bar", 0})
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText = `T{"foo", 1} != T{"bar", 0}
 diff (-want +got):
@@ -421,7 +449,7 @@ value: {foo 1}
 		got := 0
 
 		result := ghost.Equal(want, got)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText := `want != got
 want: 1
@@ -430,7 +458,7 @@ got:  0
 		g.Should(ghost.Equal(wantText, result.Message))
 
 		result = ghost.Equal(1, 0)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText = `1 != 0
 want: 1
@@ -446,7 +474,7 @@ got:  0
 		got := "bar"
 
 		result := ghost.Equal(want, got)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText := `want != got
 want: "foo"
@@ -455,7 +483,7 @@ got:  "bar"
 		g.Should(ghost.Equal(wantText, result.Message))
 
 		result = ghost.Equal("foo", "bar")
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText = `"foo" != "bar"
 want: "foo"
@@ -471,7 +499,7 @@ got:  "bar"
 		got := "bar"
 
 		result := ghost.Equal(want, got)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText := `want != got
 want: ` + `
@@ -486,7 +514,7 @@ got:  "bar"
 		g.Should(ghost.Equal(wantText, result.Message))
 
 		result = ghost.Equal("foo\nbar\nbaz", "bar")
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText = `"foo\nbar\nbaz" != "bar"
 want: ` + `
@@ -513,7 +541,7 @@ got:  "bar"
 		got := T{"bar", 0}
 
 		result := ghost.Equal(want, got)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		// Keep the diff small, because we don't want to test cmp.Diff
 		wantText := `want != got
@@ -530,7 +558,7 @@ diff (-want +got):
 		g.Should(ghost.Equal(wantText, result.Message))
 
 		result = ghost.Equal(T{"foo", 1}, T{"bar", 0})
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 
 		wantText = `T{"foo", 1} != T{"bar", 0}
 diff (-want +got):
@@ -568,11 +596,11 @@ func TestError(t *testing.T) {
 		var err error
 
 		result := ghost.Error(err)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`err is nil`, result.Message))
 
 		result = ghost.Error(nil)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`nil is nil`, result.Message))
 	})
 }
@@ -600,11 +628,11 @@ func TestErrorContaining(t *testing.T) {
 		msg := "boo"
 
 		result := ghost.ErrorContaining(msg, err)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`err does not contain error message "boo": foobar`, result.Message))
 
 		result = ghost.ErrorContaining("boo", errors.New("foobar"))
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`errors.New("foobar") does not contain error message "boo": foobar`, result.Message))
 	})
 
@@ -615,11 +643,11 @@ func TestErrorContaining(t *testing.T) {
 		msg := "boo"
 
 		result := ghost.ErrorContaining(msg, err)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`err is nil; missing error message msg: boo`, result.Message))
 
 		result = ghost.ErrorContaining("boo", nil)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`nil is nil; missing error message: boo`, result.Message))
 	})
 }
@@ -647,11 +675,11 @@ func TestErrorEqual(t *testing.T) {
 		msg := "boo"
 
 		result := ghost.ErrorEqual(msg, err)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`err does not equal error message "boo": foobar`, result.Message))
 
 		result = ghost.ErrorEqual("boo", errors.New("foobar"))
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`errors.New("foobar") does not equal error message "boo": foobar`, result.Message))
 	})
 
@@ -662,11 +690,11 @@ func TestErrorEqual(t *testing.T) {
 		msg := "boo"
 
 		result := ghost.ErrorEqual(msg, err)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`err is nil; want message: boo`, result.Message))
 
 		result = ghost.ErrorEqual("boo", nil)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`nil is nil; want message: boo`, result.Message))
 	})
 }
@@ -751,11 +779,11 @@ func() {
 		f := func() {}
 
 		result := ghost.Panic(f)
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal("function f did not panic", result.Message))
 
 		result = ghost.Panic(func() {})
-		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.BeFalse(result.Ok))
 		g.Should(ghost.Equal(`function did not panic
 func() {
 }
