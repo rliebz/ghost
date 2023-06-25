@@ -22,12 +22,10 @@ func New(t T) Runner {
 }
 
 // Should runs an assertion, returning true if the assertion was successful.
-func (r Runner) Should(a Assertion) bool {
+func (r Runner) Should(result Result) bool {
 	if h, ok := r.t.(interface{ Helper() }); ok {
 		h.Helper()
 	}
-
-	result := a()
 
 	if !result.Ok {
 		r.t.Log(result.Message)
@@ -40,12 +38,10 @@ func (r Runner) Should(a Assertion) bool {
 
 // ShouldNot runs an assertion that should not be successful, returning true if
 // the assertion was not successful.
-func (r Runner) ShouldNot(a Assertion) bool {
+func (r Runner) ShouldNot(result Result) bool {
 	if h, ok := r.t.(interface{ Helper() }); ok {
 		h.Helper()
 	}
-
-	result := a()
 
 	if result.Ok {
 		r.t.Log(result.Message)
@@ -57,23 +53,23 @@ func (r Runner) ShouldNot(a Assertion) bool {
 }
 
 // Must runs an assertion that must be successful, failing the test if it is not.
-func (r Runner) Must(a Assertion) {
+func (r Runner) Must(result Result) {
 	if h, ok := r.t.(interface{ Helper() }); ok {
 		h.Helper()
 	}
 
-	if !r.Should(a) {
+	if !r.Should(result) {
 		r.t.FailNow()
 	}
 }
 
 // MustNot runs an assertion that must not be successful, failing the test if it is.
-func (r Runner) MustNot(a Assertion) {
+func (r Runner) MustNot(result Result) {
 	if h, ok := r.t.(interface{ Helper() }); ok {
 		h.Helper()
 	}
 
-	if !r.ShouldNot(a) {
+	if !r.ShouldNot(result) {
 		r.t.FailNow()
 	}
 }
@@ -92,10 +88,7 @@ func (r Runner) NoError(err error) {
 	}
 }
 
-// An Assertion is any function that returns a result.
-type Assertion func() Result
-
-// A Result represents the result of an assertion.
+// An Result represents the result of an assertion.
 type Result struct {
 	// Ok returns whether the assertion was successful.
 	Ok bool
@@ -103,6 +96,6 @@ type Result struct {
 	// Message returns a message describing the assertion.
 	//
 	// A message is required regardless of whether or not the failure was
-	// successful, as results can be negated.
+	// successful.
 	Message string
 }
