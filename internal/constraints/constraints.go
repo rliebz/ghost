@@ -1,5 +1,5 @@
 /*
-Constraints provides constraints until the stdlib adds them.
+Package constraints provides constraints until the stdlib adds them.
 */
 package constraints
 
