@@ -8,6 +8,57 @@ import (
 	"github.com/rliebz/ghost"
 )
 
+func TestBeInDelta(t *testing.T) {
+	t.Run("in delta", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := 32.5
+		got := 32.0
+
+		result := ghost.BeInDelta(want, got, 1)()
+		g.Should(ghost.BeTrue(result.Ok))
+		g.Should(ghost.Equal(
+			"delta 0.5 between want (32.5) and got (32) is within 1",
+			result.Message,
+		))
+
+		result = ghost.BeInDelta(32.5, 32.0, 1.0)()
+		g.Should(ghost.BeTrue(result.Ok))
+		g.Should(ghost.Equal(
+			"delta 0.5 between 32.5 and 32.0 is within 1",
+			result.Message,
+		))
+
+		result = ghost.BeInDelta(32.0, 32.5, 1.0)()
+		g.Should(ghost.BeTrue(result.Ok))
+		g.Should(ghost.Equal(
+			"delta 0.5 between 32.0 and 32.5 is within 1",
+			result.Message,
+		))
+	})
+
+	t.Run("not in delta", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := 32.5
+		got := 32.0
+
+		result := ghost.BeInDelta(want, got, 0.3)()
+		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.Equal(
+			"delta 0.5 between want (32.5) and got (32) is not within 0.3",
+			result.Message,
+		))
+
+		result = ghost.BeInDelta(32.5, 32.0, 0.3)()
+		g.ShouldNot(ghost.BeTrue(result.Ok))
+		g.Should(ghost.Equal(
+			"delta 0.5 between 32.5 and 32.0 is not within 0.3",
+			result.Message,
+		))
+	})
+}
+
 func TestBeNil(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		g := ghost.New(t)

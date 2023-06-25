@@ -3,11 +3,48 @@ package ghost
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/nsf/jsondiff"
+
+	"github.com/rliebz/ghost/internal/constraints"
 )
+
+// BeInDelta asserts that a value is within a delta of another.
+func BeInDelta[T constraints.Integer | constraints.Float](want, got, delta T) Assertion {
+	args := getArgsFromAST([]any{want, got, delta})
+
+	return func() Result {
+		diff := want - got
+		if diff < 0 {
+			diff = 0 - diff
+		}
+
+		wantStr := args[0]
+		if _, err := strconv.ParseFloat(wantStr, 64); err != nil {
+			wantStr = fmt.Sprintf("%s (%v)", wantStr, want)
+		}
+
+		gotStr := args[1]
+		if _, err := strconv.ParseFloat(gotStr, 64); err != nil {
+			gotStr = fmt.Sprintf("%s (%v)", gotStr, got)
+		}
+
+		if diff <= delta {
+			return Result{
+				Ok:      true,
+				Message: fmt.Sprintf("delta %v between %s and %s is within %v", diff, wantStr, gotStr, delta),
+			}
+		}
+
+		return Result{
+			Ok:      false,
+			Message: fmt.Sprintf("delta %v between %s and %s is not within %v", diff, wantStr, gotStr, delta),
+		}
+	}
+}
 
 // BeNil asserts that the given value is nil.
 func BeNil(v any) Assertion {
