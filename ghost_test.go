@@ -9,6 +9,166 @@ import (
 	"github.com/rliebz/ghost/be"
 )
 
+func TestRunner_Should(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		ok := testG.Should(ghost.Result{
+			Ok:      true,
+			Message: msg,
+		})
+
+		g.Should(be.True(ok))
+		g.Should(be.Len(0, mockT.logCalls))
+		g.Should(be.Len(0, mockT.failCalls))
+		g.Should(be.Len(0, mockT.failNowCalls))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		ok := testG.Should(ghost.Result{
+			Ok:      false,
+			Message: msg,
+		})
+
+		g.Should(be.False(ok))
+		g.Should(be.Len(0, mockT.failNowCalls))
+
+		g.Should(be.DeepEqual(
+			[][]any{{msg}},
+			mockT.logCalls,
+		))
+		g.Should(be.Len(1, mockT.failCalls))
+	})
+}
+
+func TestRunner_ShouldNot(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		ok := testG.ShouldNot(ghost.Result{
+			Ok:      true,
+			Message: msg,
+		})
+
+		g.Should(be.False(ok))
+		g.Should(be.Len(0, mockT.failNowCalls))
+
+		g.Should(be.DeepEqual(
+			[][]any{{msg}},
+			mockT.logCalls,
+		))
+		g.Should(be.Len(1, mockT.failCalls))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		ok := testG.ShouldNot(ghost.Result{
+			Ok:      false,
+			Message: msg,
+		})
+
+		g.Should(be.True(ok))
+		g.Should(be.Len(0, mockT.logCalls))
+		g.Should(be.Len(0, mockT.failCalls))
+		g.Should(be.Len(0, mockT.failNowCalls))
+	})
+}
+
+func TestRunner_Must(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		testG.Must(ghost.Result{
+			Ok:      true,
+			Message: msg,
+		})
+
+		g.Should(be.Len(0, mockT.logCalls))
+		g.Should(be.Len(0, mockT.failCalls))
+		g.Should(be.Len(0, mockT.failNowCalls))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		testG.Must(ghost.Result{
+			Ok:      false,
+			Message: msg,
+		})
+
+		g.Should(be.Len(1, mockT.failNowCalls))
+		g.Should(be.DeepEqual(
+			[][]any{{msg}},
+			mockT.logCalls,
+		))
+	})
+}
+
+func TestRunner_MustNot(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		testG.MustNot(ghost.Result{
+			Ok:      true,
+			Message: msg,
+		})
+
+		g.Should(be.Len(1, mockT.failNowCalls))
+		g.Should(be.DeepEqual(
+			[][]any{{msg}},
+			mockT.logCalls,
+		))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		testG.MustNot(ghost.Result{
+			Ok:      false,
+			Message: msg,
+		})
+
+		g.Should(be.Len(0, mockT.logCalls))
+		g.Should(be.Len(0, mockT.failCalls))
+		g.Should(be.Len(0, mockT.failNowCalls))
+	})
+}
+
 func TestRunner_NoError(t *testing.T) {
 	g := ghost.New(t)
 
