@@ -188,7 +188,7 @@ func TestDeepEqual(t *testing.T) {
 
 		type T struct {
 			A string
-			B []int
+			b []int
 		}
 
 		want := T{"foo", []int{1, 2}}
@@ -212,7 +212,7 @@ value: {foo [1]}
 
 		type T struct {
 			A string
-			B int
+			b int
 		}
 
 		want := T{"foo", 1}
@@ -227,8 +227,8 @@ diff (-want +got):
   be_test.T{
 - 	A: "foo",
 + 	A: "bar",
-- 	B: 1,
-+ 	B: 0,
+- 	b: 1,
++ 	b: 0,
   }
 
 `
@@ -243,8 +243,8 @@ diff (-want +got):
   be_test.T{
 - 	A: "foo",
 + 	A: "bar",
-- 	B: 1,
-+ 	B: 0,
+- 	b: 1,
++ 	b: 0,
   }
 
 `

@@ -110,7 +110,10 @@ func quoteString(s string) string {
 func DeepEqual[T any](want, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST([]any{want, got})
 
-	if diff := cmp.Diff(want, got); diff != "" {
+	if diff := cmp.Diff(
+		want, got,
+		cmp.Exporter(func(reflect.Type) bool { return true }),
+	); diff != "" {
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v != %v
