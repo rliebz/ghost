@@ -643,56 +643,6 @@ func TestJSONEqual(t *testing.T) {
 	_ = t
 }
 
-func TestLen(t *testing.T) {
-	t.Run("equal <= 3", func(t *testing.T) {
-		g := ghost.New(t)
-
-		wantLen := 3
-		slice := []string{"a", "b", "c"}
-
-		result := be.Len(wantLen, slice)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`want slice length 3, got 3
-slice: [a b c]
-`, result.Message))
-
-		result = be.Len(3, []string{"a", "b", "c"})
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`want []string{"a", "b", "c"} length 3, got 3
-slice: [a b c]
-`, result.Message))
-	})
-
-	t.Run("equal > 3", func(t *testing.T) {
-		g := ghost.New(t)
-
-		wantLen := 4
-		slice := []string{"a", "b", "c", "d"}
-
-		result := be.Len(wantLen, slice)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`want slice length 4, got 4
-slice: [
-	a
-	b
-	c
-	d
-]
-`, result.Message))
-
-		result = be.Len(4, []string{"a", "b", "c", "d"})
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`want []string{"a", "b", "c", "d"} length 4, got 4
-slice: [
-	a
-	b
-	c
-	d
-]
-`, result.Message))
-	})
-}
-
 func TestNil(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		g := ghost.New(t)
@@ -756,6 +706,56 @@ func() {
 		g.Should(be.Equal(`function did not panic
 func() {
 }
+`, result.Message))
+	})
+}
+
+func TestSliceLen(t *testing.T) {
+	t.Run("equal <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 3
+		slice := []string{"a", "b", "c"}
+
+		result := be.SliceLen(wantLen, slice)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`want slice length 3, got 3
+slice: [a b c]
+`, result.Message))
+
+		result = be.SliceLen(3, []string{"a", "b", "c"})
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`want []string{"a", "b", "c"} length 3, got 3
+slice: [a b c]
+`, result.Message))
+	})
+
+	t.Run("equal > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 4
+		slice := []string{"a", "b", "c", "d"}
+
+		result := be.SliceLen(wantLen, slice)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`want slice length 4, got 4
+slice: [
+	a
+	b
+	c
+	d
+]
+`, result.Message))
+
+		result = be.SliceLen(4, []string{"a", "b", "c", "d"})
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`want []string{"a", "b", "c", "d"} length 4, got 4
+slice: [
+	a
+	b
+	c
+	d
+]
 `, result.Message))
 	})
 }

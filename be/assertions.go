@@ -346,35 +346,6 @@ got:
 	}
 }
 
-// Len asserts that the length of a slice is a particular size.
-func Len[T any](want int, got []T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{want, got})
-
-	return ghost.Result{
-		Ok: want == len(got),
-		Message: fmt.Sprintf(`want %v length %d, got %d
-slice: %v
-`, args[1], want, len(got), sliceToString(got)),
-	}
-}
-
-// sliceToString pretty prints a slice.
-func sliceToString[T any](slice []T) string {
-	if len(slice) <= 3 {
-		return fmt.Sprint(slice)
-	}
-
-	var sb strings.Builder
-	sb.WriteString("[\n")
-	for _, e := range slice {
-		sb.WriteByte('\t')
-		fmt.Fprint(&sb, e)
-		sb.WriteByte('\n')
-	}
-	sb.WriteString("]")
-	return sb.String()
-}
-
 // Nil asserts that the given value is nil.
 func Nil(v any) ghost.Result {
 	args := ghostlib.ArgsFromAST([]any{v})
@@ -429,6 +400,35 @@ func Panic(f func()) (result ghost.Result) {
 		Ok:      false,
 		Message: fmt.Sprintf("function %v did not panic", args[0]),
 	}
+}
+
+// SliceLen asserts that the length of a slice is a particular size.
+func SliceLen[T any](want int, got []T) ghost.Result {
+	args := ghostlib.ArgsFromAST([]any{want, got})
+
+	return ghost.Result{
+		Ok: want == len(got),
+		Message: fmt.Sprintf(`want %v length %d, got %d
+slice: %v
+`, args[1], want, len(got), sliceToString(got)),
+	}
+}
+
+// sliceToString pretty prints a slice.
+func sliceToString[T any](slice []T) string {
+	if len(slice) <= 3 {
+		return fmt.Sprint(slice)
+	}
+
+	var sb strings.Builder
+	sb.WriteString("[\n")
+	for _, e := range slice {
+		sb.WriteByte('\t')
+		fmt.Fprint(&sb, e)
+		sb.WriteByte('\n')
+	}
+	sb.WriteString("]")
+	return sb.String()
 }
 
 // True asserts that a value is true.

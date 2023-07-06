@@ -23,9 +23,9 @@ func TestRunner_Should(t *testing.T) {
 		})
 
 		g.Should(be.True(ok))
-		g.Should(be.Len(0, mockT.logCalls))
-		g.Should(be.Len(0, mockT.failCalls))
-		g.Should(be.Len(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(0, mockT.logCalls))
+		g.Should(be.SliceLen(0, mockT.failCalls))
+		g.Should(be.SliceLen(0, mockT.failNowCalls))
 	})
 
 	t.Run("not ok", func(t *testing.T) {
@@ -41,13 +41,13 @@ func TestRunner_Should(t *testing.T) {
 		})
 
 		g.Should(be.False(ok))
-		g.Should(be.Len(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(0, mockT.failNowCalls))
 
 		g.Should(be.DeepEqual(
 			[][]any{{msg}},
 			mockT.logCalls,
 		))
-		g.Should(be.Len(1, mockT.failCalls))
+		g.Should(be.SliceLen(1, mockT.failCalls))
 	})
 }
 
@@ -65,13 +65,13 @@ func TestRunner_ShouldNot(t *testing.T) {
 		})
 
 		g.Should(be.False(ok))
-		g.Should(be.Len(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(0, mockT.failNowCalls))
 
 		g.Should(be.DeepEqual(
 			[][]any{{msg}},
 			mockT.logCalls,
 		))
-		g.Should(be.Len(1, mockT.failCalls))
+		g.Should(be.SliceLen(1, mockT.failCalls))
 	})
 
 	t.Run("not ok", func(t *testing.T) {
@@ -87,9 +87,9 @@ func TestRunner_ShouldNot(t *testing.T) {
 		})
 
 		g.Should(be.True(ok))
-		g.Should(be.Len(0, mockT.logCalls))
-		g.Should(be.Len(0, mockT.failCalls))
-		g.Should(be.Len(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(0, mockT.logCalls))
+		g.Should(be.SliceLen(0, mockT.failCalls))
+		g.Should(be.SliceLen(0, mockT.failNowCalls))
 	})
 }
 
@@ -106,9 +106,9 @@ func TestRunner_Must(t *testing.T) {
 			Message: msg,
 		})
 
-		g.Should(be.Len(0, mockT.logCalls))
-		g.Should(be.Len(0, mockT.failCalls))
-		g.Should(be.Len(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(0, mockT.logCalls))
+		g.Should(be.SliceLen(0, mockT.failCalls))
+		g.Should(be.SliceLen(0, mockT.failNowCalls))
 	})
 
 	t.Run("not ok", func(t *testing.T) {
@@ -123,7 +123,7 @@ func TestRunner_Must(t *testing.T) {
 			Message: msg,
 		})
 
-		g.Should(be.Len(1, mockT.failNowCalls))
+		g.Should(be.SliceLen(1, mockT.failNowCalls))
 		g.Should(be.DeepEqual(
 			[][]any{{msg}},
 			mockT.logCalls,
@@ -144,7 +144,7 @@ func TestRunner_MustNot(t *testing.T) {
 			Message: msg,
 		})
 
-		g.Should(be.Len(1, mockT.failNowCalls))
+		g.Should(be.SliceLen(1, mockT.failNowCalls))
 		g.Should(be.DeepEqual(
 			[][]any{{msg}},
 			mockT.logCalls,
@@ -163,9 +163,9 @@ func TestRunner_MustNot(t *testing.T) {
 			Message: msg,
 		})
 
-		g.Should(be.Len(0, mockT.logCalls))
-		g.Should(be.Len(0, mockT.failCalls))
-		g.Should(be.Len(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(0, mockT.logCalls))
+		g.Should(be.SliceLen(0, mockT.failCalls))
+		g.Should(be.SliceLen(0, mockT.failNowCalls))
 	})
 }
 
@@ -178,15 +178,15 @@ func TestRunner_NoError(t *testing.T) {
 	myErr := errors.New("oh no")
 	testG.NoError(myErr)
 
-	if g.Should(be.Len(1, mockT.logCalls)) {
+	if g.Should(be.SliceLen(1, mockT.logCalls)) {
 		g.Should(be.DeepEqual(
 			[]any{"myErr has error value: oh no"},
 			mockT.logCalls[0],
 		))
 	}
 
-	g.Should(be.Len(0, mockT.failCalls))
-	g.Should(be.Len(1, mockT.failNowCalls))
+	g.Should(be.SliceLen(0, mockT.failCalls))
+	g.Should(be.SliceLen(1, mockT.failNowCalls))
 }
 
 type mockT struct {
