@@ -14,98 +14,6 @@ import (
 	"github.com/rliebz/ghost/internal/constraints"
 )
 
-// Containing asserts that a slice contains a particular element.
-func Containing[T comparable](element T, slice []T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{element, slice})
-
-	for _, x := range slice {
-		if x == element {
-			return ghost.Result{
-				Ok: true,
-				Message: fmt.Sprintf(`%v contains %v
-element: %v
-slice:   %v
-`,
-					args[1],
-					args[0],
-					element,
-					sliceElementToString(slice, element),
-				),
-			}
-		}
-	}
-
-	return ghost.Result{
-		Ok: false,
-		Message: fmt.Sprintf(`%v does not contain %v
-element: %v
-slice:   %v
-`,
-			args[1],
-			args[0],
-			element,
-			sliceElementToString(slice, element),
-		),
-	}
-}
-
-// sliceElementToString pretty prints a slice, highlighting an element if it exists.
-func sliceElementToString[T comparable](slice []T, element T) string {
-	if len(slice) <= 3 {
-		return fmt.Sprint(slice)
-	}
-
-	var sb strings.Builder
-	sb.WriteString("[\n")
-	for _, e := range slice {
-		if e == element {
-			sb.WriteByte('>')
-		}
-
-		sb.WriteByte('\t')
-		fmt.Fprint(&sb, e)
-		sb.WriteByte('\n')
-	}
-	sb.WriteString("]")
-	return sb.String()
-}
-
-// ContainingString asserts that a string contains a particular substring.
-func ContainingString(substr, str string) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{substr, str})
-
-	if strings.Contains(str, substr) {
-		return ghost.Result{
-			Ok: true,
-			Message: fmt.Sprintf(`%v contains %v
-substr: %s
-str:    %s
-`, args[1], args[0], quoteString(substr), quoteString(str)),
-		}
-	}
-
-	return ghost.Result{
-		Ok: false,
-		Message: fmt.Sprintf(`%v does not contain %v
-substr: %s
-str:    %s
-`, args[1], args[0], quoteString(substr), quoteString(str)),
-	}
-}
-
-// quoteString prints a string as a single quoted line, or multiline block.
-func quoteString(s string) string {
-	if strings.ContainsAny(s, "\n\r") {
-		return fmt.Sprintf(`
-"""
-%s
-"""
-`, s)
-	}
-
-	return fmt.Sprintf("%q", s)
-}
-
 // DeepEqual asserts that two elements are deeply equal.
 func DeepEqual[T any](want, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST([]any{want, got})
@@ -183,6 +91,19 @@ want: %v
 got:  %v
 `, args[0], args[1], want, got),
 	}
+}
+
+// quoteString prints a string as a single quoted line, or multiline block.
+func quoteString(s string) string {
+	if strings.ContainsAny(s, "\n\r") {
+		return fmt.Sprintf(`
+"""
+%s
+"""
+`, s)
+	}
+
+	return fmt.Sprintf("%q", s)
 }
 
 // Error asserts that an error is non-nil.
@@ -299,6 +220,85 @@ func InDelta[T constraints.Integer | constraints.Float](want, got, delta T) ghos
 			"delta %v between %s and %s is not within %v",
 			diff, wantStr, gotStr, delta,
 		),
+	}
+}
+
+// InSlice asserts that an element exists in a given slice.
+func InSlice[T comparable](element T, slice []T) ghost.Result {
+	args := ghostlib.ArgsFromAST([]any{element, slice})
+
+	for _, x := range slice {
+		if x == element {
+			return ghost.Result{
+				Ok: true,
+				Message: fmt.Sprintf(`%v contains %v
+element: %v
+slice:   %v
+`,
+					args[1],
+					args[0],
+					element,
+					sliceElementToString(slice, element),
+				),
+			}
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(`%v does not contain %v
+element: %v
+slice:   %v
+`,
+			args[1],
+			args[0],
+			element,
+			sliceElementToString(slice, element),
+		),
+	}
+}
+
+// sliceElementToString pretty prints a slice, highlighting an element if it exists.
+func sliceElementToString[T comparable](slice []T, element T) string {
+	if len(slice) <= 3 {
+		return fmt.Sprint(slice)
+	}
+
+	var sb strings.Builder
+	sb.WriteString("[\n")
+	for _, e := range slice {
+		if e == element {
+			sb.WriteByte('>')
+		}
+
+		sb.WriteByte('\t')
+		fmt.Fprint(&sb, e)
+		sb.WriteByte('\n')
+	}
+	sb.WriteString("]")
+	return sb.String()
+}
+
+// InString asserts that a substring exists in a given string.
+func InString(substr, str string) ghost.Result {
+	args := ghostlib.ArgsFromAST([]any{substr, str})
+
+	if strings.Contains(str, substr) {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(`%v contains %v
+substr: %s
+str:    %s
+`, args[1], args[0], quoteString(substr), quoteString(str)),
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(`%v does not contain %v
+substr: %s
+str:    %s
+`, args[1], args[0], quoteString(substr), quoteString(str)),
 	}
 }
 
