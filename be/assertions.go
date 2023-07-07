@@ -15,21 +15,21 @@ import (
 )
 
 // Containing asserts that a slice contains a particular element.
-func Containing[T comparable](slice []T, element T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{slice, element})
+func Containing[T comparable](element T, slice []T) ghost.Result {
+	args := ghostlib.ArgsFromAST([]any{element, slice})
 
 	for _, x := range slice {
 		if x == element {
 			return ghost.Result{
 				Ok: true,
 				Message: fmt.Sprintf(`%v contains %v
-slice:   %v
 element: %v
+slice:   %v
 `,
-					args[0],
 					args[1],
-					sliceElementToString(slice, element),
+					args[0],
 					element,
+					sliceElementToString(slice, element),
 				),
 			}
 		}
@@ -38,13 +38,13 @@ element: %v
 	return ghost.Result{
 		Ok: false,
 		Message: fmt.Sprintf(`%v does not contain %v
-slice:   %v
 element: %v
+slice:   %v
 `,
-			args[0],
 			args[1],
-			sliceElementToString(slice, element),
+			args[0],
 			element,
+			sliceElementToString(slice, element),
 		),
 	}
 }
@@ -71,25 +71,25 @@ func sliceElementToString[T comparable](slice []T, element T) string {
 }
 
 // ContainingString asserts that a string contains a particular substring.
-func ContainingString(str, substr string) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{str, substr})
+func ContainingString(substr, str string) ghost.Result {
+	args := ghostlib.ArgsFromAST([]any{substr, str})
 
 	if strings.Contains(str, substr) {
 		return ghost.Result{
 			Ok: true,
 			Message: fmt.Sprintf(`%v contains %v
-str:    %s
 substr: %s
-`, args[0], args[1], quoteString(str), quoteString(substr)),
+str:    %s
+`, args[1], args[0], quoteString(substr), quoteString(str)),
 		}
 	}
 
 	return ghost.Result{
 		Ok: false,
 		Message: fmt.Sprintf(`%v does not contain %v
-str:    %s
 substr: %s
-`, args[0], args[1], quoteString(str), quoteString(substr)),
+str:    %s
+`, args[1], args[0], quoteString(substr), quoteString(str)),
 	}
 }
 

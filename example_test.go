@@ -16,8 +16,8 @@ func TestExample(t *testing.T) {
 
 	g.Should(be.Equal(1+1, 2))
 	g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
-	g.Should(be.Containing([]int{1, 2, 3}, 2))
-	g.Should(be.ContainingString("foobar", "foo"))
+	g.Should(be.Containing(2, []int{1, 2, 3}))
+	g.Should(be.ContainingString("foo", "foobar"))
 
 	g.Should(be.Panic(func() { panic("oh no") }))
 	g.ShouldNot(be.Panic(func() {}))

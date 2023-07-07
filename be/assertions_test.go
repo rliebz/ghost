@@ -16,18 +16,18 @@ func TestContaining(t *testing.T) {
 		slice := []int{1, 2, 3}
 		elem := 2
 
-		result := be.Containing(slice, elem)
+		result := be.Containing(elem, slice)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`slice contains elem
-slice:   [1 2 3]
 element: 2
+slice:   [1 2 3]
 `, result.Message))
 
-		result = be.Containing([]int{1, 2, 3}, 2)
+		result = be.Containing(2, []int{1, 2, 3})
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`[]int{1, 2, 3} contains 2
-slice:   [1 2 3]
 element: 2
+slice:   [1 2 3]
 `, result.Message))
 	})
 
@@ -37,28 +37,28 @@ element: 2
 		slice := []int{1, 2, 3, 4}
 		elem := 2
 
-		result := be.Containing(slice, elem)
+		result := be.Containing(elem, slice)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`slice contains elem
+element: 2
 slice:   [
 	1
 >	2
 	3
 	4
 ]
-element: 2
 `, result.Message))
 
-		result = be.Containing([]int{1, 2, 3, 4}, 2)
+		result = be.Containing(2, []int{1, 2, 3, 4})
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`[]int{1, 2, 3, 4} contains 2
+element: 2
 slice:   [
 	1
 >	2
 	3
 	4
 ]
-element: 2
 `, result.Message))
 	})
 
@@ -68,18 +68,18 @@ element: 2
 		slice := []int{1, 2, 3}
 		elem := 5
 
-		result := be.Containing(slice, elem)
+		result := be.Containing(elem, slice)
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(`slice does not contain elem
-slice:   [1 2 3]
 element: 5
+slice:   [1 2 3]
 `, result.Message))
 
-		result = be.Containing([]int{1, 2, 3}, 5)
+		result = be.Containing(5, []int{1, 2, 3})
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(`[]int{1, 2, 3} does not contain 5
-slice:   [1 2 3]
 element: 5
+slice:   [1 2 3]
 `, result.Message))
 	})
 
@@ -89,28 +89,28 @@ element: 5
 		slice := []int{1, 2, 3, 4}
 		elem := 5
 
-		result := be.Containing(slice, elem)
+		result := be.Containing(elem, slice)
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(`slice does not contain elem
+element: 5
 slice:   [
 	1
 	2
 	3
 	4
 ]
-element: 5
 `, result.Message))
 
-		result = be.Containing([]int{1, 2, 3, 4}, 5)
+		result = be.Containing(5, []int{1, 2, 3, 4})
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(`[]int{1, 2, 3, 4} does not contain 5
+element: 5
 slice:   [
 	1
 	2
 	3
 	4
 ]
-element: 5
 `, result.Message))
 	})
 }
@@ -122,18 +122,18 @@ func TestContainingString(t *testing.T) {
 		outer := "foobar"
 		inner := "oob"
 
-		result := be.ContainingString(outer, inner)
+		result := be.ContainingString(inner, outer)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`outer contains inner
-str:    "foobar"
 substr: "oob"
+str:    "foobar"
 `, result.Message))
 
-		result = be.ContainingString("foobar", "oob")
+		result = be.ContainingString("oob", "foobar")
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`"foobar" contains "oob"
-str:    "foobar"
 substr: "oob"
+str:    "foobar"
 `, result.Message))
 	})
 
@@ -143,18 +143,18 @@ substr: "oob"
 		outer := "foobar"
 		inner := "boo"
 
-		result := be.ContainingString(outer, inner)
+		result := be.ContainingString(inner, outer)
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(`outer does not contain inner
-str:    "foobar"
 substr: "boo"
+str:    "foobar"
 `, result.Message))
 
-		result = be.ContainingString("foobar", "boo")
+		result = be.ContainingString("boo", "foobar")
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(`"foobar" does not contain "boo"
-str:    "foobar"
 substr: "boo"
+str:    "foobar"
 `, result.Message))
 	})
 
@@ -166,9 +166,10 @@ two
 three
 `
 
-		result := be.ContainingString(outer, "two")
+		result := be.ContainingString("two", outer)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`outer contains "two"
+substr: "two"
 str:    `+`
 """
 one
@@ -177,7 +178,6 @@ three
 
 """
 
-substr: "two"
 `, result.Message))
 	})
 }
@@ -652,13 +652,13 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.True(result.Ok))
-		g.Should(be.ContainingString(result.Message, `want m length 3, got 3`))
+		g.Should(be.ContainingString(`want m length 3, got 3`, result.Message))
 
 		result = be.MapLen(3, map[string]int{"a": 1, "b": 2, "c": 3})
 		g.Should(be.True(result.Ok))
 		g.Should(be.ContainingString(
-			result.Message,
 			`want map[string]int{"a": 1, "b": 2, "c": 3} length 3, got 3`,
+			result.Message,
 		))
 	})
 
@@ -670,13 +670,13 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.True(result.Ok))
-		g.Should(be.ContainingString(result.Message, `want m length 4, got 4`))
+		g.Should(be.ContainingString(`want m length 4, got 4`, result.Message))
 
 		result = be.MapLen(4, map[string]int{"a": 1, "b": 2, "c": 3, "d": 4})
 		g.Should(be.True(result.Ok))
 		g.Should(be.ContainingString(
-			result.Message,
 			`want map[string]int{"a": 1, "b": 2, "c": 3, "d": 4} length 4, got 4`,
+			result.Message,
 		))
 	})
 
@@ -688,13 +688,13 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.False(result.Ok))
-		g.Should(be.ContainingString(result.Message, `want m length 2, got 3`))
+		g.Should(be.ContainingString(`want m length 2, got 3`, result.Message))
 
 		result = be.MapLen(2, map[string]int{"a": 1, "b": 2, "c": 3})
 		g.Should(be.False(result.Ok))
 		g.Should(be.ContainingString(
-			result.Message,
 			`want map[string]int{"a": 1, "b": 2, "c": 3} length 2, got 3`,
+			result.Message,
 		))
 	})
 
@@ -706,13 +706,13 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.False(result.Ok))
-		g.Should(be.ContainingString(result.Message, `want m length 3, got 4`))
+		g.Should(be.ContainingString(`want m length 3, got 4`, result.Message))
 
 		result = be.MapLen(3, map[string]int{"a": 1, "b": 2, "c": 3, "d": 4})
 		g.Should(be.False(result.Ok))
 		g.Should(be.ContainingString(
-			result.Message,
 			`want map[string]int{"a": 1, "b": 2, "c": 3, "d": 4} length 3, got 4`,
+			result.Message,
 		))
 	})
 }
