@@ -679,6 +679,42 @@ func TestMapLen(t *testing.T) {
 			`want map[string]int{"a": 1, "b": 2, "c": 3, "d": 4} length 4, got 4`,
 		))
 	})
+
+	t.Run("not equal <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 2
+		m := map[string]int{"a": 1, "b": 2, "c": 3}
+
+		result := be.MapLen(wantLen, m)
+		g.Should(be.False(result.Ok))
+		g.Should(be.ContainingString(result.Message, `want m length 2, got 3`))
+
+		result = be.MapLen(2, map[string]int{"a": 1, "b": 2, "c": 3})
+		g.Should(be.False(result.Ok))
+		g.Should(be.ContainingString(
+			result.Message,
+			`want map[string]int{"a": 1, "b": 2, "c": 3} length 2, got 3`,
+		))
+	})
+
+	t.Run("not equal > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 3
+		m := map[string]int{"a": 1, "b": 2, "c": 3, "d": 4}
+
+		result := be.MapLen(wantLen, m)
+		g.Should(be.False(result.Ok))
+		g.Should(be.ContainingString(result.Message, `want m length 3, got 4`))
+
+		result = be.MapLen(3, map[string]int{"a": 1, "b": 2, "c": 3, "d": 4})
+		g.Should(be.False(result.Ok))
+		g.Should(be.ContainingString(
+			result.Message,
+			`want map[string]int{"a": 1, "b": 2, "c": 3, "d": 4} length 3, got 4`,
+		))
+	})
 }
 
 func TestNil(t *testing.T) {
@@ -788,6 +824,54 @@ slice: [
 		result = be.SliceLen(4, []string{"a", "b", "c", "d"})
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(`want []string{"a", "b", "c", "d"} length 4, got 4
+slice: [
+	a
+	b
+	c
+	d
+]
+`, result.Message))
+	})
+
+	t.Run("not equal <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 2
+		slice := []string{"a", "b", "c"}
+
+		result := be.SliceLen(wantLen, slice)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`want slice length 2, got 3
+slice: [a b c]
+`, result.Message))
+
+		result = be.SliceLen(2, []string{"a", "b", "c"})
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`want []string{"a", "b", "c"} length 2, got 3
+slice: [a b c]
+`, result.Message))
+	})
+
+	t.Run("not equal > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 3
+		slice := []string{"a", "b", "c", "d"}
+
+		result := be.SliceLen(wantLen, slice)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`want slice length 3, got 4
+slice: [
+	a
+	b
+	c
+	d
+]
+`, result.Message))
+
+		result = be.SliceLen(3, []string{"a", "b", "c", "d"})
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`want []string{"a", "b", "c", "d"} length 3, got 4
 slice: [
 	a
 	b
