@@ -375,7 +375,7 @@ func mapToString[K comparable, V any](m map[K]V) string {
 func Nil(v any) ghost.Result {
 	args := ghostlib.ArgsFromAST([]any{v})
 
-	if v == nil {
+	if isNil(v) {
 		return ghost.Result{
 			Ok:      true,
 			Message: fmt.Sprintf("%v is nil", args[0]),
@@ -386,6 +386,27 @@ func Nil(v any) ghost.Result {
 		Ok:      false,
 		Message: fmt.Sprintf("%v is %v, not nil", args[0], v),
 	}
+}
+
+func isNil(v any) bool {
+	if v == nil {
+		return true
+	}
+
+	// Try reflection to catch typed nils
+	value := reflect.ValueOf(v)
+	switch value.Kind() {
+	case reflect.Chan,
+		reflect.Func,
+		reflect.Interface,
+		reflect.Map,
+		reflect.Pointer,
+		reflect.Slice,
+		reflect.UnsafePointer:
+		return value.IsNil()
+	}
+
+	return false
 }
 
 // Panic asserts that the given function panics when invoked.

@@ -718,7 +718,7 @@ func TestMapLen(t *testing.T) {
 }
 
 func TestNil(t *testing.T) {
-	t.Run("nil", func(t *testing.T) {
+	t.Run("untyped nil", func(t *testing.T) {
 		g := ghost.New(t)
 
 		var v interface{}
@@ -730,6 +730,21 @@ func TestNil(t *testing.T) {
 		result = be.Nil(nil)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal("nil is nil", result.Message))
+	})
+
+	t.Run("typed nil", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var v *int
+		var i interface{} = v
+
+		result := be.Nil(i)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal("i is nil", result.Message))
+
+		result = be.Nil((*int)(nil))
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal("(*int)(nil) is nil", result.Message))
 	})
 
 	t.Run("non-nil", func(t *testing.T) {
