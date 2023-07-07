@@ -643,6 +643,44 @@ func TestJSONEqual(t *testing.T) {
 	_ = t
 }
 
+func TestMapLen(t *testing.T) {
+	t.Run("equal <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 3
+		m := map[string]int{"a": 1, "b": 2, "c": 3}
+
+		result := be.MapLen(wantLen, m)
+		g.Should(be.True(result.Ok))
+		g.Should(be.ContainingString(result.Message, `want m length 3, got 3`))
+
+		result = be.MapLen(3, map[string]int{"a": 1, "b": 2, "c": 3})
+		g.Should(be.True(result.Ok))
+		g.Should(be.ContainingString(
+			result.Message,
+			`want map[string]int{"a": 1, "b": 2, "c": 3} length 3, got 3`,
+		))
+	})
+
+	t.Run("equal > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		wantLen := 4
+		m := map[string]int{"a": 1, "b": 2, "c": 3, "d": 4}
+
+		result := be.MapLen(wantLen, m)
+		g.Should(be.True(result.Ok))
+		g.Should(be.ContainingString(result.Message, `want m length 4, got 4`))
+
+		result = be.MapLen(4, map[string]int{"a": 1, "b": 2, "c": 3, "d": 4})
+		g.Should(be.True(result.Ok))
+		g.Should(be.ContainingString(
+			result.Message,
+			`want map[string]int{"a": 1, "b": 2, "c": 3, "d": 4} length 4, got 4`,
+		))
+	})
+}
+
 func TestNil(t *testing.T) {
 	t.Run("nil", func(t *testing.T) {
 		g := ghost.New(t)

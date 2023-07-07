@@ -346,6 +346,31 @@ got:
 	}
 }
 
+// MapLen asserts that the length of a map is a particular size.
+func MapLen[K comparable, V any](want int, got map[K]V) ghost.Result {
+	args := ghostlib.ArgsFromAST([]any{want, got})
+
+	return ghost.Result{
+		Ok: want == len(got),
+		Message: fmt.Sprintf(`want %v length %d, got %d
+map: %v
+`, args[1], want, len(got), mapToString(got)),
+	}
+}
+
+// mapToString pretty prints a map.
+func mapToString[K comparable, V any](m map[K]V) string {
+	var sb strings.Builder
+	sb.WriteString("{\n")
+	for k, v := range m {
+		sb.WriteByte('\t')
+		fmt.Fprintf(&sb, "%v: %v", k, v)
+		sb.WriteString(",\n")
+	}
+	sb.WriteString("}")
+	return sb.String()
+}
+
 // Nil asserts that the given value is nil.
 func Nil(v any) ghost.Result {
 	args := ghostlib.ArgsFromAST([]any{v})
