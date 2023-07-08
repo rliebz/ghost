@@ -16,7 +16,7 @@ import (
 
 // DeepEqual asserts that two elements are deeply equal.
 func DeepEqual[T any](want, got T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{want, got})
+	args := ghostlib.ArgsFromAST(want, got)
 
 	if diff := cmp.Diff(
 		want, got,
@@ -41,7 +41,7 @@ value: %v
 
 // Equal asserts that two elements are equal.
 func Equal[T comparable](want T, got T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{want, got})
+	args := ghostlib.ArgsFromAST(want, got)
 
 	if want == got {
 		return ghost.Result{
@@ -108,7 +108,7 @@ func quoteString(s string) string {
 
 // Error asserts that an error is non-nil.
 func Error(err error) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{err})
+	args := ghostlib.ArgsFromAST(err)
 
 	if err == nil {
 		return ghost.Result{
@@ -125,7 +125,7 @@ func Error(err error) ghost.Result {
 
 // ErrorContaining asserts that an error string contains a particular substring.
 func ErrorContaining(msg string, err error) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{msg, err})
+	args := ghostlib.ArgsFromAST(msg, err)
 
 	switch {
 	case err == nil && args[0] == fmt.Sprintf("%q", msg):
@@ -153,7 +153,7 @@ func ErrorContaining(msg string, err error) ghost.Result {
 
 // ErrorEqual asserts that an error string equals a particular message.
 func ErrorEqual(msg string, err error) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{msg, err})
+	args := ghostlib.ArgsFromAST(msg, err)
 
 	if err == nil {
 		return ghost.Result{
@@ -177,7 +177,7 @@ func ErrorEqual(msg string, err error) ghost.Result {
 
 // False asserts that a value is false.
 func False(b bool) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{b})
+	args := ghostlib.ArgsFromAST(b)
 
 	return ghost.Result{
 		Ok:      !b,
@@ -187,7 +187,7 @@ func False(b bool) ghost.Result {
 
 // InDelta asserts that a value is within a delta of another.
 func InDelta[T constraints.Integer | constraints.Float](want, got, delta T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{want, got, delta})
+	args := ghostlib.ArgsFromAST(want, got, delta)
 
 	diff := want - got
 	if diff < 0 {
@@ -225,7 +225,7 @@ func InDelta[T constraints.Integer | constraints.Float](want, got, delta T) ghos
 
 // InSlice asserts that an element exists in a given slice.
 func InSlice[T comparable](element T, slice []T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{element, slice})
+	args := ghostlib.ArgsFromAST(element, slice)
 
 	for _, x := range slice {
 		if x == element {
@@ -281,7 +281,7 @@ func sliceElementToString[T comparable](slice []T, element T) string {
 
 // InString asserts that a substring exists in a given string.
 func InString(substr, str string) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{substr, str})
+	args := ghostlib.ArgsFromAST(substr, str)
 
 	if strings.Contains(str, substr) {
 		return ghost.Result{
@@ -306,7 +306,7 @@ var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
 
 // JSONEqual asserts that two sets of JSON-encoded data are equivalent.
 func JSONEqual[T ~string | ~[]byte](want, got T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{want, got})
+	args := ghostlib.ArgsFromAST(want, got)
 
 	diff, msg := jsondiff.Compare([]byte(want), []byte(got), &jsonCompareOpts)
 
@@ -348,7 +348,7 @@ got:
 
 // MapLen asserts that the length of a map is a particular size.
 func MapLen[K comparable, V any](want int, got map[K]V) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{want, got})
+	args := ghostlib.ArgsFromAST(want, got)
 
 	return ghost.Result{
 		Ok: want == len(got),
@@ -373,7 +373,7 @@ func mapToString[K comparable, V any](m map[K]V) string {
 
 // Nil asserts that the given value is nil.
 func Nil(v any) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{v})
+	args := ghostlib.ArgsFromAST(v)
 
 	if isNil(v) {
 		return ghost.Result{
@@ -411,7 +411,7 @@ func isNil(v any) bool {
 
 // Panic asserts that the given function panics when invoked.
 func Panic(f func()) (result ghost.Result) {
-	args := ghostlib.ArgsFromAST([]any{f})
+	args := ghostlib.ArgsFromAST(f)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -450,7 +450,7 @@ func Panic(f func()) (result ghost.Result) {
 
 // SliceLen asserts that the length of a slice is a particular size.
 func SliceLen[T any](want int, got []T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{want, got})
+	args := ghostlib.ArgsFromAST(want, got)
 
 	return ghost.Result{
 		Ok: want == len(got),
@@ -479,7 +479,7 @@ func sliceToString[T any](slice []T) string {
 
 // True asserts that a value is true.
 func True(b bool) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{b})
+	args := ghostlib.ArgsFromAST(b)
 
 	return ghost.Result{
 		Ok:      b,
@@ -489,7 +489,7 @@ func True(b bool) ghost.Result {
 
 // Zero asserts that the given value equals its zero value.
 func Zero[T comparable](v T) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{v})
+	args := ghostlib.ArgsFromAST(v)
 
 	var zero T
 	if v == zero {

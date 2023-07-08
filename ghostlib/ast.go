@@ -15,7 +15,7 @@ import (
 // ArgsFromAST gets the string representation of the caller's arguments from
 // the AST. To handle situations where this cannot be done reliably, the raw
 // arguments should be passed so their values can be used as a backup.
-func ArgsFromAST(unformatted []any) []string {
+func ArgsFromAST(unformatted ...any) []string {
 	args, err := callExprArgs(2)
 	if err != nil {
 		return mapString(unformatted)

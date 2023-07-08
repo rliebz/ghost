@@ -84,7 +84,7 @@ func (r Runner) NoError(err error) {
 		h.Helper()
 	}
 
-	args := ghostlib.ArgsFromAST([]any{err})
+	args := ghostlib.ArgsFromAST(err)
 
 	if err != nil {
 		r.t.Log(fmt.Sprintf("%s has error value: %s", args[0], err))

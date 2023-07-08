@@ -154,7 +154,7 @@ to pretty print the AST values of assertion arguments:
 
 ```go
 func BeThirteen(i int) ghost.Result {
-	args := ghostlib.ArgsFromAST([]any{i})
+	args := ghostlib.ArgsFromAST(i)
 
 	return ghost.Result{
 		Ok:      i == 13,
