@@ -9,7 +9,7 @@ This is early-stage software, and some breaking changes are still expected.
 ## Features
 
 - **Utilities that stay out of your way**: Ghost extends standard library
-  testing without trying to replace it. Create a `ghost.Runner` for your test,
+  testing without trying to replace it. Set up your test in one line of code,
   and you're good to go.
 - **Generics-friendly logic**: All built-in assertions were designed with
   generics in mind. Shift failures left, and let your compiler tell you when
@@ -22,7 +22,7 @@ This is early-stage software, and some breaking changes are still expected.
 
 ## Quick Start
 
-Start each test by creating a `ghost.Runner`. Then, write your assertions:
+Start each test by calling `g := ghost.New(t)`. Then, write your assertions:
 
 ```go
 func TestMyFunc(t *testing.T) {
@@ -136,7 +136,7 @@ A very basic custom assertion might look like this:
 func BeThirteen(i int) ghost.Result {
 	return ghost.Result{
 		Ok:      i == 13,
-		Message: fmt.Sprintf("value is %d", b),
+		Message: fmt.Sprintf("value is %d", i),
 	}
 }
 ```
@@ -172,13 +172,6 @@ g.Should(BeThirteen(5 + 6)) // "5 + 6 is 11"
 
 ## Philosophy
 
-### Ghost Does Assertions
-
-Go's `testing` package is fantastic; Ghost doesn't try to do anything that the
-standard library already does.
-
-Test suites, mocking, logging, and non-assertion failures are all out of scope.
-
 ### Both "Hard" and "Soft" Assertions Should Be Easy
 
 Some testing libraries lock you into stopping test execution on assertion
@@ -201,6 +194,13 @@ Arguments to assertions should go in a predictable order. By convention:
 1. "Want" comes before "got".
 2. "Needle" comes before "haystack".
 3. All other arguments come last.
+
+### Ghost Does Assertions
+
+Go's `testing` package is fantastic; Ghost doesn't try to do anything that the
+standard library already does.
+
+Test suites, mocking, logging, and non-assertion failures are all out of scope.
 
 [godoc]: https://pkg.go.dev/github.com/rliebz/ghost
 [godoc/be]: https://pkg.go.dev/github.com/rliebz/ghost/be

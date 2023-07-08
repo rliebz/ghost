@@ -9,7 +9,7 @@ import (
 	"github.com/rliebz/ghost/be"
 )
 
-func TestRunner_Should(t *testing.T) {
+func TestGhost_Should(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		g := ghost.New(t)
 
@@ -51,7 +51,7 @@ func TestRunner_Should(t *testing.T) {
 	})
 }
 
-func TestRunner_ShouldNot(t *testing.T) {
+func TestGhost_ShouldNot(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		g := ghost.New(t)
 
@@ -93,7 +93,7 @@ func TestRunner_ShouldNot(t *testing.T) {
 	})
 }
 
-func TestRunner_Must(t *testing.T) {
+func TestGhost_Must(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		g := ghost.New(t)
 
@@ -131,7 +131,7 @@ func TestRunner_Must(t *testing.T) {
 	})
 }
 
-func TestRunner_MustNot(t *testing.T) {
+func TestGhost_MustNot(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		g := ghost.New(t)
 
@@ -169,7 +169,7 @@ func TestRunner_MustNot(t *testing.T) {
 	})
 }
 
-func TestRunner_NoError(t *testing.T) {
+func TestGhost_NoError(t *testing.T) {
 	g := ghost.New(t)
 
 	mockT := newMockT()
