@@ -77,8 +77,8 @@ g.Must(be.True(ok))
 g.MustNot(be.Nil(val))
 ```
 
-For convenience, a `NoError` check is also available, which ends test execution
-for non-nil errors:
+For convenience, a `NoError` check is also available, which fails and ends test
+execution for non-nil errors:
 
 ```go
 g.NoError(err)
@@ -172,13 +172,35 @@ g.Should(BeThirteen(5 + 6)) // "5 + 6 is 11"
 
 ## Philosophy
 
+### Ghost Does Assertions
+
+Go's `testing` package is fantastic; Ghost doesn't try to do anything that the
+standard library already does.
+
+Test suites, mocking, logging, and non-assertion failures are all out of scope.
+
+### Both "Hard" and "Soft" Assertions Should Be Easy
+
+Some testing libraries lock you into stopping test execution on assertion
+failure. Ghost makes it easy to switch between both, and doesn't make you
+change the way you set tests up based on which of the two you use:
+
+```go
+g := ghost.New(t)             // universal test setup
+
+// ...
+
+g.Should(be.Equal(13, myInt)) // soft assertion
+g.Must(be.True(ok))           // hard assertion
+```
+
 ### Arguments Should Be Predictable
 
 Arguments to assertions should go in a predictable order. By convention:
 
 1. "Want" comes before "got".
 2. "Needle" comes before "haystack".
-3. Other configurations come last.
+3. All other arguments come last.
 
 [godoc]: https://pkg.go.dev/github.com/rliebz/ghost
 [godoc/be]: https://pkg.go.dev/github.com/rliebz/ghost/be
