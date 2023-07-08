@@ -8,7 +8,7 @@ import (
 
 // T is the subset of [*testing.T] used in assertions.
 //
-// The Helper() method will be called if available.
+// The Helper() method will be called in test helpers if available.
 type T interface {
 	Log(args ...any)
 	Fail()
@@ -99,7 +99,7 @@ type Result struct {
 
 	// Message returns a message describing the assertion.
 	//
-	// A message is required regardless of whether or not the failure was
+	// A message should be present regardless of whether or not the assertion was
 	// successful.
 	Message string
 }
