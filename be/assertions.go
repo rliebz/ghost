@@ -308,7 +308,7 @@ var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
 func JSONEqual[T ~string | ~[]byte](want, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
 
-	diff, msg := jsondiff.Compare([]byte(want), []byte(got), &jsonCompareOpts)
+	diff, desc := jsondiff.Compare([]byte(want), []byte(got), &jsonCompareOpts)
 
 	switch diff {
 	case jsondiff.FullMatch:
@@ -341,8 +341,9 @@ got:
 	}
 
 	return ghost.Result{
-		Ok:      false,
-		Message: msg,
+		Ok: false,
+		Message: fmt.Sprintf(`%v and %v are not JSON equal
+diff: %s`, args[0], args[1], desc),
 	}
 }
 

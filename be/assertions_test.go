@@ -639,8 +639,78 @@ three
 }
 
 func TestJSONEqual(t *testing.T) {
-	// TODO: Write me
-	_ = t
+	t.Run("equal", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := `{"foo": "value", "bar": [1, 2]}`
+		got := `{"bar": [1, 2], "foo": "value"}`
+
+		result := be.JSONEqual(want, got)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal("want and got are JSON equal", result.Message))
+
+		result = be.JSONEqual(`{"foo": "value", "bar": [1, 2]}`, `{"bar": [1, 2], "foo": "value"}`)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			"`{\"foo\": \"value\", \"bar\": [1, 2]}` and "+
+				"`{\"bar\": [1, 2], \"foo\": \"value\"}` are JSON equal",
+			result.Message,
+		))
+	})
+
+	t.Run("not equal", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := `{"foo": "value", "bar": [1, 2]}`
+		got := `{"bar": [2, 1], "foo": "other"}`
+
+		result := be.JSONEqual(want, got)
+		g.Should(be.False(result.Ok))
+		g.Should(be.InString("want and got are not JSON equal", result.Message))
+
+		result = be.JSONEqual(`{"foo": "value", "bar": [1, 2]}`, `{"bar": [2, 1], "foo": "other"}`)
+		g.Should(be.False(result.Ok))
+		g.Should(be.InString(
+			"`{\"foo\": \"value\", \"bar\": [1, 2]}` and "+
+				"`{\"bar\": [2, 1], \"foo\": \"other\"}` are not JSON equal",
+			result.Message,
+		))
+	})
+
+	t.Run("invalid json", func(t *testing.T) {
+		g := ghost.New(t)
+
+		valid := `{"foo": "value", "bar": [1, 2]}`
+		invalid := `{{`
+		invalid2 := `{{`
+
+		result := be.JSONEqual(valid, invalid)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`invalid is not valid JSON
+value: {{`, result.Message))
+
+		result = be.JSONEqual(invalid, valid)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`invalid is not valid JSON
+value: {{`, result.Message))
+
+		result = be.JSONEqual(invalid, invalid2)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`invalid and invalid2 are not valid JSON
+want:
+{{
+
+got:
+{{`, result.Message))
+
+		result = be.JSONEqual(`{"foo": "value", "bar": [1, 2]}`, `{"bar": [1, 2], "foo": "value"}`)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			"`{\"foo\": \"value\", \"bar\": [1, 2]}` and "+
+				"`{\"bar\": [1, 2], \"foo\": \"value\"}` are JSON equal",
+			result.Message,
+		))
+	})
 }
 
 func TestMapLen(t *testing.T) {
