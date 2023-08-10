@@ -16,7 +16,11 @@ import (
 // the AST. To handle situations where this cannot be done reliably, the raw
 // arguments should be passed so their values can be used as a backup.
 func ArgsFromAST(unformatted ...any) []string {
-	args, err := callExprArgs(2)
+	return ArgsFromASTSkip(1)
+}
+
+func ArgsFromASTSkip(skip int, unformatted ...any) []string {
+	args, err := callExprArgs(2 + skip)
 	if err != nil {
 		return mapString(unformatted)
 	}

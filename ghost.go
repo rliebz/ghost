@@ -40,22 +40,6 @@ func (g Ghost) Should(result Result) bool {
 	return true
 }
 
-// ShouldNot runs an assertion that should not be successful, returning true if
-// the assertion was not successful.
-func (g Ghost) ShouldNot(result Result) bool {
-	if h, ok := g.t.(interface{ Helper() }); ok {
-		h.Helper()
-	}
-
-	if result.Ok {
-		g.t.Log(result.Message)
-		g.t.Fail()
-		return false
-	}
-
-	return true
-}
-
 // Must runs an assertion that must be successful, failing the test if it is not.
 func (g Ghost) Must(result Result) {
 	if h, ok := g.t.(interface{ Helper() }); ok {
@@ -63,17 +47,6 @@ func (g Ghost) Must(result Result) {
 	}
 
 	if !g.Should(result) {
-		g.t.FailNow()
-	}
-}
-
-// MustNot runs an assertion that must not be successful, failing the test if it is.
-func (g Ghost) MustNot(result Result) {
-	if h, ok := g.t.(interface{ Helper() }); ok {
-		h.Helper()
-	}
-
-	if !g.ShouldNot(result) {
 		g.t.FailNow()
 	}
 }

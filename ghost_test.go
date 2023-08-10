@@ -51,48 +51,6 @@ func TestGhost_Should(t *testing.T) {
 	})
 }
 
-func TestGhost_ShouldNot(t *testing.T) {
-	t.Run("ok", func(t *testing.T) {
-		g := ghost.New(t)
-
-		mockT := newMockT()
-		testG := ghost.New(mockT)
-		msg := "some message"
-
-		ok := testG.ShouldNot(ghost.Result{
-			Ok:      true,
-			Message: msg,
-		})
-
-		g.Should(be.False(ok))
-		g.Should(be.SliceLen(0, mockT.failNowCalls))
-
-		g.Should(be.DeepEqual(
-			[][]any{{msg}},
-			mockT.logCalls,
-		))
-		g.Should(be.SliceLen(1, mockT.failCalls))
-	})
-
-	t.Run("not ok", func(t *testing.T) {
-		g := ghost.New(t)
-
-		mockT := newMockT()
-		testG := ghost.New(mockT)
-		msg := "some message"
-
-		ok := testG.ShouldNot(ghost.Result{
-			Ok:      false,
-			Message: msg,
-		})
-
-		g.Should(be.True(ok))
-		g.Should(be.SliceLen(0, mockT.logCalls))
-		g.Should(be.SliceLen(0, mockT.failCalls))
-		g.Should(be.SliceLen(0, mockT.failNowCalls))
-	})
-}
-
 func TestGhost_Must(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		g := ghost.New(t)
@@ -128,44 +86,6 @@ func TestGhost_Must(t *testing.T) {
 			[][]any{{msg}},
 			mockT.logCalls,
 		))
-	})
-}
-
-func TestGhost_MustNot(t *testing.T) {
-	t.Run("ok", func(t *testing.T) {
-		g := ghost.New(t)
-
-		mockT := newMockT()
-		testG := ghost.New(mockT)
-		msg := "some message"
-
-		testG.MustNot(ghost.Result{
-			Ok:      true,
-			Message: msg,
-		})
-
-		g.Should(be.SliceLen(1, mockT.failNowCalls))
-		g.Should(be.DeepEqual(
-			[][]any{{msg}},
-			mockT.logCalls,
-		))
-	})
-
-	t.Run("not ok", func(t *testing.T) {
-		g := ghost.New(t)
-
-		mockT := newMockT()
-		testG := ghost.New(mockT)
-		msg := "some message"
-
-		testG.MustNot(ghost.Result{
-			Ok:      false,
-			Message: msg,
-		})
-
-		g.Should(be.SliceLen(0, mockT.logCalls))
-		g.Should(be.SliceLen(0, mockT.failCalls))
-		g.Should(be.SliceLen(0, mockT.failNowCalls))
 	})
 }
 

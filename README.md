@@ -16,9 +16,9 @@ This is early-stage software, and some breaking changes are still expected.
   assertions aren't set up correctly.
 - **Test output that knows your code**: Ghost uses AST parsing to read your
   source code and print out the most useful information for you.
-- **Assertions that can be negated, extended, and reused**: Easily write custom
-  test assertions that are as simple to use as the built-ins. Every assertion
-  can be used four different ways.
+- **Assertions that can be composed, extended, and reused**: Easily write
+  custom test assertions that are as simple to use as the built-ins. Every
+  assertion can transformed to express whatever you need to.
 
 ## Quick Start
 
@@ -31,7 +31,7 @@ func TestMyFunc(t *testing.T) {
   got, err := MyFunc()
   g.NoError(err)
 
-  g.MustNot(be.Nil(got))
+  g.Must(be.Not(be.Nil(got)))
   g.Should(be.Equal("my value", got.SomeString))
   g.Should(be.SliceLen(3, got.SomeSlice))
 }
@@ -50,17 +50,16 @@ func TestMyFunc_error(t *testing.T) {
 
 ### Checks
 
-Ghost comes with four main checks: `Should`, `ShouldNot`, `Must`, and `MustNot`.
+Ghost comes with two main checks: `Should` and `Must`.
 
-`Should` and `ShouldNot` check whether an assertion has succeeded, failing the
-test otherwise. Like `t.Error`, the test is allowed to proceed if the assertion
-fails:
+`Should` checks whether an assertion has succeeded, failing the test otherwise.
+Like `t.Error`, the test is allowed to proceed if the assertion fails:
 
 ```go
 g.Should(be.Equal(want, got))
 ```
 
-Both functions also return a boolean indicating whether the check was
+The function also returns a boolean indicating whether the check was
 successful, allowing you to safely chain assertion logic:
 
 ```go
@@ -69,12 +68,12 @@ if g.Should(be.Len(1, mySlice)) {
 }
 ```
 
-`Must` and `MustNot` work similarly, but end test execution if the assertion
-does not pass, analogous to `t.Fatal`:
+`Must` works similarly, but ends test execution if the assertion does not pass,
+analogous to `t.Fatal`:
 
 ```go
 g.Must(be.True(ok))
-g.MustNot(be.Nil(val))
+g.Must(be.Equal(want, got))
 ```
 
 For convenience, a `NoError` check is also available, which fails and ends test
@@ -84,7 +83,7 @@ execution for non-nil errors:
 g.NoError(err)
 
 // Equivalent to:
-g.MustNot(be.Error(err))
+g.Must(be.Not(be.Error(err)))
 ```
 
 ### Assertions
@@ -100,7 +99,6 @@ operations, error and panic handling, and JSON equality.
 
 ```go
 g.Should(be.True(true))
-g.ShouldNot(be.False(true))
 
 g.Should(be.Equal(1+1, 2))
 g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
@@ -113,7 +111,6 @@ g.Should(be.Panic(func() { panic("oh no") }))
 var err error
 g.NoError(err)
 g.Must(be.Nil(err))
-g.MustNot(be.Error(err))
 
 err = errors.New("test error: oh no")
 g.Should(be.Error(err))
@@ -121,10 +118,37 @@ g.Should(be.ErrorEqual("test error: oh no", err))
 g.Should(be.ErrorContaining("oh no", err))
 
 g.Should(be.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
-g.ShouldNot(be.JSONEqual(`{"a":1}`, `{"a":2}`))
 ```
 
 For the full list available, see [the documentation][godoc/be].
+
+#### Assertion Composers
+
+Ghost allows assertions to be composed into powerful expressions.
+
+The simplest composer is `be.Not`, which negates the result of an assertion:
+
+```go
+g.Should(be.Not(be.True(ok)))
+g.Must(be.Not(be.Nil(val)))
+```
+
+Another composer is `be.Eventually`, which retries an assertion over time until
+it either succeeds or times out:
+
+```go
+g.Should(be.Eventually(func() ghost.Result {
+  return be.True(val.IsSettled(ctx))
+}, 3*time.Second, 100*time.Millisecond))
+```
+
+Composers can also be composed:
+
+```go
+g.Should(be.Eventually(func() ghost.Result {
+  return be.Not(be.Equal(a, b))
+}, 3*time.Second, 100*time.Millisecond))
+```
 
 #### Custom Assertions
 
@@ -172,6 +196,13 @@ g.Should(BeThirteen(5 + 6)) // "5 + 6 is 11"
 
 ## Philosophy
 
+### Ghost Does Assertions
+
+Go's `testing` package is fantastic; Ghost doesn't try to do anything that the
+standard library already does.
+
+Test suites, mocking, logging, and non-assertion failures are all out of scope.
+
 ### Both "Hard" and "Soft" Assertions Should Be Easy
 
 Some testing libraries lock you into stopping test execution on assertion
@@ -194,13 +225,6 @@ Arguments to assertions should go in a predictable order. By convention:
 1. "Want" comes before "got".
 2. "Needle" comes before "haystack".
 3. All other arguments come last.
-
-### Ghost Does Assertions
-
-Go's `testing` package is fantastic; Ghost doesn't try to do anything that the
-standard library already does.
-
-Test suites, mocking, logging, and non-assertion failures are all out of scope.
 
 [godoc]: https://pkg.go.dev/github.com/rliebz/ghost
 [godoc/be]: https://pkg.go.dev/github.com/rliebz/ghost/be
