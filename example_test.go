@@ -38,7 +38,7 @@ func TestExample(t *testing.T) {
 	g.Should(be.Not(be.JSONEqual(`{"a":1}`, `{"a":2}`)))
 
 	count := 0
-	g.Must(be.Eventually(func() ghost.Result {
+	g.Should(be.Eventually(func() ghost.Result {
 		count++
 		return be.Equal(3, count)
 	}, 100*time.Millisecond, 10*time.Millisecond))
