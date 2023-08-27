@@ -44,11 +44,19 @@ func Equal[T comparable](want T, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
 
 	if want == got {
-		return ghost.Result{
-			Ok: true,
-			Message: fmt.Sprintf(`%v == %v
+		switch fmt.Sprint(want) {
+		case args[0], args[1]:
+			return ghost.Result{
+				Ok:      true,
+				Message: fmt.Sprintf(`%v == %v`, args[0], args[1]),
+			}
+		default:
+			return ghost.Result{
+				Ok: true,
+				Message: fmt.Sprintf(`%v == %v
 value: %v
 `, args[0], args[1], want),
+			}
 		}
 	}
 
@@ -500,7 +508,7 @@ func Zero[T comparable](v T) ghost.Result {
 		}
 	}
 
-	if args[0] != fmt.Sprintf("%v", v) {
+	if args[0] != fmt.Sprint(v) {
 		return ghost.Result{
 			Ok:      false,
 			Message: fmt.Sprintf("%v is non-zero\nvalue: %v", args[0], v),

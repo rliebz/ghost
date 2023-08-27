@@ -14,7 +14,7 @@ func Eventually(
 	timeout time.Duration,
 	interval time.Duration,
 ) ghost.Result {
-	args := ghostlib.ArgsFromASTSkip(1, f, timeout, interval)
+	args := ghostlib.ArgsFromAST(f, timeout, interval)
 
 	timer := time.NewTimer(timeout)
 	defer timer.Stop()

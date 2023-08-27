@@ -105,6 +105,16 @@ value: {foo 1}
 `, result.Message))
 	})
 
+	t.Run("equal simple", func(t *testing.T) {
+		g := ghost.New(t)
+
+		got := 3
+
+		result := be.Equal(3, got)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`3 == got`, result.Message))
+	})
+
 	t.Run("unequal int", func(t *testing.T) {
 		g := ghost.New(t)
 

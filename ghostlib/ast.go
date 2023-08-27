@@ -16,10 +16,12 @@ import (
 // the AST. To handle situations where this cannot be done reliably, the raw
 // arguments should be passed so their values can be used as a backup.
 func ArgsFromAST(unformatted ...any) []string {
-	return ArgsFromASTSkip(1)
+	return argsFromASTSkip(1, unformatted...)
 }
 
-func ArgsFromASTSkip(skip int, unformatted ...any) []string {
+// argsFromASTSkip gets the string representation of the caller's arguments
+// from the AST, skipping the number specified.
+func argsFromASTSkip(skip int, unformatted ...any) []string {
 	args, err := callExprArgs(2 + skip)
 	if err != nil {
 		return mapString(unformatted)
@@ -36,7 +38,7 @@ func ArgsFromASTSkip(skip int, unformatted ...any) []string {
 func mapString(s []any) []string {
 	out := make([]string, 0, len(s))
 	for _, ss := range s {
-		out = append(out, fmt.Sprintf("%v", ss))
+		out = append(out, fmt.Sprint(ss))
 	}
 	return out
 }
