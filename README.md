@@ -103,8 +103,8 @@ g.Should(be.True(true))
 g.Should(be.Equal(1+1, 2))
 g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
 
-g.Should(be.InSlice(2, []int{1, 2, 3}))
-g.Should(be.InString("foo", "foobar"))
+g.Should(be.SliceContaining(2, []int{1, 2, 3}))
+g.Should(be.StringContaining("foo", "foobar"))
 
 g.Should(be.Panic(func() { panic("oh no") }))
 

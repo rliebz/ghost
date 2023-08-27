@@ -18,8 +18,14 @@ func TestExample(t *testing.T) {
 	g.Should(be.Equal(1+1, 2))
 	g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
 
-	g.Should(be.InSlice(2, []int{1, 2, 3}))
-	g.Should(be.InString("foo", "foobar"))
+	g.Should(be.Close(11.0, 6.8+4.2, 0.01))
+
+	g.Should(be.MapLen(2, map[string]int{"a": 1, "b": 2}))
+
+	g.Should(be.SliceContaining("b", []string{"a", "b", "c"}))
+	g.Should(be.SliceLen(3, []string{"a", "b", "c"}))
+
+	g.Should(be.StringContaining("foo", "foobar"))
 
 	g.Should(be.Panic(func() { panic("oh no") }))
 	g.Should(be.Not(be.Panic(func() {})))

@@ -14,6 +14,44 @@ import (
 	"github.com/rliebz/ghost/internal/constraints"
 )
 
+// Close asserts that a value is within a delta of another.
+func Close[T constraints.Integer | constraints.Float](want, got, delta T) ghost.Result {
+	args := ghostlib.ArgsFromAST(want, got, delta)
+
+	diff := want - got
+	if diff < 0 {
+		diff = 0 - diff
+	}
+
+	wantStr := args[0]
+	if _, err := strconv.ParseFloat(wantStr, 64); err != nil {
+		wantStr = fmt.Sprintf("%s (%v)", wantStr, want)
+	}
+
+	gotStr := args[1]
+	if _, err := strconv.ParseFloat(gotStr, 64); err != nil {
+		gotStr = fmt.Sprintf("%s (%v)", gotStr, got)
+	}
+
+	if diff <= delta {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(
+				"delta %v between %s and %s is within %v",
+				diff, wantStr, gotStr, delta,
+			),
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(
+			"delta %v between %s and %s is not within %v",
+			diff, wantStr, gotStr, delta,
+		),
+	}
+}
+
 // DeepEqual asserts that two elements are deeply equal.
 func DeepEqual[T any](want, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
@@ -193,123 +231,6 @@ func False(b bool) ghost.Result {
 	}
 }
 
-// InDelta asserts that a value is within a delta of another.
-func InDelta[T constraints.Integer | constraints.Float](want, got, delta T) ghost.Result {
-	args := ghostlib.ArgsFromAST(want, got, delta)
-
-	diff := want - got
-	if diff < 0 {
-		diff = 0 - diff
-	}
-
-	wantStr := args[0]
-	if _, err := strconv.ParseFloat(wantStr, 64); err != nil {
-		wantStr = fmt.Sprintf("%s (%v)", wantStr, want)
-	}
-
-	gotStr := args[1]
-	if _, err := strconv.ParseFloat(gotStr, 64); err != nil {
-		gotStr = fmt.Sprintf("%s (%v)", gotStr, got)
-	}
-
-	if diff <= delta {
-		return ghost.Result{
-			Ok: true,
-			Message: fmt.Sprintf(
-				"delta %v between %s and %s is within %v",
-				diff, wantStr, gotStr, delta,
-			),
-		}
-	}
-
-	return ghost.Result{
-		Ok: false,
-		Message: fmt.Sprintf(
-			"delta %v between %s and %s is not within %v",
-			diff, wantStr, gotStr, delta,
-		),
-	}
-}
-
-// InSlice asserts that an element exists in a given slice.
-func InSlice[T comparable](element T, slice []T) ghost.Result {
-	args := ghostlib.ArgsFromAST(element, slice)
-
-	for _, x := range slice {
-		if x == element {
-			return ghost.Result{
-				Ok: true,
-				Message: fmt.Sprintf(`%v contains %v
-element: %v
-slice:   %v
-`,
-					args[1],
-					args[0],
-					element,
-					sliceElementToString(slice, element),
-				),
-			}
-		}
-	}
-
-	return ghost.Result{
-		Ok: false,
-		Message: fmt.Sprintf(`%v does not contain %v
-element: %v
-slice:   %v
-`,
-			args[1],
-			args[0],
-			element,
-			sliceElementToString(slice, element),
-		),
-	}
-}
-
-// sliceElementToString pretty prints a slice, highlighting an element if it exists.
-func sliceElementToString[T comparable](slice []T, element T) string {
-	if len(slice) <= 3 {
-		return fmt.Sprint(slice)
-	}
-
-	var sb strings.Builder
-	sb.WriteString("[\n")
-	for _, e := range slice {
-		if e == element {
-			sb.WriteByte('>')
-		}
-
-		sb.WriteByte('\t')
-		fmt.Fprint(&sb, e)
-		sb.WriteByte('\n')
-	}
-	sb.WriteString("]")
-	return sb.String()
-}
-
-// InString asserts that a substring exists in a given string.
-func InString(substr, str string) ghost.Result {
-	args := ghostlib.ArgsFromAST(substr, str)
-
-	if strings.Contains(str, substr) {
-		return ghost.Result{
-			Ok: true,
-			Message: fmt.Sprintf(`%v contains %v
-substr: %s
-str:    %s
-`, args[1], args[0], quoteString(substr), quoteString(str)),
-		}
-	}
-
-	return ghost.Result{
-		Ok: false,
-		Message: fmt.Sprintf(`%v does not contain %v
-substr: %s
-str:    %s
-`, args[1], args[0], quoteString(substr), quoteString(str)),
-	}
-}
-
 var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
 
 // JSONEqual asserts that two sets of JSON-encoded data are equivalent.
@@ -457,6 +378,62 @@ func Panic(f func()) (result ghost.Result) {
 	}
 }
 
+// SliceContaining asserts that an element exists in a given slice.
+func SliceContaining[T comparable](element T, slice []T) ghost.Result {
+	args := ghostlib.ArgsFromAST(element, slice)
+
+	for _, x := range slice {
+		if x == element {
+			return ghost.Result{
+				Ok: true,
+				Message: fmt.Sprintf(`%v contains %v
+element: %v
+slice:   %v
+`,
+					args[1],
+					args[0],
+					element,
+					sliceElementToString(slice, element),
+				),
+			}
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(`%v does not contain %v
+element: %v
+slice:   %v
+`,
+			args[1],
+			args[0],
+			element,
+			sliceElementToString(slice, element),
+		),
+	}
+}
+
+// sliceElementToString pretty prints a slice, highlighting an element if it exists.
+func sliceElementToString[T comparable](slice []T, element T) string {
+	if len(slice) <= 3 {
+		return fmt.Sprint(slice)
+	}
+
+	var sb strings.Builder
+	sb.WriteString("[\n")
+	for _, e := range slice {
+		if e == element {
+			sb.WriteByte('>')
+		}
+
+		sb.WriteByte('\t')
+		fmt.Fprint(&sb, e)
+		sb.WriteByte('\n')
+	}
+	sb.WriteString("]")
+	return sb.String()
+}
+
 // SliceLen asserts that the length of a slice is a particular size.
 func SliceLen[T any](want int, got []T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
@@ -484,6 +461,29 @@ func sliceToString[T any](slice []T) string {
 	}
 	sb.WriteString("]")
 	return sb.String()
+}
+
+// StringContaining asserts that a substring exists in a given string.
+func StringContaining(substr, str string) ghost.Result {
+	args := ghostlib.ArgsFromAST(substr, str)
+
+	if strings.Contains(str, substr) {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(`%v contains %v
+substr: %s
+str:    %s
+`, args[1], args[0], quoteString(substr), quoteString(str)),
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(`%v does not contain %v
+substr: %s
+str:    %s
+`, args[1], args[0], quoteString(substr), quoteString(str)),
+	}
 }
 
 // True asserts that a value is true.

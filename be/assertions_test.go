@@ -9,6 +9,57 @@ import (
 	"github.com/rliebz/ghost/be"
 )
 
+func TestClose(t *testing.T) {
+	t.Run("in delta", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := 32.5
+		got := 32.0
+
+		result := be.Close(want, got, 1)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			"delta 0.5 between want (32.5) and got (32) is within 1",
+			result.Message,
+		))
+
+		result = be.Close(32.5, 32.0, 1.0)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			"delta 0.5 between 32.5 and 32.0 is within 1",
+			result.Message,
+		))
+
+		result = be.Close(32.0, 32.5, 1.0)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			"delta 0.5 between 32.0 and 32.5 is within 1",
+			result.Message,
+		))
+	})
+
+	t.Run("not in delta", func(t *testing.T) {
+		g := ghost.New(t)
+
+		want := 32.5
+		got := 32.0
+
+		result := be.Close(want, got, 0.3)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			"delta 0.5 between want (32.5) and got (32) is not within 0.3",
+			result.Message,
+		))
+
+		result = be.Close(32.5, 32.0, 0.3)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			"delta 0.5 between 32.5 and 32.0 is not within 0.3",
+			result.Message,
+		))
+	})
+}
+
 func TestDeepEqual(t *testing.T) {
 	t.Run("equal", func(t *testing.T) {
 		g := ghost.New(t)
@@ -424,230 +475,6 @@ func TestFalse(t *testing.T) {
 	})
 }
 
-func TestInDelta(t *testing.T) {
-	t.Run("in delta", func(t *testing.T) {
-		g := ghost.New(t)
-
-		want := 32.5
-		got := 32.0
-
-		result := be.InDelta(want, got, 1)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(
-			"delta 0.5 between want (32.5) and got (32) is within 1",
-			result.Message,
-		))
-
-		result = be.InDelta(32.5, 32.0, 1.0)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(
-			"delta 0.5 between 32.5 and 32.0 is within 1",
-			result.Message,
-		))
-
-		result = be.InDelta(32.0, 32.5, 1.0)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(
-			"delta 0.5 between 32.0 and 32.5 is within 1",
-			result.Message,
-		))
-	})
-
-	t.Run("not in delta", func(t *testing.T) {
-		g := ghost.New(t)
-
-		want := 32.5
-		got := 32.0
-
-		result := be.InDelta(want, got, 0.3)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(
-			"delta 0.5 between want (32.5) and got (32) is not within 0.3",
-			result.Message,
-		))
-
-		result = be.InDelta(32.5, 32.0, 0.3)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(
-			"delta 0.5 between 32.5 and 32.0 is not within 0.3",
-			result.Message,
-		))
-	})
-}
-
-func TestInSlice(t *testing.T) {
-	t.Run("contains <= 3", func(t *testing.T) {
-		g := ghost.New(t)
-
-		slice := []int{1, 2, 3}
-		elem := 2
-
-		result := be.InSlice(elem, slice)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`slice contains elem
-element: 2
-slice:   [1 2 3]
-`, result.Message))
-
-		result = be.InSlice(2, []int{1, 2, 3})
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`[]int{1, 2, 3} contains 2
-element: 2
-slice:   [1 2 3]
-`, result.Message))
-	})
-
-	t.Run("contains > 3", func(t *testing.T) {
-		g := ghost.New(t)
-
-		slice := []int{1, 2, 3, 4}
-		elem := 2
-
-		result := be.InSlice(elem, slice)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`slice contains elem
-element: 2
-slice:   [
-	1
->	2
-	3
-	4
-]
-`, result.Message))
-
-		result = be.InSlice(2, []int{1, 2, 3, 4})
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`[]int{1, 2, 3, 4} contains 2
-element: 2
-slice:   [
-	1
->	2
-	3
-	4
-]
-`, result.Message))
-	})
-
-	t.Run("does not contain <= 3", func(t *testing.T) {
-		g := ghost.New(t)
-
-		slice := []int{1, 2, 3}
-		elem := 5
-
-		result := be.InSlice(elem, slice)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`slice does not contain elem
-element: 5
-slice:   [1 2 3]
-`, result.Message))
-
-		result = be.InSlice(5, []int{1, 2, 3})
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`[]int{1, 2, 3} does not contain 5
-element: 5
-slice:   [1 2 3]
-`, result.Message))
-	})
-
-	t.Run("does not contain > 3", func(t *testing.T) {
-		g := ghost.New(t)
-
-		slice := []int{1, 2, 3, 4}
-		elem := 5
-
-		result := be.InSlice(elem, slice)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`slice does not contain elem
-element: 5
-slice:   [
-	1
-	2
-	3
-	4
-]
-`, result.Message))
-
-		result = be.InSlice(5, []int{1, 2, 3, 4})
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`[]int{1, 2, 3, 4} does not contain 5
-element: 5
-slice:   [
-	1
-	2
-	3
-	4
-]
-`, result.Message))
-	})
-}
-
-func TestInString(t *testing.T) {
-	t.Run("contains", func(t *testing.T) {
-		g := ghost.New(t)
-
-		outer := "foobar"
-		inner := "oob"
-
-		result := be.InString(inner, outer)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`outer contains inner
-substr: "oob"
-str:    "foobar"
-`, result.Message))
-
-		result = be.InString("oob", "foobar")
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`"foobar" contains "oob"
-substr: "oob"
-str:    "foobar"
-`, result.Message))
-	})
-
-	t.Run("does not contain", func(t *testing.T) {
-		g := ghost.New(t)
-
-		outer := "foobar"
-		inner := "boo"
-
-		result := be.InString(inner, outer)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`outer does not contain inner
-substr: "boo"
-str:    "foobar"
-`, result.Message))
-
-		result = be.InString("boo", "foobar")
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`"foobar" does not contain "boo"
-substr: "boo"
-str:    "foobar"
-`, result.Message))
-	})
-
-	t.Run("multiline", func(t *testing.T) {
-		g := ghost.New(t)
-
-		outer := `one
-two
-three
-`
-
-		result := be.InString("two", outer)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`outer contains "two"
-substr: "two"
-str:    `+`
-"""
-one
-two
-three
-
-"""
-
-`, result.Message))
-	})
-}
-
 func TestJSONEqual(t *testing.T) {
 	t.Run("equal", func(t *testing.T) {
 		g := ghost.New(t)
@@ -676,11 +503,11 @@ func TestJSONEqual(t *testing.T) {
 
 		result := be.JSONEqual(want, got)
 		g.Should(be.False(result.Ok))
-		g.Should(be.InString("want and got are not JSON equal", result.Message))
+		g.Should(be.StringContaining("want and got are not JSON equal", result.Message))
 
 		result = be.JSONEqual(`{"foo": "value", "bar": [1, 2]}`, `{"bar": [2, 1], "foo": "other"}`)
 		g.Should(be.False(result.Ok))
-		g.Should(be.InString(
+		g.Should(be.StringContaining(
 			"`{\"foo\": \"value\", \"bar\": [1, 2]}` and "+
 				"`{\"bar\": [2, 1], \"foo\": \"other\"}` are not JSON equal",
 			result.Message,
@@ -732,11 +559,11 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.True(result.Ok))
-		g.Should(be.InString(`want m length 3, got 3`, result.Message))
+		g.Should(be.StringContaining(`want m length 3, got 3`, result.Message))
 
 		result = be.MapLen(3, map[string]int{"a": 1, "b": 2, "c": 3})
 		g.Should(be.True(result.Ok))
-		g.Should(be.InString(
+		g.Should(be.StringContaining(
 			`want map[string]int{"a": 1, "b": 2, "c": 3} length 3, got 3`,
 			result.Message,
 		))
@@ -750,11 +577,11 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.True(result.Ok))
-		g.Should(be.InString(`want m length 4, got 4`, result.Message))
+		g.Should(be.StringContaining(`want m length 4, got 4`, result.Message))
 
 		result = be.MapLen(4, map[string]int{"a": 1, "b": 2, "c": 3, "d": 4})
 		g.Should(be.True(result.Ok))
-		g.Should(be.InString(
+		g.Should(be.StringContaining(
 			`want map[string]int{"a": 1, "b": 2, "c": 3, "d": 4} length 4, got 4`,
 			result.Message,
 		))
@@ -768,11 +595,11 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.False(result.Ok))
-		g.Should(be.InString(`want m length 2, got 3`, result.Message))
+		g.Should(be.StringContaining(`want m length 2, got 3`, result.Message))
 
 		result = be.MapLen(2, map[string]int{"a": 1, "b": 2, "c": 3})
 		g.Should(be.False(result.Ok))
-		g.Should(be.InString(
+		g.Should(be.StringContaining(
 			`want map[string]int{"a": 1, "b": 2, "c": 3} length 2, got 3`,
 			result.Message,
 		))
@@ -786,11 +613,11 @@ func TestMapLen(t *testing.T) {
 
 		result := be.MapLen(wantLen, m)
 		g.Should(be.False(result.Ok))
-		g.Should(be.InString(`want m length 3, got 4`, result.Message))
+		g.Should(be.StringContaining(`want m length 3, got 4`, result.Message))
 
 		result = be.MapLen(3, map[string]int{"a": 1, "b": 2, "c": 3, "d": 4})
 		g.Should(be.False(result.Ok))
-		g.Should(be.InString(
+		g.Should(be.StringContaining(
 			`want map[string]int{"a": 1, "b": 2, "c": 3, "d": 4} length 3, got 4`,
 			result.Message,
 		))
@@ -875,6 +702,112 @@ func() {
 		g.Should(be.Equal(`function did not panic
 func() {
 }
+`, result.Message))
+	})
+}
+
+func TestSliceContaining(t *testing.T) {
+	t.Run("contains <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3}
+		elem := 2
+
+		result := be.SliceContaining(elem, slice)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`slice contains elem
+element: 2
+slice:   [1 2 3]
+`, result.Message))
+
+		result = be.SliceContaining(2, []int{1, 2, 3})
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`[]int{1, 2, 3} contains 2
+element: 2
+slice:   [1 2 3]
+`, result.Message))
+	})
+
+	t.Run("contains > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3, 4}
+		elem := 2
+
+		result := be.SliceContaining(elem, slice)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`slice contains elem
+element: 2
+slice:   [
+	1
+>	2
+	3
+	4
+]
+`, result.Message))
+
+		result = be.SliceContaining(2, []int{1, 2, 3, 4})
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`[]int{1, 2, 3, 4} contains 2
+element: 2
+slice:   [
+	1
+>	2
+	3
+	4
+]
+`, result.Message))
+	})
+
+	t.Run("does not contain <= 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3}
+		elem := 5
+
+		result := be.SliceContaining(elem, slice)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`slice does not contain elem
+element: 5
+slice:   [1 2 3]
+`, result.Message))
+
+		result = be.SliceContaining(5, []int{1, 2, 3})
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`[]int{1, 2, 3} does not contain 5
+element: 5
+slice:   [1 2 3]
+`, result.Message))
+	})
+
+	t.Run("does not contain > 3", func(t *testing.T) {
+		g := ghost.New(t)
+
+		slice := []int{1, 2, 3, 4}
+		elem := 5
+
+		result := be.SliceContaining(elem, slice)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`slice does not contain elem
+element: 5
+slice:   [
+	1
+	2
+	3
+	4
+]
+`, result.Message))
+
+		result = be.SliceContaining(5, []int{1, 2, 3, 4})
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`[]int{1, 2, 3, 4} does not contain 5
+element: 5
+slice:   [
+	1
+	2
+	3
+	4
+]
 `, result.Message))
 	})
 }
@@ -973,6 +906,73 @@ slice: [
 	c
 	d
 ]
+`, result.Message))
+	})
+}
+
+func TestStringContaining(t *testing.T) {
+	t.Run("contains", func(t *testing.T) {
+		g := ghost.New(t)
+
+		outer := "foobar"
+		inner := "oob"
+
+		result := be.StringContaining(inner, outer)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`outer contains inner
+substr: "oob"
+str:    "foobar"
+`, result.Message))
+
+		result = be.StringContaining("oob", "foobar")
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`"foobar" contains "oob"
+substr: "oob"
+str:    "foobar"
+`, result.Message))
+	})
+
+	t.Run("does not contain", func(t *testing.T) {
+		g := ghost.New(t)
+
+		outer := "foobar"
+		inner := "boo"
+
+		result := be.StringContaining(inner, outer)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`outer does not contain inner
+substr: "boo"
+str:    "foobar"
+`, result.Message))
+
+		result = be.StringContaining("boo", "foobar")
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(`"foobar" does not contain "boo"
+substr: "boo"
+str:    "foobar"
+`, result.Message))
+	})
+
+	t.Run("multiline", func(t *testing.T) {
+		g := ghost.New(t)
+
+		outer := `one
+two
+three
+`
+
+		result := be.StringContaining("two", outer)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(`outer contains "two"
+substr: "two"
+str:    `+`
+"""
+one
+two
+three
+
+"""
+
 `, result.Message))
 	})
 }
