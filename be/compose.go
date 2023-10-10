@@ -15,6 +15,7 @@ func Eventually(
 	interval time.Duration,
 ) ghost.Result {
 	args := ghostlib.ArgsFromAST(f, timeout, interval)
+	argF := args[0]
 
 	timer := time.NewTimer(timeout)
 	defer timer.Stop()
@@ -24,7 +25,7 @@ func Eventually(
 
 	lastRun := ghost.Result{
 		Ok:      false,
-		Message: fmt.Sprintf("%s did not return value within %s timeout", args[0], timeout),
+		Message: fmt.Sprintf("%s did not return value within %s timeout", argF, timeout),
 	}
 
 	ch := make(chan ghost.Result, 1)

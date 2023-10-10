@@ -17,20 +17,19 @@ import (
 // Close asserts that a value is within a delta of another.
 func Close[T constraints.Integer | constraints.Float](want, got, delta T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got, delta)
+	argWant, argGot := args[0], args[1]
 
 	diff := want - got
 	if diff < 0 {
 		diff = 0 - diff
 	}
 
-	wantStr := args[0]
-	if _, err := strconv.ParseFloat(wantStr, 64); err != nil {
-		wantStr = fmt.Sprintf("%s (%v)", wantStr, want)
+	if _, err := strconv.ParseFloat(argWant, 64); err != nil {
+		argWant = fmt.Sprintf("%s (%v)", argWant, want)
 	}
 
-	gotStr := args[1]
-	if _, err := strconv.ParseFloat(gotStr, 64); err != nil {
-		gotStr = fmt.Sprintf("%s (%v)", gotStr, got)
+	if _, err := strconv.ParseFloat(argGot, 64); err != nil {
+		argGot = fmt.Sprintf("%s (%v)", argGot, got)
 	}
 
 	if diff <= delta {
@@ -38,7 +37,7 @@ func Close[T constraints.Integer | constraints.Float](want, got, delta T) ghost.
 			Ok: true,
 			Message: fmt.Sprintf(
 				"delta %v between %s and %s is within %v",
-				diff, wantStr, gotStr, delta,
+				diff, argWant, argGot, delta,
 			),
 		}
 	}
@@ -47,7 +46,7 @@ func Close[T constraints.Integer | constraints.Float](want, got, delta T) ghost.
 		Ok: false,
 		Message: fmt.Sprintf(
 			"delta %v between %s and %s is not within %v",
-			diff, wantStr, gotStr, delta,
+			diff, argWant, argGot, delta,
 		),
 	}
 }
@@ -55,6 +54,7 @@ func Close[T constraints.Integer | constraints.Float](want, got, delta T) ghost.
 // DeepEqual asserts that two elements are deeply equal.
 func DeepEqual[T any](want, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
+	argWant, argGot := args[0], args[1]
 
 	if diff := cmp.Diff(
 		want, got,
@@ -65,7 +65,7 @@ func DeepEqual[T any](want, got T) ghost.Result {
 			Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
 %v
-`, args[0], args[1], diff),
+`, argWant, argGot, diff),
 		}
 	}
 
@@ -73,27 +73,28 @@ diff (-want +got):
 		Ok: true,
 		Message: fmt.Sprintf(`%v == %v
 value: %v
-`, args[0], args[1], want),
+`, argWant, argGot, want),
 	}
 }
 
 // Equal asserts that two elements are equal.
 func Equal[T comparable](want T, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
+	argWant, argGot := args[0], args[1]
 
 	if want == got {
 		switch fmt.Sprint(want) {
-		case args[0], args[1]:
+		case argWant, argGot:
 			return ghost.Result{
 				Ok:      true,
-				Message: fmt.Sprintf(`%v == %v`, args[0], args[1]),
+				Message: fmt.Sprintf(`%v == %v`, argWant, argGot),
 			}
 		default:
 			return ghost.Result{
 				Ok: true,
 				Message: fmt.Sprintf(`%v == %v
 value: %v
-`, args[0], args[1], want),
+`, argWant, argGot, want),
 			}
 		}
 	}
@@ -113,7 +114,7 @@ value: %v
 			Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
 %v
-`, args[0], args[1], cmp.Diff(want, got)),
+`, argWant, argGot, cmp.Diff(want, got)),
 		}
 	case reflect.String:
 		return ghost.Result{
@@ -122,8 +123,8 @@ diff (-want +got):
 want: %v
 got:  %v
 `,
-				args[0],
-				args[1],
+				argWant,
+				argGot,
 				quoteString(interface{}(want).(string)),
 				quoteString(interface{}(got).(string)),
 			),
@@ -135,7 +136,7 @@ got:  %v
 		Message: fmt.Sprintf(`%v != %v
 want: %v
 got:  %v
-`, args[0], args[1], want, got),
+`, argWant, argGot, want, got),
 	}
 }
 
@@ -155,44 +156,46 @@ func quoteString(s string) string {
 // Error asserts that an error is non-nil.
 func Error(err error) ghost.Result {
 	args := ghostlib.ArgsFromAST(err)
+	argErr := args[0]
 
 	if err == nil {
 		return ghost.Result{
 			Ok:      false,
-			Message: fmt.Sprintf("%s is nil", args[0]),
+			Message: fmt.Sprintf("%s is nil", argErr),
 		}
 	}
 
 	return ghost.Result{
 		Ok:      true,
-		Message: fmt.Sprintf("%s has error value: %s", args[0], err),
+		Message: fmt.Sprintf("%s has error value: %s", argErr, err),
 	}
 }
 
 // ErrorContaining asserts that an error string contains a particular substring.
 func ErrorContaining(msg string, err error) ghost.Result {
 	args := ghostlib.ArgsFromAST(msg, err)
+	argMsg, argErr := args[0], args[1]
 
 	switch {
-	case err == nil && args[0] == fmt.Sprintf("%q", msg):
+	case err == nil && argMsg == fmt.Sprintf("%q", msg):
 		return ghost.Result{
 			Ok:      false,
-			Message: fmt.Sprintf(`%v is nil; missing error message: %v`, args[1], msg),
+			Message: fmt.Sprintf(`%v is nil; missing error message: %v`, argErr, msg),
 		}
 	case err == nil:
 		return ghost.Result{
 			Ok:      false,
-			Message: fmt.Sprintf(`%v is nil; missing error message %v: %v`, args[1], args[0], msg),
+			Message: fmt.Sprintf(`%v is nil; missing error message %v: %v`, argErr, argMsg, msg),
 		}
 	case strings.Contains(err.Error(), msg):
 		return ghost.Result{
 			Ok:      true,
-			Message: fmt.Sprintf("%v contains error message %q: %v", args[1], msg, err),
+			Message: fmt.Sprintf("%v contains error message %q: %v", argErr, msg, err),
 		}
 	default:
 		return ghost.Result{
 			Ok:      false,
-			Message: fmt.Sprintf("%v does not contain error message %q: %v", args[1], msg, err),
+			Message: fmt.Sprintf("%v does not contain error message %q: %v", argErr, msg, err),
 		}
 	}
 }
@@ -200,34 +203,36 @@ func ErrorContaining(msg string, err error) ghost.Result {
 // ErrorEqual asserts that an error string equals a particular message.
 func ErrorEqual(msg string, err error) ghost.Result {
 	args := ghostlib.ArgsFromAST(msg, err)
+	argErr := args[1]
 
 	if err == nil {
 		return ghost.Result{
 			Ok:      false,
-			Message: fmt.Sprintf(`%v is nil; want message: %v`, args[1], msg),
+			Message: fmt.Sprintf(`%v is nil; want message: %v`, argErr, msg),
 		}
 	}
 
 	if err.Error() == msg {
 		return ghost.Result{
 			Ok:      true,
-			Message: fmt.Sprintf("%v equals error message %q: %v", args[1], msg, err),
+			Message: fmt.Sprintf("%v equals error message %q: %v", argErr, msg, err),
 		}
 	}
 
 	return ghost.Result{
 		Ok:      false,
-		Message: fmt.Sprintf("%v does not equal error message %q: %v", args[1], msg, err),
+		Message: fmt.Sprintf("%v does not equal error message %q: %v", argErr, msg, err),
 	}
 }
 
 // False asserts that a value is false.
 func False(b bool) ghost.Result {
 	args := ghostlib.ArgsFromAST(b)
+	argB := args[0]
 
 	return ghost.Result{
 		Ok:      !b,
-		Message: fmt.Sprintf("%v is %t", args[0], b),
+		Message: fmt.Sprintf("%v is %t", argB, b),
 	}
 }
 
@@ -236,6 +241,7 @@ var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
 // JSONEqual asserts that two sets of JSON-encoded data are equivalent.
 func JSONEqual[T ~string | ~[]byte](want, got T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
+	argWant, argGot := args[0], args[1]
 
 	diff, desc := jsondiff.Compare([]byte(want), []byte(got), &jsonCompareOpts)
 
@@ -243,19 +249,19 @@ func JSONEqual[T ~string | ~[]byte](want, got T) ghost.Result {
 	case jsondiff.FullMatch:
 		return ghost.Result{
 			Ok:      true,
-			Message: fmt.Sprintf("%v and %v are JSON equal", args[0], args[1]),
+			Message: fmt.Sprintf("%v and %v are JSON equal", argWant, argGot),
 		}
 	case jsondiff.FirstArgIsInvalidJson:
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v is not valid JSON
-value: %s`, args[0], want),
+value: %s`, argWant, want),
 		}
 	case jsondiff.SecondArgIsInvalidJson:
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v is not valid JSON
-value: %s`, args[1], got),
+value: %s`, argGot, got),
 		}
 	case jsondiff.BothArgsAreInvalidJson:
 		return ghost.Result{
@@ -265,26 +271,27 @@ want:
 %s
 
 got:
-%s`, args[0], args[1], want, got),
+%s`, argWant, argGot, want, got),
 		}
 	}
 
 	return ghost.Result{
 		Ok: false,
 		Message: fmt.Sprintf(`%v and %v are not JSON equal
-diff: %s`, args[0], args[1], desc),
+diff: %s`, argWant, argGot, desc),
 	}
 }
 
 // MapLen asserts that the length of a map is a particular size.
 func MapLen[K comparable, V any](want int, got map[K]V) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
+	argGot := args[1]
 
 	return ghost.Result{
 		Ok: want == len(got),
 		Message: fmt.Sprintf(`want %v length %d, got %d
 map: %v
-`, args[1], want, len(got), mapToString(got)),
+`, argGot, want, len(got), mapToString(got)),
 	}
 }
 
@@ -304,17 +311,18 @@ func mapToString[K comparable, V any](m map[K]V) string {
 // Nil asserts that the given value is nil.
 func Nil(v any) ghost.Result {
 	args := ghostlib.ArgsFromAST(v)
+	argV := args[0]
 
 	if isNil(v) {
 		return ghost.Result{
 			Ok:      true,
-			Message: fmt.Sprintf("%v is nil", args[0]),
+			Message: fmt.Sprintf("%v is nil", argV),
 		}
 	}
 
 	return ghost.Result{
 		Ok:      false,
-		Message: fmt.Sprintf("%v is %v, not nil", args[0], v),
+		Message: fmt.Sprintf("%v is %v, not nil", argV, v),
 	}
 }
 
@@ -342,20 +350,21 @@ func isNil(v any) bool {
 // Panic asserts that the given function panics when invoked.
 func Panic(f func()) (result ghost.Result) {
 	args := ghostlib.ArgsFromAST(f)
+	argF := args[0]
 
 	defer func() {
 		if r := recover(); r != nil {
-			if strings.Contains(args[0], "\n") {
+			if strings.Contains(argF, "\n") {
 				result = ghost.Result{
 					Ok: true,
 					Message: fmt.Sprintf(`function panicked with value: %v
 %v
-`, r, args[0]),
+`, r, argF),
 				}
 			} else {
 				result = ghost.Result{
 					Ok:      true,
-					Message: fmt.Sprintf(`function %v panicked with value: %v`, args[0], r),
+					Message: fmt.Sprintf(`function %v panicked with value: %v`, argF, r),
 				}
 			}
 		}
@@ -363,24 +372,25 @@ func Panic(f func()) (result ghost.Result) {
 
 	f()
 
-	if strings.Contains(args[0], "\n") {
+	if strings.Contains(argF, "\n") {
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`function did not panic
 %v
-`, args[0]),
+`, argF),
 		}
 	}
 
 	return ghost.Result{
 		Ok:      false,
-		Message: fmt.Sprintf("function %v did not panic", args[0]),
+		Message: fmt.Sprintf("function %v did not panic", argF),
 	}
 }
 
 // SliceContaining asserts that an element exists in a given slice.
 func SliceContaining[T comparable](element T, slice []T) ghost.Result {
 	args := ghostlib.ArgsFromAST(element, slice)
+	argElement, argSlice := args[0], args[1]
 
 	for _, x := range slice {
 		if x == element {
@@ -390,8 +400,8 @@ func SliceContaining[T comparable](element T, slice []T) ghost.Result {
 element: %v
 slice:   %v
 `,
-					args[1],
-					args[0],
+					argSlice,
+					argElement,
 					element,
 					sliceElementToString(slice, element),
 				),
@@ -405,8 +415,8 @@ slice:   %v
 element: %v
 slice:   %v
 `,
-			args[1],
-			args[0],
+			argSlice,
+			argElement,
 			element,
 			sliceElementToString(slice, element),
 		),
@@ -437,12 +447,13 @@ func sliceElementToString[T comparable](slice []T, element T) string {
 // SliceLen asserts that the length of a slice is a particular size.
 func SliceLen[T any](want int, got []T) ghost.Result {
 	args := ghostlib.ArgsFromAST(want, got)
+	argGot := args[1]
 
 	return ghost.Result{
 		Ok: want == len(got),
 		Message: fmt.Sprintf(`want %v length %d, got %d
 slice: %v
-`, args[1], want, len(got), sliceToString(got)),
+`, argGot, want, len(got), sliceToString(got)),
 	}
 }
 
@@ -466,6 +477,7 @@ func sliceToString[T any](slice []T) string {
 // StringContaining asserts that a substring exists in a given string.
 func StringContaining(substr, str string) ghost.Result {
 	args := ghostlib.ArgsFromAST(substr, str)
+	argSubstr, argStr := args[0], args[1]
 
 	if strings.Contains(str, substr) {
 		return ghost.Result{
@@ -473,7 +485,7 @@ func StringContaining(substr, str string) ghost.Result {
 			Message: fmt.Sprintf(`%v contains %v
 substr: %s
 str:    %s
-`, args[1], args[0], quoteString(substr), quoteString(str)),
+`, argStr, argSubstr, quoteString(substr), quoteString(str)),
 		}
 	}
 
@@ -482,41 +494,43 @@ str:    %s
 		Message: fmt.Sprintf(`%v does not contain %v
 substr: %s
 str:    %s
-`, args[1], args[0], quoteString(substr), quoteString(str)),
+`, argStr, argSubstr, quoteString(substr), quoteString(str)),
 	}
 }
 
 // True asserts that a value is true.
 func True(b bool) ghost.Result {
 	args := ghostlib.ArgsFromAST(b)
+	argB := args[0]
 
 	return ghost.Result{
 		Ok:      b,
-		Message: fmt.Sprintf("%v is %t", args[0], b),
+		Message: fmt.Sprintf("%v is %t", argB, b),
 	}
 }
 
 // Zero asserts that the given value equals its zero value.
 func Zero[T comparable](v T) ghost.Result {
 	args := ghostlib.ArgsFromAST(v)
+	argV := args[0]
 
 	var zero T
 	if v == zero {
 		return ghost.Result{
 			Ok:      true,
-			Message: fmt.Sprintf("%v is the zero value", args[0]),
+			Message: fmt.Sprintf("%v is the zero value", argV),
 		}
 	}
 
-	if args[0] != fmt.Sprint(v) {
+	if argV != fmt.Sprint(v) {
 		return ghost.Result{
 			Ok:      false,
-			Message: fmt.Sprintf("%v is non-zero\nvalue: %v", args[0], v),
+			Message: fmt.Sprintf("%v is non-zero\nvalue: %v", argV, v),
 		}
 	}
 
 	return ghost.Result{
 		Ok:      false,
-		Message: fmt.Sprintf("%v is non-zero", args[0]),
+		Message: fmt.Sprintf("%v is non-zero", argV),
 	}
 }
