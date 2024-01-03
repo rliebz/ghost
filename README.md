@@ -32,8 +32,8 @@ func TestMyFunc(t *testing.T) {
   g.NoError(err)
 
   g.Must(be.Not(be.Nil(got)))
-  g.Should(be.Equal("my value", got.SomeString))
-  g.Should(be.SliceLen(3, got.SomeSlice))
+  g.Should(be.Equal(got.SomeString, "my value"))
+  g.Should(be.SliceLen(got.SomeSlice, 3))
 }
 
 func TestMyFunc_error(t *testing.T) {
@@ -42,7 +42,7 @@ func TestMyFunc_error(t *testing.T) {
   got, err := MyFunc()
 
   g.Should(be.Zero(got))
-  g.Should(be.ErrorEqual("an error occurred", err))
+  g.Should(be.ErrorEqual(err, "an error occurred"))
 }
 ```
 
@@ -56,15 +56,15 @@ Ghost comes with two main checks: `Should` and `Must`.
 Like `t.Error`, the test is allowed to proceed if the assertion fails:
 
 ```go
-g.Should(be.Equal(want, got))
+g.Should(be.Equal(got, want))
 ```
 
 The function also returns a boolean indicating whether the check was
 successful, allowing you to safely chain assertion logic:
 
 ```go
-if g.Should(be.Len(1, mySlice)) {
-  g.Should(be.Equal("foo", mySlice[0]))
+if g.Should(be.Len(mySlice, 1)) {
+  g.Should(be.Equal(mySlice[0], "foo"))
 }
 ```
 
@@ -73,7 +73,7 @@ analogous to `t.Fatal`:
 
 ```go
 g.Must(be.True(ok))
-g.Must(be.Equal(want, got))
+g.Must(be.Equal(got, want))
 ```
 
 For convenience, a `NoError` check is also available, which fails and ends test
@@ -103,8 +103,8 @@ g.Should(be.True(true))
 g.Should(be.Equal(1+1, 2))
 g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
 
-g.Should(be.SliceContaining(2, []int{1, 2, 3}))
-g.Should(be.StringContaining("foo", "foobar"))
+g.Should(be.SliceContaining([]int{1, 2, 3}, 2))
+g.Should(be.StringContaining("foobar", "foo"))
 
 g.Should(be.Panic(func() { panic("oh no") }))
 
@@ -114,8 +114,8 @@ g.Must(be.Nil(err))
 
 err = errors.New("test error: oh no")
 g.Should(be.Error(err))
-g.Should(be.ErrorEqual("test error: oh no", err))
-g.Should(be.ErrorContaining("oh no", err))
+g.Should(be.ErrorEqual(err, "test error: oh no"))
+g.Should(be.ErrorContaining(err, "oh no"))
 
 g.Should(be.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
 ```
@@ -214,16 +214,17 @@ g := ghost.New(t)             // universal test setup
 
 // ...
 
-g.Should(be.Equal(13, myInt)) // soft assertion
+g.Should(be.Equal(myInt, 13)) // soft assertion
 g.Must(be.True(ok))           // hard assertion
 ```
 
 ### Arguments Should Be Predictable
 
-Arguments to assertions should go in a predictable order. By convention:
+Arguments to assertions should go in an intuitive, predictable order. By
+convention:
 
-1. "Want" comes before "got".
-2. "Needle" comes before "haystack".
+1. "Got" comes before "want".
+2. "Haystack" comes before "needle".
 3. All other arguments come last.
 
 [godoc]: https://pkg.go.dev/github.com/rliebz/ghost

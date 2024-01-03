@@ -15,25 +15,25 @@ func TestEventually(t *testing.T) {
 		count := 0
 		result := be.Eventually(func() ghost.Result {
 			count++
-			return be.Equal(3, count)
+			return be.Equal(count, 3)
 		}, 100*time.Millisecond, 5*time.Millisecond)
 
 		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(`3 == count`, result.Message))
+		g.Should(be.Equal(result.Message, `count == 3`))
 	})
 
 	t.Run("not ok", func(t *testing.T) {
 		count := 0
 		result := be.Eventually(func() ghost.Result {
 			count++
-			return be.Equal(-1, count)
+			return be.Equal(count, -1)
 		}, 10*time.Millisecond, 5*time.Millisecond)
 
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`-1 != count
-want: -1
+		g.Should(be.Equal(result.Message, `count != -1
 got:  1
-`, result.Message))
+want: -1
+`))
 	})
 
 	t.Run("timeout", func(t *testing.T) {
@@ -43,10 +43,10 @@ got:  1
 		}, 10*time.Millisecond, 100*time.Millisecond)
 
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(`func() ghost.Result {
+		g.Should(be.Equal(result.Message, `func() ghost.Result {
 	time.Sleep(100 * time.Millisecond)
 	return be.True(true)
-} did not return value within 10ms timeout`, result.Message))
+} did not return value within 10ms timeout`))
 	})
 }
 
@@ -62,8 +62,8 @@ func TestNot(t *testing.T) {
 
 	negated := be.Not(result)
 	g.Should(be.False(negated.Ok))
-	g.Should(be.Equal(message, negated.Message))
+	g.Should(be.Equal(negated.Message, message))
 
 	doubleNegated := be.Not(negated)
-	g.Should(be.Equal(result, doubleNegated))
+	g.Should(be.Equal(doubleNegated, result))
 }

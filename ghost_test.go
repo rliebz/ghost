@@ -23,9 +23,9 @@ func TestGhost_Should(t *testing.T) {
 		})
 
 		g.Should(be.True(ok))
-		g.Should(be.SliceLen(0, mockT.logCalls))
-		g.Should(be.SliceLen(0, mockT.failCalls))
-		g.Should(be.SliceLen(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(mockT.logCalls, 0))
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
 	})
 
 	t.Run("not ok", func(t *testing.T) {
@@ -41,13 +41,13 @@ func TestGhost_Should(t *testing.T) {
 		})
 
 		g.Should(be.False(ok))
-		g.Should(be.SliceLen(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
 
 		g.Should(be.DeepEqual(
 			[][]any{{msg}},
 			mockT.logCalls,
 		))
-		g.Should(be.SliceLen(1, mockT.failCalls))
+		g.Should(be.SliceLen(mockT.failCalls, 1))
 	})
 }
 
@@ -64,9 +64,9 @@ func TestGhost_Must(t *testing.T) {
 			Message: msg,
 		})
 
-		g.Should(be.SliceLen(0, mockT.logCalls))
-		g.Should(be.SliceLen(0, mockT.failCalls))
-		g.Should(be.SliceLen(0, mockT.failNowCalls))
+		g.Should(be.SliceLen(mockT.logCalls, 0))
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
 	})
 
 	t.Run("not ok", func(t *testing.T) {
@@ -81,10 +81,10 @@ func TestGhost_Must(t *testing.T) {
 			Message: msg,
 		})
 
-		g.Should(be.SliceLen(1, mockT.failNowCalls))
+		g.Should(be.SliceLen(mockT.failNowCalls, 1))
 		g.Should(be.DeepEqual(
-			[][]any{{msg}},
 			mockT.logCalls,
+			[][]any{{msg}},
 		))
 	})
 }
@@ -98,15 +98,15 @@ func TestGhost_NoError(t *testing.T) {
 	myErr := errors.New("oh no")
 	testG.NoError(myErr)
 
-	if g.Should(be.SliceLen(1, mockT.logCalls)) {
+	if g.Should(be.SliceLen(mockT.logCalls, 1)) {
 		g.Should(be.DeepEqual(
-			[]any{"myErr has error value: oh no"},
 			mockT.logCalls[0],
+			[]any{"myErr has error value: oh no"},
 		))
 	}
 
-	g.Should(be.SliceLen(0, mockT.failCalls))
-	g.Should(be.SliceLen(1, mockT.failNowCalls))
+	g.Should(be.SliceLen(mockT.failCalls, 0))
+	g.Should(be.SliceLen(mockT.failNowCalls, 1))
 }
 
 type mockT struct {

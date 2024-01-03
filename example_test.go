@@ -18,14 +18,14 @@ func TestExample(t *testing.T) {
 	g.Should(be.Equal(1+1, 2))
 	g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
 
-	g.Should(be.Close(11.0, 6.8+4.2, 0.01))
+	g.Should(be.Close(6.8+4.2, 11.0, 0.01))
 
-	g.Should(be.MapLen(2, map[string]int{"a": 1, "b": 2}))
+	g.Should(be.MapLen(map[string]int{"a": 1, "b": 2}, 2))
 
-	g.Should(be.SliceContaining("b", []string{"a", "b", "c"}))
-	g.Should(be.SliceLen(3, []string{"a", "b", "c"}))
+	g.Should(be.SliceContaining([]string{"a", "b", "c"}, "b"))
+	g.Should(be.SliceLen([]string{"a", "b", "c"}, 3))
 
-	g.Should(be.StringContaining("foo", "foobar"))
+	g.Should(be.StringContaining("foobar", "foo"))
 
 	g.Should(be.Panic(func() { panic("oh no") }))
 	g.Should(be.Not(be.Panic(func() {})))
@@ -37,8 +37,8 @@ func TestExample(t *testing.T) {
 
 	err = errors.New("test error: oh no")
 	g.Should(be.Error(err))
-	g.Should(be.ErrorEqual("test error: oh no", err))
-	g.Should(be.ErrorContaining("oh no", err))
+	g.Should(be.ErrorEqual(err, "test error: oh no"))
+	g.Should(be.ErrorContaining(err, "oh no"))
 
 	g.Should(be.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
 	g.Should(be.Not(be.JSONEqual(`{"a":1}`, `{"a":2}`)))
@@ -46,6 +46,6 @@ func TestExample(t *testing.T) {
 	count := 0
 	g.Should(be.Eventually(func() ghost.Result {
 		count++
-		return be.Equal(3, count)
+		return be.Equal(count, 3)
 	}, 100*time.Millisecond, 10*time.Millisecond))
 }
