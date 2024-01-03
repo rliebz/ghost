@@ -13,4 +13,12 @@ tasks:
 
   test:
     usage: Run unit tests
-    run: go test ./...
+    options:
+      all:
+        usage: run all tests
+        type: bool
+        short: a
+    run:
+      - when: all
+        task: lint
+      - go test ./...
