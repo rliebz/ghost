@@ -63,7 +63,7 @@ The function also returns a boolean indicating whether the check was
 successful, allowing you to safely chain assertion logic:
 
 ```go
-if g.Should(be.Len(mySlice, 1)) {
+if g.Should(be.SliceLen(mySlice, 1)) {
   g.Should(be.Equal(mySlice[0], "foo"))
 }
 ```
