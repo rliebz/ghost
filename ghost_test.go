@@ -43,11 +43,47 @@ func TestGhost_Should(t *testing.T) {
 		g.Should(be.False(ok))
 		g.Should(be.SliceLen(mockT.failNowCalls, 0))
 
-		g.Should(be.DeepEqual(
-			[][]any{{msg}},
-			mockT.logCalls,
-		))
+		g.Should(be.DeepEqual(mockT.logCalls, [][]any{{msg}}))
 		g.Should(be.SliceLen(mockT.failCalls, 1))
+	})
+}
+
+func TestGhost_ShouldNot(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		ok := testG.ShouldNot(ghost.Result{
+			Ok:      true,
+			Message: msg,
+		})
+
+		g.Should(be.False(ok))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
+
+		g.Should(be.DeepEqual(mockT.logCalls, [][]any{{msg}}))
+		g.Should(be.SliceLen(mockT.failCalls, 1))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		ok := testG.ShouldNot(ghost.Result{
+			Ok:      false,
+			Message: msg,
+		})
+
+		g.Should(be.True(ok))
+		g.Should(be.SliceLen(mockT.logCalls, 0))
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
 	})
 }
 
@@ -81,11 +117,43 @@ func TestGhost_Must(t *testing.T) {
 			Message: msg,
 		})
 
+		g.Should(be.DeepEqual(mockT.logCalls, [][]any{{msg}}))
 		g.Should(be.SliceLen(mockT.failNowCalls, 1))
-		g.Should(be.DeepEqual(
-			mockT.logCalls,
-			[][]any{{msg}},
-		))
+	})
+}
+
+func TestGhost_MustNot(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		testG.MustNot(ghost.Result{
+			Ok:      true,
+			Message: msg,
+		})
+
+		g.Should(be.DeepEqual(mockT.logCalls, [][]any{{msg}}))
+		g.Should(be.SliceLen(mockT.failNowCalls, 1))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+		msg := "some message"
+
+		testG.MustNot(ghost.Result{
+			Ok:      false,
+			Message: msg,
+		})
+
+		g.Should(be.SliceLen(mockT.logCalls, 0))
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
 	})
 }
 

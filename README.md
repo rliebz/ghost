@@ -31,7 +31,7 @@ func TestMyFunc(t *testing.T) {
   got, err := MyFunc()
   g.NoError(err)
 
-  g.Must(be.Not(be.Nil(got)))
+  g.MustNot(be.Nil(got))
   g.Should(be.Equal(got.SomeString, "my value"))
   g.Should(be.SliceLen(got.SomeSlice, 3))
 }
@@ -50,16 +50,18 @@ func TestMyFunc_error(t *testing.T) {
 
 ### Checks
 
-Ghost comes with two main checks: `Should` and `Must`.
+Ghost comes with four main checks: `Should`, `ShouldNot`, `Must`, and `MustNot`.
 
-`Should` checks whether an assertion has succeeded, failing the test otherwise.
-Like `t.Error`, the test is allowed to proceed if the assertion fails:
+`Should` and `ShouldNot` check whether an assertion has succeeded, failing the
+test otherwise. Like `t.Error`, the test is allowed to proceed if the assertion
+fails:
 
 ```go
 g.Should(be.Equal(got, want))
+g.ShouldNot(be.Nil(val))
 ```
 
-The function also returns a boolean indicating whether the check was
+Both functions also return a boolean indicating whether the check was
 successful, allowing you to safely chain assertion logic:
 
 ```go
@@ -68,12 +70,12 @@ if g.Should(be.SliceLen(mySlice, 1)) {
 }
 ```
 
-`Must` works similarly, but ends test execution if the assertion does not pass,
-analogous to `t.Fatal`:
+`Must` and `MustNot` work similarly, but end test execution if the assertion
+does not pass, analogous to `t.Fatal`:
 
 ```go
 g.Must(be.True(ok))
-g.Must(be.Equal(got, want))
+g.MustNot(be.Nil(val))
 ```
 
 For convenience, a `NoError` check is also available, which fails and ends test
@@ -83,7 +85,7 @@ execution for non-nil errors:
 g.NoError(err)
 
 // Equivalent to:
-g.Must(be.Not(be.Error(err)))
+g.MustNot(be.Error(err))
 ```
 
 ### Assertions
@@ -99,6 +101,7 @@ operations, error and panic handling, and JSON equality.
 
 ```go
 g.Should(be.True(true))
+g.ShouldNot(be.False(true))
 
 g.Should(be.Equal(1+1, 2))
 g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
@@ -111,6 +114,7 @@ g.Should(be.Panic(func() { panic("oh no") }))
 var err error
 g.NoError(err)
 g.Must(be.Nil(err))
+g.MustNot(be.Error(err))
 
 err = errors.New("test error: oh no")
 g.Should(be.Error(err))
@@ -118,6 +122,7 @@ g.Should(be.ErrorEqual(err, "test error: oh no"))
 g.Should(be.ErrorContaining(err, "oh no"))
 
 g.Should(be.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
+g.ShouldNot(be.JSONEqual(`{"a":1}`, `{"a":2}`))
 ```
 
 For the full list available, see [the documentation][godoc/be].
@@ -126,14 +131,7 @@ For the full list available, see [the documentation][godoc/be].
 
 Ghost allows assertions to be composed into powerful expressions.
 
-The simplest composer is `be.Not`, which negates the result of an assertion:
-
-```go
-g.Should(be.Not(be.True(ok)))
-g.Must(be.Not(be.Nil(val)))
-```
-
-Another composer is `be.Eventually`, which retries an assertion over time until
+One composer is `be.Eventually`, which retries an assertion over time until
 it either succeeds or times out:
 
 ```go
@@ -142,7 +140,16 @@ g.Should(be.Eventually(func() ghost.Result {
 }, 3*time.Second, 100*time.Millisecond))
 ```
 
-Composers can also be composed:
+Another composer is `be.Not`, which negates the result of an assertion:
+
+```go
+g.Should(be.Not(be.True(ok)))
+g.Must(be.Not(be.Nil(val)))
+```
+
+While `be.Not` in a simple assertion would simply be a more verbose version of
+of `ShouldNot` or `MustNot`, the real benefit becomes obvious when you combine
+composers together:
 
 ```go
 g.Should(be.Eventually(func() ghost.Result {
@@ -226,6 +233,13 @@ convention:
 1. "Got" comes before "want".
 2. "Haystack" comes before "needle".
 3. All other arguments come last.
+
+### Ghost Does Assertions
+
+Go's `testing` package is fantastic; Ghost doesn't try to do anything that the
+standard library already does.
+
+Test suites, mocking, logging, and non-assertion failures are all out of scope.
 
 [godoc]: https://pkg.go.dev/github.com/rliebz/ghost
 [godoc/be]: https://pkg.go.dev/github.com/rliebz/ghost/be
