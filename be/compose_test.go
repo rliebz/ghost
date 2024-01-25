@@ -101,6 +101,7 @@ assertion %s is true
 		))
 	})
 }
+
 func TestAny(t *testing.T) {
 	t.Run("no arguments passed", func(t *testing.T) {
 		g := ghost.New(t)
