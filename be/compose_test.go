@@ -1,12 +1,202 @@
 package be_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/rliebz/ghost"
 	"github.com/rliebz/ghost/be"
 )
+
+func TestAll(t *testing.T) {
+	t.Run("no arguments passed", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.All()
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, "no assertions were provided"))
+	})
+
+	t.Run("one valid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.All(
+			be.Equal(1, 0),
+			be.Equal(1, 1),
+			be.Equal(1, 2),
+		)
+
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			fmt.Sprintf(`assertion %s is false
+	1 != 0
+	got:  1
+	want: 0
+
+assertion %s is true
+	1 == 1
+
+assertion %s is false
+	1 != 2
+	got:  1
+	want: 2`,
+				"`be.Equal(1, 0)`",
+				"`be.Equal(1, 1)`",
+				"`be.Equal(1, 2)`",
+			),
+		))
+	})
+
+	t.Run("all valid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.All(
+			be.Equal(1, 1),
+			be.Equal(2, 2),
+		)
+
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			fmt.Sprintf("assertion %s is true"+`
+	1 == 1
+
+assertion %s is true
+	2 == 2`,
+				"`be.Equal(1, 1)`",
+				"`be.Equal(2, 2)`",
+			),
+		))
+	})
+
+	t.Run("nested", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.Any(
+			be.Any(
+				be.Equal(1, 0),
+				be.Equal(1, 2),
+			),
+		)
+
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			fmt.Sprintf(`assertion %s is false
+	assertion %s is false
+		1 != 0
+		got:  1
+		want: 0
+
+	assertion %s is false
+		1 != 2
+		got:  1
+		want: 2`,
+				"`be.Any(be.Equal(1, 0), be.Equal(1, 2))`",
+				"`be.Equal(1, 0)`",
+				"`be.Equal(1, 2)`",
+			),
+		))
+	})
+}
+func TestAny(t *testing.T) {
+	t.Run("no arguments passed", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.Any()
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, "no assertions were provided"))
+	})
+
+	t.Run("one valid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.Any(
+			be.Equal(1, 0),
+			be.Equal(1, 1),
+			be.Equal(1, 2),
+		)
+
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			fmt.Sprintf(`assertion %s is false
+	1 != 0
+	got:  1
+	want: 0
+
+assertion %s is true
+	1 == 1
+
+assertion %s is false
+	1 != 2
+	got:  1
+	want: 2`,
+				"`be.Equal(1, 0)`",
+				"`be.Equal(1, 1)`",
+				"`be.Equal(1, 2)`",
+			),
+		))
+	})
+
+	t.Run("none valid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.Any(
+			be.Equal(1, 0),
+			be.Equal(1, 2),
+		)
+
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			fmt.Sprintf("assertion %s is false"+`
+	1 != 0
+	got:  1
+	want: 0
+
+assertion %s is false
+	1 != 2
+	got:  1
+	want: 2`,
+				"`be.Equal(1, 0)`",
+				"`be.Equal(1, 2)`",
+			),
+		))
+	})
+
+	t.Run("nested", func(t *testing.T) {
+		g := ghost.New(t)
+
+		result := be.Any(
+			be.Any(
+				be.Equal(1, 0),
+				be.Equal(1, 2),
+			),
+		)
+
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			fmt.Sprintf(`assertion %s is false
+	assertion %s is false
+		1 != 0
+		got:  1
+		want: 0
+
+	assertion %s is false
+		1 != 2
+		got:  1
+		want: 2`,
+				"`be.Any(be.Equal(1, 0), be.Equal(1, 2))`",
+				"`be.Equal(1, 0)`",
+				"`be.Equal(1, 2)`",
+			),
+		))
+	})
+}
 
 func TestEventually(t *testing.T) {
 	g := ghost.New(t)

@@ -157,6 +157,8 @@ g.Should(be.Eventually(func() ghost.Result {
 }, 3*time.Second, 100*time.Millisecond))
 ```
 
+For details on other composers such as `be.Any` or `be.All`, see the [godoc][].
+
 #### Custom Assertions
 
 Custom assertions are easy to write and easy to use.

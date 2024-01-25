@@ -42,10 +42,37 @@ func TestExample(t *testing.T) {
 
 	g.Should(be.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
 	g.ShouldNot(be.JSONEqual(`{"a":1}`, `{"a":2}`))
+}
+
+func ExampleEventually() {
+	t := new(testing.T) // from the test
+	g := ghost.New(t)
 
 	count := 0
 	g.Should(be.Eventually(func() ghost.Result {
 		count++
 		return be.Equal(count, 3)
 	}, 100*time.Millisecond, 10*time.Millisecond))
+}
+
+func ExampleAny() {
+	t := new(testing.T) // from the test
+	g := ghost.New(t)
+
+	g.Should(be.Any(
+		be.Equal(0, 1),
+		be.Equal(1, 1),
+		be.Equal(2, 1),
+	))
+}
+
+func ExampleAll() {
+	t := new(testing.T) // from the test
+	g := ghost.New(t)
+
+	g.Should(be.All(
+		be.Equal(1, 1),
+		be.Equal(2, 2),
+		be.Equal(3, 3),
+	))
 }
