@@ -3,6 +3,7 @@ package be
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -53,11 +54,20 @@ func applyVariadicBooleanLogic(
 	for i, result := range results {
 		out.Ok = apply(out.Ok, result.Ok)
 
+		// Not sure why AST parsing would fail, but sometimes it does. Seems to be
+		// environment dependent rather than code dependent.
+		var arg string
+		if len(args) > i {
+			arg = fmt.Sprintf("`%s`", args[i])
+		} else {
+			arg = strconv.Itoa(i)
+		}
+
 		var b strings.Builder
 		if i != 0 {
 			b.WriteString("\n\n")
 		}
-		fmt.Fprintf(&b, "assertion `%s` is %t", args[i], result.Ok)
+		fmt.Fprintf(&b, "assertion %s is %t", arg, result.Ok)
 		b.WriteString("\n\t")
 		b.WriteString(indentString(result.Message))
 
