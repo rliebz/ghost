@@ -22,3 +22,9 @@ type Integer interface {
 type Float interface {
 	~float32 | ~float64
 }
+
+// Ordered is a constraint that permits any ordered type: any type
+// that supports the operators < <= >= >.
+type Ordered interface {
+	Integer | Float | ~string
+}
