@@ -8,6 +8,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
+	"os"
 	"runtime"
 	"strings"
 )
@@ -54,6 +55,8 @@ func callExprArgs(skip int) ([]ast.Expr, error) {
 		return nil, errors.New("failed to get file/line")
 	}
 
+	filename = findSystemFilepath(filename)
+
 	wantFunc := runtime.FuncForPC(pc)
 
 	fset := token.NewFileSet()
@@ -68,6 +71,30 @@ func callExprArgs(skip int) ([]ast.Expr, error) {
 	}
 
 	return node.Args, nil
+}
+
+// Passing the -trimpath flag will prevent looking up filepaths directly.
+// In most cases, some suffix of the path will be a valid relative path, which
+// we can use instead.
+func findSystemFilepath(filename string) string {
+	if _, err := os.Stat(filename); err == nil {
+		return filename
+	}
+
+	cur := filename
+	for {
+		parts := strings.SplitN(cur, "/", 2)
+		if len(parts) < 2 {
+			break
+		}
+
+		cur = parts[1]
+		if _, err := os.Stat(cur); err == nil {
+			return cur
+		}
+	}
+
+	return filename
 }
 
 func callExprForFunc(
