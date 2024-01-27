@@ -125,7 +125,7 @@ func LessOrEqual[T constraints.Ordered](a, b T) ghost.Result {
 func inline(val any, arg string) string {
 	switch val := val.(type) {
 	case string:
-		if fmt.Sprintf("%q", val) == arg {
+		if val == arg || fmt.Sprintf("%q", val) == arg {
 			return arg
 		}
 		return fmt.Sprintf("%v (%q)", arg, val)
