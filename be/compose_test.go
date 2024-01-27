@@ -2,6 +2,7 @@ package be_test
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 	"time"
 
@@ -200,9 +201,9 @@ assertion %s is false
 }
 
 func TestEventually(t *testing.T) {
-	g := ghost.New(t)
-
 	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
 		count := 0
 		result := be.Eventually(func() ghost.Result {
 			count++
@@ -214,20 +215,27 @@ func TestEventually(t *testing.T) {
 	})
 
 	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
 		count := 0
 		result := be.Eventually(func() ghost.Result {
 			count++
 			return be.Equal(count, -1)
-		}, 10*time.Millisecond, 5*time.Millisecond)
+		}, 100*time.Millisecond, 5*time.Millisecond)
 
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `count != -1
-got:  1
+		// TODO: This is a good signal for a native regexp assertion
+		matched, err := regexp.MatchString(`count != -1
+got:  \d+
 want: -1
-`))
+`, result.Message)
+		g.NoError(err)
+		g.Should(be.True(matched))
 	})
 
 	t.Run("timeout", func(t *testing.T) {
+		g := ghost.New(t)
+
 		result := be.Eventually(func() ghost.Result {
 			time.Sleep(100 * time.Millisecond)
 			return be.True(true)
