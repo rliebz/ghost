@@ -190,23 +190,48 @@ func ErrorContaining(err error, msg string) ghost.Result {
 	switch {
 	case err == nil && argMsg == fmt.Sprintf("%q", msg):
 		return ghost.Result{
-			Ok:      false,
-			Message: fmt.Sprintf(`%v is nil; missing error message: %v`, argErr, msg),
+			Ok: false,
+			Message: fmt.Sprintf(`error %v is nil, does not contain message
+got:  <nil>
+want: %v`,
+				argErr,
+				msg,
+			),
 		}
 	case err == nil:
 		return ghost.Result{
-			Ok:      false,
-			Message: fmt.Sprintf(`%v is nil; missing error message %v: %v`, argErr, argMsg, msg),
+			Ok: false,
+			Message: fmt.Sprintf(`error %v is nil, does not contain %v
+got:  <nil>
+want: %v`,
+				argErr,
+				argMsg,
+				msg,
+			),
 		}
 	case strings.Contains(err.Error(), msg):
 		return ghost.Result{
-			Ok:      true,
-			Message: fmt.Sprintf("%v contains error message %q: %v", argErr, msg, err),
+			Ok: true,
+			Message: fmt.Sprintf(`error %v contains message %v
+got:  %v
+want: %v`,
+				argErr,
+				argMsg,
+				err,
+				msg,
+			),
 		}
 	default:
 		return ghost.Result{
-			Ok:      false,
-			Message: fmt.Sprintf("%v does not contain error message %q: %v", argErr, msg, err),
+			Ok: false,
+			Message: fmt.Sprintf(`error %v does not contain message %v
+got:  %v
+want: %v`,
+				argErr,
+				argMsg,
+				err,
+				msg,
+			),
 		}
 	}
 }
@@ -214,25 +239,42 @@ func ErrorContaining(err error, msg string) ghost.Result {
 // ErrorEqual asserts that an error string equals a particular message.
 func ErrorEqual(err error, msg string) ghost.Result {
 	args := ghostlib.ArgsFromAST(err, msg)
-	argErr := args[0]
+	argErr, argMsg := args[0], args[1]
 
 	if err == nil {
 		return ghost.Result{
-			Ok:      false,
-			Message: fmt.Sprintf(`%v is nil; want message: %v`, argErr, msg),
+			Ok: false,
+			Message: fmt.Sprintf(`error %v is nil
+got:  <nil>
+want: %v`,
+				argErr,
+				msg,
+			),
 		}
 	}
 
 	if err.Error() == msg {
 		return ghost.Result{
-			Ok:      true,
-			Message: fmt.Sprintf("%v equals error message %q: %v", argErr, msg, err),
+			Ok: true,
+			Message: fmt.Sprintf(`error %v has message %v
+value: %v`,
+				argErr,
+				argMsg,
+				err,
+			),
 		}
 	}
 
 	return ghost.Result{
-		Ok:      false,
-		Message: fmt.Sprintf("%v does not equal error message %q: %v", argErr, msg, err),
+		Ok: false,
+		Message: fmt.Sprintf(`error %v does not have message %v
+got:  %v
+want: %v`,
+			argErr,
+			argMsg,
+			err,
+			msg,
+		),
 	}
 }
 

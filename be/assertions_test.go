@@ -353,14 +353,18 @@ func TestErrorContaining(t *testing.T) {
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`err contains error message "oob": foobar`,
+			`error err contains message msg
+got:  foobar
+want: oob`,
 		))
 
 		result = be.ErrorContaining(errors.New("foobar"), "oob")
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`errors.New("foobar") contains error message "oob": foobar`,
+			`error errors.New("foobar") contains message "oob"
+got:  foobar
+want: oob`,
 		))
 	})
 
@@ -374,14 +378,18 @@ func TestErrorContaining(t *testing.T) {
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`err does not contain error message "boo": foobar`,
+			`error err does not contain message msg
+got:  foobar
+want: boo`,
 		))
 
 		result = be.ErrorContaining(errors.New("foobar"), "boo")
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`errors.New("foobar") does not contain error message "boo": foobar`,
+			`error errors.New("foobar") does not contain message "boo"
+got:  foobar
+want: boo`,
 		))
 	})
 
@@ -393,11 +401,15 @@ func TestErrorContaining(t *testing.T) {
 
 		result := be.ErrorContaining(err, msg)
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `err is nil; missing error message msg: boo`))
+		g.Should(be.Equal(result.Message, `error err is nil, does not contain msg
+got:  <nil>
+want: boo`))
 
 		result = be.ErrorContaining(nil, "boo")
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `nil is nil; missing error message: boo`))
+		g.Should(be.Equal(result.Message, `error nil is nil, does not contain message
+got:  <nil>
+want: boo`))
 	})
 }
 
@@ -412,14 +424,16 @@ func TestErrorEqual(t *testing.T) {
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`err equals error message "foobar": foobar`,
+			`error err has message msg
+value: foobar`,
 		))
 
 		result = be.ErrorEqual(errors.New("foobar"), "foobar")
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`errors.New("foobar") equals error message "foobar": foobar`,
+			`error errors.New("foobar") has message "foobar"
+value: foobar`,
 		))
 	})
 
@@ -433,14 +447,18 @@ func TestErrorEqual(t *testing.T) {
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`err does not equal error message "boo": foobar`,
+			`error err does not have message msg
+got:  foobar
+want: boo`,
 		))
 
 		result = be.ErrorEqual(errors.New("foobar"), "boo")
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			`errors.New("foobar") does not equal error message "boo": foobar`,
+			`error errors.New("foobar") does not have message "boo"
+got:  foobar
+want: boo`,
 		))
 	})
 
@@ -452,11 +470,15 @@ func TestErrorEqual(t *testing.T) {
 
 		result := be.ErrorEqual(err, msg)
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `err is nil; want message: boo`))
+		g.Should(be.Equal(result.Message, `error err is nil
+got:  <nil>
+want: boo`))
 
 		result = be.ErrorEqual(nil, "boo")
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `nil is nil; want message: boo`))
+		g.Should(be.Equal(result.Message, `error nil is nil
+got:  <nil>
+want: boo`))
 	})
 }
 
