@@ -19,9 +19,9 @@ func Close[T constraints.Integer | constraints.Float](got, want, delta T) ghost.
 	args := ghostlib.ArgsFromAST(got, want, delta)
 	argGot, argWant := args[0], args[1]
 
-	diff := want - got
-	if diff < 0 {
-		diff = 0 - diff
+	gotDelta := want - got
+	if gotDelta < 0 {
+		gotDelta = 0 - gotDelta
 	}
 
 	if _, err := strconv.ParseFloat(argGot, 64); err != nil {
@@ -32,12 +32,18 @@ func Close[T constraints.Integer | constraints.Float](got, want, delta T) ghost.
 		argWant = fmt.Sprintf("%s (%v)", argWant, want)
 	}
 
-	if diff <= delta {
+	if gotDelta <= delta {
 		return ghost.Result{
 			Ok: true,
 			Message: fmt.Sprintf(
-				"delta %v between %s and %s is within %v",
-				diff, argGot, argWant, delta,
+				`delta %v between %s and %s is within %v
+got:   %v
+want:  %v
+delta: %v`,
+				gotDelta, argGot, argWant, delta,
+				got,
+				want,
+				gotDelta,
 			),
 		}
 	}
@@ -45,8 +51,14 @@ func Close[T constraints.Integer | constraints.Float](got, want, delta T) ghost.
 	return ghost.Result{
 		Ok: false,
 		Message: fmt.Sprintf(
-			"delta %v between %s and %s is not within %v",
-			diff, argGot, argWant, delta,
+			`delta %v between %s and %s is not within %v
+got:   %v
+want:  %v
+delta: %v`,
+			gotDelta, argGot, argWant, delta,
+			got,
+			want,
+			gotDelta,
 		),
 	}
 }

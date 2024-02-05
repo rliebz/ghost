@@ -20,21 +20,30 @@ func TestClose(t *testing.T) {
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			"delta 0.5 between got (32) and want (32.5) is within 1",
+			`delta 0.5 between got (32) and want (32.5) is within 1
+got:   32
+want:  32.5
+delta: 0.5`,
 		))
 
 		result = be.Close(32.0, 32.5, 1.0)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			"delta 0.5 between 32.0 and 32.5 is within 1",
+			`delta 0.5 between 32.0 and 32.5 is within 1
+got:   32
+want:  32.5
+delta: 0.5`,
 		))
 
 		result = be.Close(32.5, 32.0, 1.0)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			"delta 0.5 between 32.5 and 32.0 is within 1",
+			`delta 0.5 between 32.5 and 32.0 is within 1
+got:   32.5
+want:  32
+delta: 0.5`,
 		))
 	})
 
@@ -48,14 +57,20 @@ func TestClose(t *testing.T) {
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			"delta 0.5 between got (32) and want (32.5) is not within 0.3",
+			`delta 0.5 between got (32) and want (32.5) is not within 0.3
+got:   32
+want:  32.5
+delta: 0.5`,
 		))
 
 		result = be.Close(32.0, 32.5, 0.3)
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
-			"delta 0.5 between 32.0 and 32.5 is not within 0.3",
+			`delta 0.5 between 32.0 and 32.5 is not within 0.3
+got:   32
+want:  32.5
+delta: 0.5`,
 		))
 	})
 }
