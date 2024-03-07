@@ -146,6 +146,8 @@ diff (-want +got):
 	})
 }
 
+type CustomString string
+
 func TestEqual(t *testing.T) {
 	t.Run("equal", func(t *testing.T) {
 		g := ghost.New(t)
@@ -309,6 +311,32 @@ diff (-want +got):
 `
 		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(be.Equal(result.Message, wantText))
+	})
+
+	t.Run("custom string type", func(t *testing.T) {
+		g := ghost.New(t)
+
+		type T struct {
+			A string
+			B int
+		}
+
+		got := CustomString("foo")
+		want := CustomString("bar")
+
+		result := be.Equal(got, want)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `got != want
+got:  "foo"
+want: "bar"
+`))
+
+		result = be.Equal(CustomString("foo"), CustomString("bar"))
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `CustomString("foo") != CustomString("bar")
+got:  "foo"
+want: "bar"
+`))
 	})
 }
 

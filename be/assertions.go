@@ -137,8 +137,8 @@ want: %v
 `,
 				argGot,
 				argWant,
-				quoteString(interface{}(got).(string)),
-				quoteString(interface{}(want).(string)),
+				quoteString(reflect.ValueOf(got).String()),
+				quoteString(reflect.ValueOf(want).String()),
 			),
 		}
 	}
