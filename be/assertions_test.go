@@ -146,8 +146,6 @@ diff (-want +got):
 	})
 }
 
-type CustomString string
-
 func TestEqual(t *testing.T) {
 	t.Run("equal", func(t *testing.T) {
 		g := ghost.New(t)
@@ -316,10 +314,7 @@ diff (-want +got):
 	t.Run("custom string type", func(t *testing.T) {
 		g := ghost.New(t)
 
-		type T struct {
-			A string
-			B int
-		}
+		type CustomString string
 
 		got := CustomString("foo")
 		want := CustomString("bar")
