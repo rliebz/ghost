@@ -9,7 +9,7 @@ tasks:
     usage: Run static analysis
     description: |
       Run golangci-lint using the project configuration.
-    run: go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3 run ./...
+    run: go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.1 run ./...
 
   test:
     usage: Run unit tests

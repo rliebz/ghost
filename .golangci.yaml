@@ -1,13 +1,13 @@
 issues:
   max-same-issues: 0
-  exclude-use-default: 0
+  exclude-use-default: false
   exclude:
     - if-return
   exclude-rules:
-    path: _test\.go
-    linters:
-      - dupl
-      - gosec
+    - path: _test\.go
+      linters:
+        - dupl
+        - gosec
 
 linters:
   enable:
@@ -60,7 +60,6 @@ linters-settings:
     disabled-checks:
       - paramTypeCombine
       - ptrToRefParam
-      - sloppyTestFuncName
 
   gofumpt:
     module-path: github.com/rliebz/ghost
@@ -71,7 +70,9 @@ linters-settings:
       - G307 # duplicate of errcheck
 
   govet:
-    check-shadowing: true
+    enable-all: true
+    disable:
+      - fieldalignment
 
   lll:
     line-length: 100
