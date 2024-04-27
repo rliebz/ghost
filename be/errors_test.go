@@ -2,6 +2,9 @@ package be_test
 
 import (
 	"errors"
+	"fmt"
+	"io/fs"
+	"os"
 	"testing"
 
 	"github.com/rliebz/ghost"
@@ -175,5 +178,188 @@ want: boo`))
 		g.Should(be.Equal(result.Message, `error nil is nil
 got:  <nil>
 want: boo`))
+	})
+}
+
+func TestErrorIs(t *testing.T) {
+	t.Run("match", func(t *testing.T) {
+		g := ghost.New(t)
+
+		target := errors.New("foobar")
+		err := fmt.Errorf("wrapping: %w", target)
+
+		result := be.ErrorIs(err, target)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error err is target target
+error:  wrapping: foobar
+target: foobar`,
+		))
+
+		result = be.ErrorIs(fmt.Errorf("wrapping: %w", target), target)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error fmt.Errorf("wrapping: %w", target) is target target
+error:  wrapping: foobar
+target: foobar`,
+		))
+	})
+
+	t.Run("no match", func(t *testing.T) {
+		g := ghost.New(t)
+
+		target := errors.New("foobar")
+		err := fmt.Errorf("wrapping: %v", target) //nolint:errorlint // test case
+
+		result := be.ErrorIs(err, target)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error err is not target target
+error:  wrapping: foobar
+target: foobar`,
+		))
+
+		result = be.ErrorIs(fmt.Errorf("wrapping: %v", target), target) //nolint:errorlint // test case
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error fmt.Errorf("wrapping: %v", target) is not target target
+error:  wrapping: foobar
+target: foobar`,
+		))
+	})
+
+	t.Run("nil", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var target error
+		var err error
+
+		result := be.ErrorIs(err, target)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, `error err is target target
+error:  <nil>
+target: <nil>`))
+
+		result = be.ErrorIs(nil, nil)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, `error nil is target nil
+error:  <nil>
+target: <nil>`))
+	})
+}
+
+func TestErrorAs(t *testing.T) {
+	t.Run("match", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var target *fs.PathError
+		_, err := os.Open("some-non-existing-file")
+
+		result := be.ErrorAs(err, &target)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error err set as target &target
+error:  open some-non-existing-file: no such file or directory
+target: *fs.PathError`,
+		))
+
+		result = be.ErrorAs(fmt.Errorf("wrapping: %w", err), &target)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error fmt.Errorf("wrapping: %w", err) set as target &target
+error:  wrapping: open some-non-existing-file: no such file or directory
+target: *fs.PathError`,
+		))
+	})
+
+	t.Run("no match", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var target *fs.PathError
+		err := errors.New("oh no")
+
+		result := be.ErrorAs(err, &target)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error err cannot be set as target &target
+error:  oh no
+target: *fs.PathError`,
+		))
+
+		result = be.ErrorAs(errors.New("oh no"), &target)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`error errors.New("oh no") cannot be set as target &target
+error:  oh no
+target: *fs.PathError`,
+		))
+	})
+
+	t.Run("nil error", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var target error
+		var err error
+
+		result := be.ErrorAs(err, target)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `error err was nil`))
+
+		result = be.ErrorAs(nil, nil)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `error nil was nil`))
+	})
+
+	t.Run("nil target", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var target error
+		err := errors.New("oh no")
+
+		result := be.ErrorAs(err, target)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `target target cannot be nil`))
+
+		result = be.ErrorAs(errors.New("oh no"), nil)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `target nil cannot be nil`))
+	})
+
+	t.Run("non-pointer target", func(t *testing.T) {
+		g := ghost.New(t)
+
+		target := "Hello"
+		err := errors.New("oh no")
+
+		result := be.ErrorAs(err, target)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `target target must be a non-nil pointer`))
+
+		result = be.ErrorAs(errors.New("oh no"), "Hello")
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `target "Hello" must be a non-nil pointer`))
+	})
+
+	t.Run("non-error target element", func(t *testing.T) {
+		g := ghost.New(t)
+
+		target := "Hello"
+		err := errors.New("oh no")
+
+		result := be.ErrorAs(err, &target)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `*target &target must be interface or implement error`))
+
+		result = be.ErrorAs(errors.New("oh no"), new(string))
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `*target new(string) must be interface or implement error`))
 	})
 }

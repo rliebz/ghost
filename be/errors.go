@@ -1,7 +1,9 @@
 package be
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/rliebz/ghost"
@@ -118,6 +120,107 @@ want: %v`,
 			argMsg,
 			err,
 			msg,
+		),
+	}
+}
+
+// ErrorIs asserts that an error matches another using [errors.Is].
+func ErrorIs(err error, target error) ghost.Result {
+	args := ghostlib.ArgsFromAST(err, target)
+	argErr, argTarget := args[0], args[1]
+
+	if errors.Is(err, target) {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(`error %v is target %v
+error:  %v
+target: %v`,
+				argErr,
+				argTarget,
+				err,
+				target,
+			),
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(`error %v is not target %v
+error:  %v
+target: %v`,
+			argErr,
+			argTarget,
+			err,
+			target,
+		),
+	}
+}
+
+var errorType = reflect.TypeOf((*error)(nil)).Elem()
+
+// ErrorAs asserts that an error matches another using [errors.As].
+func ErrorAs(err error, target any) ghost.Result {
+	args := ghostlib.ArgsFromAST(err, target)
+	argErr, argTarget := args[0], args[1]
+
+	if err == nil {
+		return ghost.Result{
+			Ok:      false,
+			Message: fmt.Sprintf("error %v was nil", argErr),
+		}
+	}
+
+	// These next few checks are for invalid usage, where errors.As will panic if
+	// a caller hits any of them. As an assertion library, it's probably more
+	// polite to never panic.
+
+	if target == nil {
+		return ghost.Result{
+			Ok:      false,
+			Message: fmt.Sprintf("target %v cannot be nil", argTarget),
+		}
+	}
+
+	val := reflect.ValueOf(target)
+	typ := val.Type()
+	if typ.Kind() != reflect.Ptr || val.IsNil() {
+		return ghost.Result{
+			Ok:      false,
+			Message: fmt.Sprintf("target %v must be a non-nil pointer", argTarget),
+		}
+	}
+	targetType := typ.Elem()
+
+	if targetType.Kind() != reflect.Interface && !targetType.Implements(errorType) {
+		return ghost.Result{
+			Ok:      false,
+			Message: fmt.Sprintf("*target %v must be interface or implement error", argTarget),
+		}
+	}
+
+	if errors.As(err, target) {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(`error %v set as target %v
+error:  %v
+target: %v`,
+				argErr,
+				argTarget,
+				err,
+				targetType,
+			),
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(`error %v cannot be set as target %v
+error:  %v
+target: %v`,
+			argErr,
+			argTarget,
+			err,
+			targetType,
 		),
 	}
 }
