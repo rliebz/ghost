@@ -3,8 +3,7 @@ package be_test
 import (
 	"errors"
 	"fmt"
-	"io/fs"
-	"os"
+	"strconv"
 	"testing"
 
 	"github.com/rliebz/ghost"
@@ -256,16 +255,16 @@ func TestErrorAs(t *testing.T) {
 	t.Run("match", func(t *testing.T) {
 		g := ghost.New(t)
 
-		var target *fs.PathError
-		_, err := os.Open("some-non-existing-file")
+		var target *strconv.NumError
+		_, err := strconv.Atoi("bad input")
 
 		result := be.ErrorAs(err, &target)
 		g.Should(be.True(result.Ok))
 		g.Should(be.Equal(
 			result.Message,
 			`error err set as target &target
-error:  open some-non-existing-file: no such file or directory
-target: *fs.PathError`,
+error:  strconv.Atoi: parsing "bad input": invalid syntax
+target: *strconv.NumError`,
 		))
 
 		result = be.ErrorAs(fmt.Errorf("wrapping: %w", err), &target)
@@ -273,15 +272,15 @@ target: *fs.PathError`,
 		g.Should(be.Equal(
 			result.Message,
 			`error fmt.Errorf("wrapping: %w", err) set as target &target
-error:  wrapping: open some-non-existing-file: no such file or directory
-target: *fs.PathError`,
+error:  wrapping: strconv.Atoi: parsing "bad input": invalid syntax
+target: *strconv.NumError`,
 		))
 	})
 
 	t.Run("no match", func(t *testing.T) {
 		g := ghost.New(t)
 
-		var target *fs.PathError
+		var target *strconv.NumError
 		err := errors.New("oh no")
 
 		result := be.ErrorAs(err, &target)
@@ -290,7 +289,7 @@ target: *fs.PathError`,
 			result.Message,
 			`error err cannot be set as target &target
 error:  oh no
-target: *fs.PathError`,
+target: *strconv.NumError`,
 		))
 
 		result = be.ErrorAs(errors.New("oh no"), &target)
@@ -299,7 +298,7 @@ target: *fs.PathError`,
 			result.Message,
 			`error errors.New("oh no") cannot be set as target &target
 error:  oh no
-target: *fs.PathError`,
+target: *strconv.NumError`,
 		))
 	})
 
