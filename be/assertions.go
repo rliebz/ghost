@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/google/go-cmp/cmp"
-
 	"github.com/rliebz/ghost"
 	"github.com/rliebz/ghost/ghostlib"
 	"github.com/rliebz/ghost/internal/constraints"
@@ -114,14 +112,10 @@ func DeepEqual[T any](got, want T) ghost.Result {
 	args := ghostlib.ArgsFromAST(got, want)
 	argGot, argWant := args[0], args[1]
 
-	if diff := cmp.Diff(
-		want, got,
-		cmp.Exporter(func(reflect.Type) bool { return true }),
-	); diff != "" {
+	if diff := colorDiff(want, got); diff != "" {
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v != %v
-diff (-want +got):
 %v`, argGot, argWant, diff),
 		}
 	}
@@ -169,8 +163,7 @@ value: %v
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v != %v
-diff (-want +got):
-%v`, argGot, argWant, cmp.Diff(want, got)),
+%v`, argGot, argWant, colorDiff(want, got)),
 		}
 	case reflect.String:
 		if strings.ContainsAny(v.String(), "\n\r") ||
@@ -179,8 +172,7 @@ diff (-want +got):
 			return ghost.Result{
 				Ok: false,
 				Message: fmt.Sprintf(`%v != %v
-diff (-want +got):
-%v`, argGot, argWant, cmp.Diff(want, got)),
+%v`, argGot, argWant, colorDiff(want, got)),
 			}
 		}
 
@@ -235,7 +227,7 @@ func JSONEqual[T ~string | ~[]byte](got, want T) ghost.Result {
 	args := ghostlib.ArgsFromAST(got, want)
 	argGot, argWant := args[0], args[1]
 
-	diff, kind := jsondiff.Diff(got, want)
+	diff, kind := colorJSONDiff(got, want)
 
 	switch kind {
 	case jsondiff.Match:
@@ -270,7 +262,7 @@ want:
 	return ghost.Result{
 		Ok: false,
 		Message: fmt.Sprintf(`%v and %v are not JSON equal
-diff: %s`, argGot, argWant, diff),
+%s`, argGot, argWant, diff),
 	}
 }
 

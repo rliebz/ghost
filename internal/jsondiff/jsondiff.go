@@ -9,6 +9,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/rliebz/ghost/internal/color"
 )
 
 // Kind describes the result of the diff categorically.
@@ -327,10 +329,23 @@ func (d *differ) writeMismatch(got, want any) {
 		d.buf.Write(data)
 	}
 
+	d.writeANSI(color.ANSIRed)
 	d.writeValueInline(want)
+	d.writeANSI(color.ANSIReset)
+
 	d.buf.WriteString(" => ")
+
+	d.writeANSI(color.ANSIGreen)
 	d.writeValueInline(got)
+	d.writeANSI(color.ANSIReset)
+
 	d.failMatch()
+}
+
+func (d *differ) writeANSI(sequence string) {
+	if color.Enabled() {
+		d.buf.WriteString(sequence)
+	}
 }
 
 // TODO: I would rather have the last element of EACH collection handle the

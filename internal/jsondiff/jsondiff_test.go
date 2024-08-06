@@ -1,12 +1,21 @@
 package jsondiff_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/rliebz/ghost"
 	"github.com/rliebz/ghost/be"
 	"github.com/rliebz/ghost/internal/jsondiff"
 )
+
+// Avoid dealing with ANSI escape sequences in tests.
+func TestMain(m *testing.M) {
+	if err := os.Setenv("NO_COLOR", "1"); err != nil {
+		panic(err)
+	}
+	os.Exit(m.Run())
+}
 
 func TestDiff(t *testing.T) {
 	tests := []struct {
