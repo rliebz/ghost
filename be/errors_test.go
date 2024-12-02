@@ -308,11 +308,11 @@ target: *strconv.NumError`,
 		var target error
 		var err error
 
-		result := be.ErrorAs(err, target)
+		result := be.ErrorAs(err, &target)
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(result.Message, `error err was nil`))
 
-		result = be.ErrorAs(nil, nil)
+		result = be.ErrorAs(nil, new(error))
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(result.Message, `error nil was nil`))
 	})
@@ -320,45 +320,15 @@ target: *strconv.NumError`,
 	t.Run("nil target", func(t *testing.T) {
 		g := ghost.New(t)
 
-		var target error
+		var target *error
 		err := errors.New("oh no")
 
 		result := be.ErrorAs(err, target)
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(result.Message, `target target cannot be nil`))
 
-		result = be.ErrorAs(errors.New("oh no"), nil)
+		result = be.ErrorAs[error](errors.New("oh no"), nil)
 		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `target nil cannot be nil`))
-	})
-
-	t.Run("non-pointer target", func(t *testing.T) {
-		g := ghost.New(t)
-
-		target := "Hello"
-		err := errors.New("oh no")
-
-		result := be.ErrorAs(err, target)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `target target must be a non-nil pointer`))
-
-		result = be.ErrorAs(errors.New("oh no"), "Hello")
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `target "Hello" must be a non-nil pointer`))
-	})
-
-	t.Run("non-error target element", func(t *testing.T) {
-		g := ghost.New(t)
-
-		target := "Hello"
-		err := errors.New("oh no")
-
-		result := be.ErrorAs(err, &target)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `*target &target must be interface or implement error`))
-
-		result = be.ErrorAs(errors.New("oh no"), new(string))
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `*target new(string) must be interface or implement error`))
+		g.Should(be.Equal(result.Message, `target <nil> cannot be nil`))
 	})
 }

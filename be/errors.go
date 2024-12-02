@@ -3,7 +3,6 @@ package be
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"strings"
 
 	"github.com/rliebz/ghost"
@@ -156,10 +155,8 @@ target: %v`,
 	}
 }
 
-var errorType = reflect.TypeOf((*error)(nil)).Elem()
-
 // ErrorAs asserts that an error matches another using [errors.As].
-func ErrorAs(err error, target any) ghost.Result {
+func ErrorAs[T error](err error, target *T) ghost.Result {
 	args := ghostlib.ArgsFromAST(err, target)
 	argErr, argTarget := args[0], args[1]
 
@@ -170,31 +167,10 @@ func ErrorAs(err error, target any) ghost.Result {
 		}
 	}
 
-	// These next few checks are for invalid usage, where errors.As will panic if
-	// a caller hits any of them. As an assertion library, it's probably more
-	// polite to never panic.
-
 	if target == nil {
 		return ghost.Result{
 			Ok:      false,
 			Message: fmt.Sprintf("target %v cannot be nil", argTarget),
-		}
-	}
-
-	val := reflect.ValueOf(target)
-	typ := val.Type()
-	if typ.Kind() != reflect.Ptr || val.IsNil() {
-		return ghost.Result{
-			Ok:      false,
-			Message: fmt.Sprintf("target %v must be a non-nil pointer", argTarget),
-		}
-	}
-	targetType := typ.Elem()
-
-	if targetType.Kind() != reflect.Interface && !targetType.Implements(errorType) {
-		return ghost.Result{
-			Ok:      false,
-			Message: fmt.Sprintf("*target %v must be interface or implement error", argTarget),
 		}
 	}
 
@@ -203,11 +179,11 @@ func ErrorAs(err error, target any) ghost.Result {
 			Ok: true,
 			Message: fmt.Sprintf(`error %v set as target %v
 error:  %v
-target: %v`,
+target: %T`,
 				argErr,
 				argTarget,
 				err,
-				targetType,
+				*target,
 			),
 		}
 	}
@@ -216,11 +192,11 @@ target: %v`,
 		Ok: false,
 		Message: fmt.Sprintf(`error %v cannot be set as target %v
 error:  %v
-target: %v`,
+target: %T`,
 			argErr,
 			argTarget,
 			err,
-			targetType,
+			*target,
 		),
 	}
 }
