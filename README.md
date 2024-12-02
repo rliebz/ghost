@@ -109,8 +109,6 @@ g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
 g.Should(be.SliceContaining([]int{1, 2, 3}, 2))
 g.Should(be.StringContaining("foobar", "foo"))
 
-g.Should(be.Panic(func() { panic("oh no") }))
-
 var err error
 g.NoError(err)
 g.Must(be.Nil(err))
@@ -201,6 +199,24 @@ And instantly get helpful, descriptive error messages:
 ```go
 g.Should(BeThirteen(myInt)) // "myInt is 0"
 g.Should(BeThirteen(5 + 6)) // "5 + 6 is 11"
+```
+
+#### Handling Panics
+
+If you expect your code to panic, it is better to assert that the value passed
+to `panic` has the properties you expect, rather than to make an assumption
+that the panic you encountered is the panic you were expecting. Ghost can be
+combined with `defer`/`recover` to access the full expressiveness of test
+assertions:
+
+```go
+defer func() {
+	var err error
+	g.Must(be.AssignedAs(recover(), &err))
+	g.Should(be.ErrorEqual(err, "a specific error occurred"))
+}()
+
+doStuff()
 ```
 
 ## Philosophy

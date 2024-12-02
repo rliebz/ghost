@@ -14,6 +14,52 @@ import (
 	"github.com/rliebz/ghost/internal/constraints"
 )
 
+// AssignedAs assigns a value to a target of an arbitrary type.
+//
+// The target must be a non-nil pointer.
+func AssignedAs[T any](value any, target *T) ghost.Result {
+	args := ghostlib.ArgsFromAST(value, target)
+	argValue, argTarget := args[0], args[1]
+
+	if target == nil {
+		return ghost.Result{
+			Ok:      false,
+			Message: fmt.Sprintf("target %s cannot be nil", argTarget),
+		}
+	}
+
+	typedValue, ok := value.(T)
+	if !ok {
+		return ghost.Result{
+			Ok: false,
+			Message: fmt.Sprintf(
+				`%s (%T) could not be assigned to %s (%T)
+value: %v`,
+				argValue,
+				value,
+				argTarget,
+				target,
+				value,
+			),
+		}
+	}
+
+	*target = typedValue
+
+	return ghost.Result{
+		Ok: true,
+		Message: fmt.Sprintf(
+			`%s (%T) was assigned to %s (%T)
+value: %v`,
+			argValue,
+			value,
+			argTarget,
+			target,
+			value,
+		),
+	}
+}
+
 // Close asserts that a value is within a delta of another.
 func Close[T constraints.Integer | constraints.Float](got, want, delta T) ghost.Result {
 	args := ghostlib.ArgsFromAST(got, want, delta)
@@ -284,46 +330,6 @@ func isNil(v any) bool {
 	}
 
 	return false
-}
-
-// Panic asserts that the given function panics when invoked.
-func Panic(f func()) (result ghost.Result) {
-	args := ghostlib.ArgsFromAST(f)
-	argF := args[0]
-
-	defer func() {
-		if r := recover(); r != nil {
-			if strings.Contains(argF, "\n") {
-				result = ghost.Result{
-					Ok: true,
-					Message: fmt.Sprintf(`function panicked with value: %v
-%v
-`, r, argF),
-				}
-			} else {
-				result = ghost.Result{
-					Ok:      true,
-					Message: fmt.Sprintf(`function %v panicked with value: %v`, argF, r),
-				}
-			}
-		}
-	}()
-
-	f()
-
-	if strings.Contains(argF, "\n") {
-		return ghost.Result{
-			Ok: false,
-			Message: fmt.Sprintf(`function did not panic
-%v
-`, argF),
-		}
-	}
-
-	return ghost.Result{
-		Ok:      false,
-		Message: fmt.Sprintf("function %v did not panic", argF),
-	}
 }
 
 // SliceContaining asserts that an element exists in a given slice.
