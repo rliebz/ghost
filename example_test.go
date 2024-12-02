@@ -27,9 +27,6 @@ func TestExample(t *testing.T) {
 
 	g.Should(be.StringContaining("foobar", "foo"))
 
-	g.Should(be.Panic(func() { panic("oh no") }))
-	g.ShouldNot(be.Panic(func() {}))
-
 	var err error
 	g.NoError(err)
 	g.Must(be.Nil(err))
@@ -42,6 +39,19 @@ func TestExample(t *testing.T) {
 
 	g.Should(be.JSONEqual(`{"b": 1, "a": 0}`, `{"a": 0, "b": 1}`))
 	g.ShouldNot(be.JSONEqual(`{"a":1}`, `{"a":2}`))
+}
+
+func ExampleAssignedAs() {
+	t := new(testing.T) // from the test
+	g := ghost.New(t)
+
+	defer func() {
+		var err error
+		g.Must(be.AssignedAs(recover(), &err))
+		g.Should(be.ErrorEqual(err, "oops"))
+	}()
+
+	panic(errors.New("oops"))
 }
 
 func ExampleEventually() {

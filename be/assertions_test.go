@@ -1,13 +1,111 @@
 package be_test
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"strings"
 	"testing"
 
 	"github.com/rliebz/ghost"
 	"github.com/rliebz/ghost/be"
 )
+
+func TestAssignedAs(t *testing.T) {
+	t.Run("primitive valid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var got any = "some-value"
+		var want string
+
+		result := be.AssignedAs(got, &want)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, `got (string) was assigned to &want (*string)
+value: some-value`))
+
+		result = be.AssignedAs("some-value", new(string))
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, `"some-value" (string) was assigned to new(string) (*string)
+value: some-value`))
+	})
+
+	t.Run("primitive invalid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var got any = 15
+		var want string
+
+		result := be.AssignedAs(got, &want)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `got (int) could not be assigned to &want (*string)
+value: 15`))
+
+		result = be.AssignedAs(15, new(string))
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `15 (int) could not be assigned to new(string) (*string)
+value: 15`,
+		))
+	})
+
+	t.Run("interface valid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var got any = new(bytes.Buffer)
+		var want io.Reader
+
+		result := be.AssignedAs(got, &want)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, `got (*bytes.Buffer) was assigned to &want (*io.Reader)
+value: `))
+
+		result = be.AssignedAs(new(bytes.Buffer), new(io.Reader))
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(
+			result.Message,
+			`new(bytes.Buffer) (*bytes.Buffer) was assigned to new(io.Reader) (*io.Reader)
+value: `))
+	})
+
+	t.Run("interface invalid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var got any = 15
+		var want io.Reader
+
+		result := be.AssignedAs(got, &want)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `got (int) could not be assigned to &want (*io.Reader)
+value: 15`))
+
+		result = be.AssignedAs(15, new(io.Reader))
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `15 (int) could not be assigned to new(io.Reader) (*io.Reader)
+value: 15`))
+	})
+
+	t.Run("nil target", func(t *testing.T) {
+		g := ghost.New(t)
+
+		var got any = 15
+		var want *int
+
+		result := be.AssignedAs(got, want)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, "target want cannot be nil"))
+	})
+
+	t.Run("panic", func(t *testing.T) {
+		g := ghost.New(t)
+
+		defer func() {
+			var err error
+			g.Must(be.AssignedAs(recover(), &err))
+			g.Should(be.ErrorEqual(err, "oops"))
+		}()
+
+		panic(errors.New("oops"))
+	})
+}
 
 func TestClose(t *testing.T) {
 	t.Run("in delta", func(t *testing.T) {
@@ -554,43 +652,6 @@ func TestNil(t *testing.T) {
 		result = be.Nil(-1 + 1)
 		g.Should(be.False(result.Ok))
 		g.Should(be.Equal(result.Message, "-1 + 1 is 0, not nil"))
-	})
-}
-
-func TestPanic(t *testing.T) {
-	t.Run("panic", func(t *testing.T) {
-		g := ghost.New(t)
-
-		f := func() { panic(errors.New("oh no")) }
-
-		result := be.Panic(f)
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(result.Message, "function f panicked with value: oh no"))
-
-		result = be.Panic(func() { panic(errors.New("oh no")) })
-		g.Should(be.True(result.Ok))
-		g.Should(be.Equal(result.Message, `function panicked with value: oh no
-func() {
-	panic(errors.New("oh no"))
-}
-`))
-	})
-
-	t.Run("no panic", func(t *testing.T) {
-		g := ghost.New(t)
-
-		f := func() {}
-
-		result := be.Panic(f)
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, "function f did not panic"))
-
-		result = be.Panic(func() {})
-		g.Should(be.False(result.Ok))
-		g.Should(be.Equal(result.Message, `function did not panic
-func() {
-}
-`))
 	})
 }
 
