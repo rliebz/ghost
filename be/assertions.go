@@ -171,10 +171,20 @@ value: %v
 			Ok: false,
 			Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
-%v
-`, argGot, argWant, cmp.Diff(want, got)),
+%v`, argGot, argWant, cmp.Diff(want, got)),
 		}
 	case reflect.String:
+		if strings.ContainsAny(v.String(), "\n\r") ||
+			strings.ContainsAny(reflect.ValueOf(got).String(), "\n\r") {
+
+			return ghost.Result{
+				Ok: false,
+				Message: fmt.Sprintf(`%v != %v
+diff (-want +got):
+%v`, argGot, argWant, cmp.Diff(want, got)),
+			}
+		}
+
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v != %v

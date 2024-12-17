@@ -339,28 +339,26 @@ want: "foo"
 		g.Should(be.False(result.Ok))
 
 		wantText := `got != want
-got:  "bar"
-want: ` + `
-"""
-foo
-bar
-baz
-"""
+diff (-want +got):
+  string(
+- 	"foo\nbar\nbaz",
++ 	"bar",
+  )
 `
+		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(be.Equal(result.Message, wantText))
 
 		result = be.Equal("bar", "foo\nbar\nbaz")
 		g.Should(be.False(result.Ok))
 
 		wantText = `"bar" != "foo\nbar\nbaz"
-got:  "bar"
-want: ` + `
-"""
-foo
-bar
-baz
-"""
+diff (-want +got):
+  string(
+- 	"foo\nbar\nbaz",
++ 	"bar",
+  )
 `
+		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(be.Equal(result.Message, wantText))
 	})
 
@@ -387,7 +385,6 @@ diff (-want +got):
 - 	B: 1,
 + 	B: 0,
   }
-
 `
 		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(be.Equal(result.Message, wantText))
@@ -403,7 +400,6 @@ diff (-want +got):
 - 	B: 1,
 + 	B: 0,
   }
-
 `
 		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(be.Equal(result.Message, wantText))
