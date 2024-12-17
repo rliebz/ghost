@@ -221,7 +221,6 @@ diff (-want +got):
 - 	b: 1,
 + 	b: 0,
   }
-
 `
 		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(be.Equal(result.Message, wantText))
@@ -237,7 +236,6 @@ diff (-want +got):
 - 	b: 1,
 + 	b: 0,
   }
-
 `
 		result.Message = strings.ReplaceAll(result.Message, "\u00a0", " ")
 		g.Should(be.Equal(result.Message, wantText))

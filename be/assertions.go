@@ -122,8 +122,7 @@ func DeepEqual[T any](got, want T) ghost.Result {
 			Ok: false,
 			Message: fmt.Sprintf(`%v != %v
 diff (-want +got):
-%v
-`, argGot, argWant, diff),
+%v`, argGot, argWant, diff),
 		}
 	}
 
