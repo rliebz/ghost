@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/nsf/jsondiff"
 
 	"github.com/rliebz/ghost"
 	"github.com/rliebz/ghost/ghostlib"
 	"github.com/rliebz/ghost/internal/constraints"
+	"github.com/rliebz/ghost/internal/jsondiff"
 )
 
 // AssignedAs assigns a value to a target of an arbitrary type.
@@ -230,34 +230,32 @@ func False(b bool) ghost.Result {
 	}
 }
 
-var jsonCompareOpts = jsondiff.DefaultConsoleOptions()
-
 // JSONEqual asserts that two sets of JSON-encoded data are equivalent.
 func JSONEqual[T ~string | ~[]byte](got, want T) ghost.Result {
 	args := ghostlib.ArgsFromAST(got, want)
 	argGot, argWant := args[0], args[1]
 
-	diff, desc := jsondiff.Compare([]byte(want), []byte(got), &jsonCompareOpts)
+	diff, kind := jsondiff.Diff(got, want)
 
-	switch diff {
-	case jsondiff.FullMatch:
+	switch kind {
+	case jsondiff.Match:
 		return ghost.Result{
 			Ok:      true,
 			Message: fmt.Sprintf("%v and %v are JSON equal", argGot, argWant),
 		}
-	case jsondiff.FirstArgIsInvalidJson:
-		return ghost.Result{
-			Ok: false,
-			Message: fmt.Sprintf(`%v is not valid JSON
-value: %s`, argWant, want),
-		}
-	case jsondiff.SecondArgIsInvalidJson:
+	case jsondiff.GotInvalid:
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v is not valid JSON
 value: %s`, argGot, got),
 		}
-	case jsondiff.BothArgsAreInvalidJson:
+	case jsondiff.WantInvalid:
+		return ghost.Result{
+			Ok: false,
+			Message: fmt.Sprintf(`%v is not valid JSON
+value: %s`, argWant, want),
+		}
+	case jsondiff.BothInvalid:
 		return ghost.Result{
 			Ok: false,
 			Message: fmt.Sprintf(`%v and %v are not valid JSON
@@ -272,7 +270,7 @@ want:
 	return ghost.Result{
 		Ok: false,
 		Message: fmt.Sprintf(`%v and %v are not JSON equal
-diff: %s`, argGot, argWant, desc),
+diff: %s`, argGot, argWant, diff),
 	}
 }
 
