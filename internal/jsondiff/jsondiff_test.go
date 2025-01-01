@@ -321,6 +321,36 @@ func TestDiff(t *testing.T) {
 			wantKind: jsondiff.NoMatch,
 		},
 		{
+			name: "object containing array containing object equal",
+			a:    `{"a": [1, {"b": 2}, 3]}`,
+			b:    `{"a": [1, {"b": 2}, 3]}`,
+			wantDiff: `  {
+    "a": [
+      1,
+      {
+        "b": 2
+      },
+      3
+    ]
+  }`,
+			wantKind: jsondiff.Match,
+		},
+		{
+			name: "object containing array containing object not equal",
+			a:    `{"a": [1, {"b": 2}, 3]}`,
+			b:    `{"a": [1, {"b": 4}, 3]}`,
+			wantDiff: `  {
+    "a": [
+      1,
+      {
+~       "b": 4 => 2
+      },
+      3
+    ]
+  }`,
+			wantKind: jsondiff.NoMatch,
+		},
+		{
 			name: "array containing object containing array equal",
 			a:    `[{"a": [1, 2, 3]}]`,
 			b:    `[{"a": [1, 2, 3]}]`,
