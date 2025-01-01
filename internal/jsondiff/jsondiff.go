@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"slices"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -149,7 +149,7 @@ func (d *differ) diffMaps(got, want map[string]any) {
 	for k := range keys {
 		sortedKeys = append(sortedKeys, k)
 	}
-	slices.Sort(sortedKeys)
+	sort.Strings(sortedKeys)
 
 	first := true
 	for _, k := range sortedKeys {
@@ -300,7 +300,7 @@ func (d *differ) writeMap(m map[string]any) {
 	for k := range m {
 		keys = append(keys, k)
 	}
-	slices.Sort(keys)
+	sort.Strings(keys)
 
 	first := true
 	for _, k := range keys {
