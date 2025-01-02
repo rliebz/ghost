@@ -9,7 +9,7 @@ import (
 	"github.com/rliebz/ghost/internal/jsondiff"
 )
 
-// Avoid dealing with ANSI escape sequences in tests.
+// Avoid dealing with ANSI escape sequences.
 func TestMain(m *testing.M) {
 	if err := os.Setenv("NO_COLOR", "1"); err != nil {
 		panic(err)
