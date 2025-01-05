@@ -1,19 +1,20 @@
 # Ghost
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/rliebz/ghost.svg)][godoc]
+[![Test Workflow](https://github.com/rliebz/ghost/actions/workflows/test.yml/badge.svg)](https://github.com/rliebz/ghost/actions?query=workflow%3ATest+branch%3Amain++)
+[![Go Report Card](https://goreportcard.com/badge/github.com/rliebz/ghost)](https://goreportcard.com/report/github.com/rliebz/ghost)
 
-Ghost does test assertions in Go.
-
-This is early-stage software, and some breaking changes are still expected.
+Flexible, extensible, and beautiful test assertions in Go that stay out of
+your way.
 
 ## Features
 
-- **Utilities that stay out of your way**: Ghost extends standard library
-  testing without trying to replace it. Set up your test in one line of code,
-  and you're good to go.
-- **Generics-friendly logic**: All built-in assertions were designed with
-  generics in mind. Shift failures left, and let your compiler tell you when
-  assertions aren't set up correctly.
+- **Assertions that fit in your existing tests**: Ghost extends standard
+  library testing without trying to replace it. Set up your test in one line of
+  code, and you're good to go.
+- **Type-safe and generics-friendly logic**: All built-in assertions were
+  designed with generics in mind. Shift failures left, and let your compiler
+  tell you when assertions aren't set up correctly.
 - **Test output that knows your code**: Ghost uses AST parsing to read your
   source code and print out the most useful information for you.
 - **Assertions that can be composed, extended, and reused**: Easily write
@@ -251,13 +252,6 @@ convention:
 1. "Got" comes before "want".
 2. "Haystack" comes before "needle".
 3. All other arguments come last.
-
-### Ghost Does Assertions
-
-Go's `testing` package is fantastic; Ghost doesn't try to do anything that the
-standard library already does.
-
-Test suites, mocking, logging, and non-assertion failures are all out of scope.
 
 [godoc]: https://pkg.go.dev/github.com/rliebz/ghost
 [godoc/be]: https://pkg.go.dev/github.com/rliebz/ghost/be
