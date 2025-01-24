@@ -3,6 +3,7 @@ package be
 import (
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -439,6 +440,51 @@ substr: %s
 str:    %s
 substr: %s
 `, argStr, argSubstr, quoteString(str), quoteString(substr)),
+	}
+}
+
+// StringMatching asserts that a given string matches a regular expression.
+func StringMatching(str string, expr string) ghost.Result {
+	args := ghostlib.ArgsFromAST(str, expr)
+	argStr, argExpr := args[0], args[1]
+
+	re, err := regexp.Compile(expr)
+	if err != nil {
+		return ghost.Result{
+			Ok: false,
+			Message: fmt.Sprintf(`%v is not a valid regular expression
+%v
+`,
+				argExpr,
+				err,
+			),
+		}
+	}
+
+	if re.MatchString(str) {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(`%v matches regular expression %v
+str:  %s
+expr: %s
+`,
+				argStr, argExpr,
+				quoteString(str),
+				re.String(),
+			),
+		}
+	}
+
+	return ghost.Result{
+		Ok: false,
+		Message: fmt.Sprintf(`%v does not match regular expression %v
+str:  %s
+expr: %s
+`,
+			argStr, argExpr,
+			quoteString(str),
+			re.String(),
+		),
 	}
 }
 

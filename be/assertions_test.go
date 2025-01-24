@@ -919,6 +919,67 @@ substr: "two"
 	})
 }
 
+func TestStringMatching(t *testing.T) {
+	t.Run("matches", func(t *testing.T) {
+		g := ghost.New(t)
+
+		str := "foobar"
+		expr := "^foo"
+
+		result := be.StringMatching(str, expr)
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, `str matches regular expression expr
+str:  "foobar"
+expr: ^foo
+`))
+
+		result = be.StringMatching("foobar", "^foo")
+		g.Should(be.True(result.Ok))
+		g.Should(be.Equal(result.Message, `"foobar" matches regular expression "^foo"
+str:  "foobar"
+expr: ^foo
+`))
+	})
+
+	t.Run("does not match", func(t *testing.T) {
+		g := ghost.New(t)
+
+		str := "foobar"
+		expr := "^foo$"
+
+		result := be.StringMatching(str, expr)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `str does not match regular expression expr
+str:  "foobar"
+expr: ^foo$
+`))
+
+		result = be.StringMatching("foobar", "^foo$")
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `"foobar" does not match regular expression "^foo$"
+str:  "foobar"
+expr: ^foo$
+`))
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		g := ghost.New(t)
+
+		str := "foobar"
+		expr := "^foo\\j"
+
+		result := be.StringMatching(str, expr)
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `expr is not a valid regular expression
+error parsing regexp: invalid escape sequence: `+"`\\j`\n"))
+
+		result = be.StringMatching("foobar", "^foo\\j")
+		g.Should(be.False(result.Ok))
+		g.Should(be.Equal(result.Message, `"^foo\\j" is not a valid regular expression
+error parsing regexp: invalid escape sequence: `+"`\\j`\n"))
+	})
+}
+
 func TestTrue(t *testing.T) {
 	t.Run("true", func(t *testing.T) {
 		g := ghost.New(t)

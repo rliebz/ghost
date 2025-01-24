@@ -26,6 +26,7 @@ func TestExample(t *testing.T) {
 	g.Should(be.SliceLen([]string{"a", "b", "c"}, 3))
 
 	g.Should(be.StringContaining("foobar", "foo"))
+	g.Should(be.StringMatching("foobar", `^foo`))
 
 	var err error
 	g.NoError(err)

@@ -109,6 +109,7 @@ g.Should(be.DeepEqual([]string{"a", "b"}, []string{"a", "b"}))
 
 g.Should(be.SliceContaining([]int{1, 2, 3}, 2))
 g.Should(be.StringContaining("foobar", "foo"))
+g.Should(be.StringMatching("foobar", `^foo`))
 
 var err error
 g.NoError(err)
