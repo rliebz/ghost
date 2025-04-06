@@ -156,7 +156,7 @@ target: %v`,
 }
 
 // ErrorAs asserts that an error matches another using [errors.As].
-func ErrorAs[T error](err error, target *T) ghost.Result {
+func ErrorAs[T any](err error, target *T) ghost.Result {
 	args := ghostlib.ArgsFromAST(err, target)
 	argErr, argTarget := args[0], args[1]
 
