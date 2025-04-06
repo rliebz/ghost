@@ -29,7 +29,7 @@ func Green(s string) string {
 	return apply(ANSIGreen, s)
 }
 
-// Yellow colors the string yellow
+// Yellow colors the string yellow.
 func Yellow(s string) string {
 	return apply(ANSIYellow, s)
 }

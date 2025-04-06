@@ -17,7 +17,7 @@ func Error(err error) ghost.Result {
 	if err == nil {
 		return ghost.Result{
 			Ok:      false,
-			Message: fmt.Sprintf("%s is nil", argErr),
+			Message: argErr + " is nil",
 		}
 	}
 
