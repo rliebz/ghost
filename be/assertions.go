@@ -272,9 +272,18 @@ func MapLen[K comparable, V any](got map[K]V, want int) ghost.Result {
 	args := ghostlib.ArgsFromAST(got, want)
 	argGot := args[0]
 
+	if len(got) == want {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(`%v is length %d
+map: %v
+`, argGot, len(got), mapToString(got)),
+		}
+	}
+
 	return ghost.Result{
-		Ok: len(got) == want,
-		Message: fmt.Sprintf(`got %v length %d, want %d
+		Ok: false,
+		Message: fmt.Sprintf(`%v is length %d, not %d
 map: %v
 `, argGot, len(got), want, mapToString(got)),
 	}
@@ -394,9 +403,18 @@ func SliceLen[T any](got []T, want int) ghost.Result {
 	args := ghostlib.ArgsFromAST(got, want)
 	argGot := args[0]
 
+	if len(got) == want {
+		return ghost.Result{
+			Ok: true,
+			Message: fmt.Sprintf(`%v is length %d
+slice: %v
+`, argGot, len(got), sliceToString(got)),
+		}
+	}
+
 	return ghost.Result{
-		Ok: len(got) == want,
-		Message: fmt.Sprintf(`got %v length %d, want %d
+		Ok: false,
+		Message: fmt.Sprintf(`%v is length %d, not %d
 slice: %v
 `, argGot, len(got), want, sliceToString(got)),
 	}
