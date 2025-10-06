@@ -41,7 +41,6 @@ func TestMyFunc_error(t *testing.T) {
   g := ghost.New(t)
 
   got, err := MyFunc()
-
   g.Should(be.Zero(got))
   g.Should(be.ErrorEqual(err, "an error occurred"))
 }
@@ -66,8 +65,8 @@ Both functions also return a boolean indicating whether the check was
 successful, allowing you to safely chain assertion logic:
 
 ```go
-if g.Should(be.SliceLen(mySlice, 1)) {
-  g.Should(be.Equal(mySlice[0], "foo"))
+if g.Should(be.SliceLen(items, 1)) {
+  g.Should(be.Equal(items[0], "foo"))
 }
 ```
 
@@ -75,12 +74,32 @@ if g.Should(be.SliceLen(mySlice, 1)) {
 does not pass, analogous to `t.Fatal`:
 
 ```go
-g.Must(be.True(ok))
+g.Must(be.SliceLen(items, 3))
 g.MustNot(be.Nil(val))
 ```
 
-For convenience, a `NoError` check is also available, which fails and ends test
-execution for non-nil errors:
+For convenience, there are three other checks that wrap common cases.
+
+`Check` checks that a boolean expression is true without ending test execution:
+
+```go
+g.Check(ok)
+
+// Equivalent to:
+g.Should(be.True(ok))
+```
+
+`Assert` asserts that a boolean is true and ends execution for `false` values:
+
+```go
+g.Assert(ok)
+
+// Equivalent to:
+g.Must(be.True(ok))
+```
+
+`NoError` asserts that an error is non-nil and ends execution for non-nil
+errors:
 
 ```go
 g.NoError(err)
@@ -242,7 +261,7 @@ g := ghost.New(t)             // universal test setup
 // ...
 
 g.Should(be.Equal(myInt, 13)) // soft assertion
-g.Must(be.True(ok))           // hard assertion
+g.MustNot(be.Nil(val))        // hard assertion
 ```
 
 ### Arguments Should Be Predictable

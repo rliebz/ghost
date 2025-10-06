@@ -157,24 +157,114 @@ func TestGhost_MustNot(t *testing.T) {
 	})
 }
 
+func TestGhost_Check(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+
+		val := true
+		got := testG.Check(val)
+		g.Check(got == val)
+
+		g.Should(be.SliceLen(mockT.logCalls, 0))
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+
+		val := false
+		got := testG.Check(val)
+		g.Check(got == val)
+
+		if g.Should(be.SliceLen(mockT.logCalls, 1)) {
+			g.Should(be.DeepEqual(
+				mockT.logCalls[0],
+				[]any{"val is false"},
+			))
+		}
+
+		g.Should(be.SliceLen(mockT.failCalls, 1))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
+	})
+}
+
+func TestGhost_Assert(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+
+		val := true
+		testG.Assert(val)
+
+		g.Should(be.SliceLen(mockT.logCalls, 0))
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
+	})
+
+	t.Run("not ok", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+
+		val := false
+		testG.Assert(val)
+
+		if g.Should(be.SliceLen(mockT.logCalls, 1)) {
+			g.Should(be.DeepEqual(
+				mockT.logCalls[0],
+				[]any{"val is false"},
+			))
+		}
+
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 1))
+	})
+}
+
 func TestGhost_NoError(t *testing.T) {
-	g := ghost.New(t)
+	t.Run("nil", func(t *testing.T) {
+		g := ghost.New(t)
 
-	mockT := newMockT()
-	testG := ghost.New(mockT)
+		mockT := newMockT()
+		testG := ghost.New(mockT)
 
-	myErr := errors.New("oh no")
-	testG.NoError(myErr)
+		var myErr error
+		testG.NoError(myErr)
 
-	if g.Should(be.SliceLen(mockT.logCalls, 1)) {
-		g.Should(be.DeepEqual(
-			mockT.logCalls[0],
-			[]any{"myErr has error value: oh no"},
-		))
-	}
+		g.Should(be.SliceLen(mockT.logCalls, 0))
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 0))
+	})
 
-	g.Should(be.SliceLen(mockT.failCalls, 0))
-	g.Should(be.SliceLen(mockT.failNowCalls, 1))
+	t.Run("error", func(t *testing.T) {
+		g := ghost.New(t)
+
+		mockT := newMockT()
+		testG := ghost.New(mockT)
+
+		myErr := errors.New("oh no")
+		testG.NoError(myErr)
+
+		if g.Should(be.SliceLen(mockT.logCalls, 1)) {
+			g.Should(be.DeepEqual(
+				mockT.logCalls[0],
+				[]any{"myErr has error value: oh no"},
+			))
+		}
+
+		g.Should(be.SliceLen(mockT.failCalls, 0))
+		g.Should(be.SliceLen(mockT.failNowCalls, 1))
+	})
 }
 
 type mockT struct {
@@ -190,6 +280,8 @@ var _ ghost.T = (*mockT)(nil)
 func newMockT() *mockT {
 	return &mockT{}
 }
+
+func (t *mockT) Helper() {}
 
 func (t *mockT) Log(args ...any) {
 	t.m.Lock()

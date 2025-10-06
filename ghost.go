@@ -25,7 +25,9 @@ func New(t T) Ghost {
 	return Ghost{t}
 }
 
-// Should runs an assertion, returning true if the assertion was successful.
+// Should checks that an assertion result is OK, which if unsuccessful will
+// mark a test as failed but continue execution. Returns true if the assertion
+// was successful.
 func (g Ghost) Should(result Result) bool {
 	if h, ok := g.t.(interface{ Helper() }); ok {
 		h.Helper()
@@ -40,8 +42,9 @@ func (g Ghost) Should(result Result) bool {
 	return true
 }
 
-// ShouldNot runs an assertion that should not be successful, returning true if
-// the assertion was not successful.
+// ShouldNot checks that an assertion result is not OK, which if unsuccessful
+// will mark a test as failed but continue execution. Returns true if the
+// assertion was successful.
 func (g Ghost) ShouldNot(result Result) bool {
 	if h, ok := g.t.(interface{ Helper() }); ok {
 		h.Helper()
@@ -56,7 +59,8 @@ func (g Ghost) ShouldNot(result Result) bool {
 	return true
 }
 
-// Must runs an assertion that must be successful, failing the test if it is not.
+// Must asserts that an assertion result is OK, which if unsuccessful will
+// mark a test as failed and stop execution.
 func (g Ghost) Must(result Result) {
 	if h, ok := g.t.(interface{ Helper() }); ok {
 		h.Helper()
@@ -67,13 +71,47 @@ func (g Ghost) Must(result Result) {
 	}
 }
 
-// MustNot runs an assertion that must not be successful, failing the test if it is.
+// MustNot asserts that an assertion result is not OK, which if unsuccessful
+// will mark a test as failed and stop execution.
 func (g Ghost) MustNot(result Result) {
 	if h, ok := g.t.(interface{ Helper() }); ok {
 		h.Helper()
 	}
 
 	if !g.ShouldNot(result) {
+		g.t.FailNow()
+	}
+}
+
+// Check checks that a value is true, which if unsuccessful will mark a test as
+// failed but continue execution.
+func (g Ghost) Check(v bool) bool {
+	if h, ok := g.t.(interface{ Helper() }); ok {
+		h.Helper()
+	}
+
+	args := ghostlib.ArgsFromAST(v)
+
+	if !v {
+		g.t.Log(fmt.Sprintf("%s is %t", args[0], v))
+		g.t.Fail()
+		return false
+	}
+
+	return true
+}
+
+// Assert asserts that a value is true, which if unsuccessful will mark a test
+// as failed and stop execution.
+func (g Ghost) Assert(v bool) {
+	if h, ok := g.t.(interface{ Helper() }); ok {
+		h.Helper()
+	}
+
+	args := ghostlib.ArgsFromAST(v)
+
+	if !v {
+		g.t.Log(fmt.Sprintf("%s is %t", args[0], v))
 		g.t.FailNow()
 	}
 }
