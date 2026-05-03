@@ -18,11 +18,11 @@ func TestError(t *testing.T) {
 
 		result := be.Error(err)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `err has error value: oopsie`))
+		g.Should(be.Equal(result.Message(), `err has error value: oopsie`))
 
 		result = be.Error(errors.New("oopsie"))
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `errors.New("oopsie") has error value: oopsie`))
+		g.Should(be.Equal(result.Message(), `errors.New("oopsie") has error value: oopsie`))
 	})
 
 	t.Run("nil", func(t *testing.T) {
@@ -32,11 +32,11 @@ func TestError(t *testing.T) {
 
 		result := be.Error(err)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `err is nil`))
+		g.Should(be.Equal(result.Message(), `err is nil`))
 
 		result = be.Error(nil)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `nil is nil`))
+		g.Should(be.Equal(result.Message(), `nil is nil`))
 	})
 }
 
@@ -50,7 +50,7 @@ func TestErrorContaining(t *testing.T) {
 		result := be.ErrorContaining(err, msg)
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err contains message msg
 got:  foobar
 want: oob`,
@@ -59,7 +59,7 @@ want: oob`,
 		result = be.ErrorContaining(errors.New("foobar"), "oob")
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error errors.New("foobar") contains message "oob"
 got:  foobar
 want: oob`,
@@ -75,7 +75,7 @@ want: oob`,
 		result := be.ErrorContaining(err, msg)
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err does not contain message msg
 got:  foobar
 want: boo`,
@@ -84,7 +84,7 @@ want: boo`,
 		result = be.ErrorContaining(errors.New("foobar"), "boo")
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error errors.New("foobar") does not contain message "boo"
 got:  foobar
 want: boo`,
@@ -99,13 +99,13 @@ want: boo`,
 
 		result := be.ErrorContaining(err, msg)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `error err is nil, does not contain msg
+		g.Should(be.Equal(result.Message(), `error err is nil, does not contain msg
 got:  <nil>
 want: boo`))
 
 		result = be.ErrorContaining(nil, "boo")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `error nil is nil, does not contain message
+		g.Should(be.Equal(result.Message(), `error nil is nil, does not contain message
 got:  <nil>
 want: boo`))
 	})
@@ -121,7 +121,7 @@ func TestErrorEqual(t *testing.T) {
 		result := be.ErrorEqual(err, msg)
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err has message msg
 value: foobar`,
 		))
@@ -129,7 +129,7 @@ value: foobar`,
 		result = be.ErrorEqual(errors.New("foobar"), "foobar")
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error errors.New("foobar") has message "foobar"
 value: foobar`,
 		))
@@ -144,7 +144,7 @@ value: foobar`,
 		result := be.ErrorEqual(err, msg)
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err does not have message msg
 got:  foobar
 want: boo`,
@@ -153,7 +153,7 @@ want: boo`,
 		result = be.ErrorEqual(errors.New("foobar"), "boo")
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error errors.New("foobar") does not have message "boo"
 got:  foobar
 want: boo`,
@@ -168,13 +168,13 @@ want: boo`,
 
 		result := be.ErrorEqual(err, msg)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `error err is nil
+		g.Should(be.Equal(result.Message(), `error err is nil
 got:  <nil>
 want: boo`))
 
 		result = be.ErrorEqual(nil, "boo")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `error nil is nil
+		g.Should(be.Equal(result.Message(), `error nil is nil
 got:  <nil>
 want: boo`))
 	})
@@ -190,7 +190,7 @@ func TestErrorIs(t *testing.T) {
 		result := be.ErrorIs(err, target)
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err is target target
 error:  wrapping: foobar
 target: foobar`,
@@ -199,7 +199,7 @@ target: foobar`,
 		result = be.ErrorIs(fmt.Errorf("wrapping: %w", target), target)
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error fmt.Errorf("wrapping: %w", target) is target target
 error:  wrapping: foobar
 target: foobar`,
@@ -215,7 +215,7 @@ target: foobar`,
 		result := be.ErrorIs(err, target)
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err is not target target
 error:  wrapping: foobar
 target: foobar`,
@@ -224,7 +224,7 @@ target: foobar`,
 		result = be.ErrorIs(fmt.Errorf("wrapping: %v", target), target) //nolint:errorlint // test case
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error fmt.Errorf("wrapping: %v", target) is not target target
 error:  wrapping: foobar
 target: foobar`,
@@ -239,13 +239,13 @@ target: foobar`,
 
 		result := be.ErrorIs(err, target)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `error err is target target
+		g.Should(be.Equal(result.Message(), `error err is target target
 error:  <nil>
 target: <nil>`))
 
 		result = be.ErrorIs(nil, nil)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `error nil is target nil
+		g.Should(be.Equal(result.Message(), `error nil is target nil
 error:  <nil>
 target: <nil>`))
 	})
@@ -261,7 +261,7 @@ func TestErrorAs(t *testing.T) {
 		result := be.ErrorAs(err, &target)
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err set as target &target
 error:  strconv.Atoi: parsing "bad input": invalid syntax
 target: *strconv.NumError`,
@@ -270,7 +270,7 @@ target: *strconv.NumError`,
 		result = be.ErrorAs(fmt.Errorf("wrapping: %w", err), &target)
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error fmt.Errorf("wrapping: %w", err) set as target &target
 error:  wrapping: strconv.Atoi: parsing "bad input": invalid syntax
 target: *strconv.NumError`,
@@ -286,7 +286,7 @@ target: *strconv.NumError`,
 		result := be.ErrorAs(err, &target)
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error err cannot be set as target &target
 error:  oh no
 target: *strconv.NumError`,
@@ -295,7 +295,7 @@ target: *strconv.NumError`,
 		result = be.ErrorAs(errors.New("oh no"), &target)
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			`error errors.New("oh no") cannot be set as target &target
 error:  oh no
 target: *strconv.NumError`,
@@ -310,11 +310,11 @@ target: *strconv.NumError`,
 
 		result := be.ErrorAs(err, &target)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `error err was nil`))
+		g.Should(be.Equal(result.Message(), `error err was nil`))
 
 		result = be.ErrorAs(nil, new(error))
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `error nil was nil`))
+		g.Should(be.Equal(result.Message(), `error nil was nil`))
 	})
 
 	t.Run("nil target", func(t *testing.T) {
@@ -325,10 +325,10 @@ target: *strconv.NumError`,
 
 		result := be.ErrorAs(err, target)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `target target cannot be nil`))
+		g.Should(be.Equal(result.Message(), `target target cannot be nil`))
 
 		result = be.ErrorAs[error](errors.New("oh no"), nil)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `target <nil> cannot be nil`))
+		g.Should(be.Equal(result.Message(), `target <nil> cannot be nil`))
 	})
 }

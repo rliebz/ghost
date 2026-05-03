@@ -3,7 +3,6 @@ package be
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -13,7 +12,12 @@ import (
 
 // All asserts that every one of the provided assertions is true.
 func All(results ...ghost.Result) ghost.Result {
-	args := ghostlib.ArgsFromAST(results)
+	argsOfAny := make([]any, 0, len(results))
+	for _, result := range results {
+		argsOfAny = append(argsOfAny, result)
+	}
+	args := ghostlib.ArgsFromAST(argsOfAny...)
+
 	return applyVariadicBooleanLogic(
 		true,
 		func(acc, val bool) bool {
@@ -26,7 +30,12 @@ func All(results ...ghost.Result) ghost.Result {
 
 // Any asserts that at least one of the provided assertions is true.
 func Any(results ...ghost.Result) ghost.Result {
-	args := ghostlib.ArgsFromAST(results)
+	argsOfAny := make([]any, 0, len(results))
+	for _, result := range results {
+		argsOfAny = append(argsOfAny, result)
+	}
+	args := ghostlib.ArgsFromAST(argsOfAny...)
+
 	return applyVariadicBooleanLogic(
 		false,
 		func(acc, val bool) bool {
@@ -41,40 +50,35 @@ func applyVariadicBooleanLogic(
 	initial bool,
 	apply func(acc, val bool) bool,
 	results []ghost.Result,
-	args []string,
+	args ghostlib.Args,
 ) ghost.Result {
 	if len(results) == 0 {
 		return ghost.Result{
 			Ok:      initial,
-			Message: "no assertions were provided",
+			Message: func() string { return "no assertions were provided" },
 		}
 	}
 
-	out := ghost.Result{Ok: initial}
-	for i, result := range results {
-		out.Ok = apply(out.Ok, result.Ok)
-
-		// Not sure why AST parsing would fail, but sometimes it does. Seems to be
-		// environment dependent rather than code dependent.
-		var arg string
-		if len(args) > i {
-			arg = fmt.Sprintf("`%s`", args[i])
-		} else {
-			arg = strconv.Itoa(i)
-		}
-
-		var b strings.Builder
-		if i != 0 {
-			b.WriteString("\n\n")
-		}
-		fmt.Fprintf(&b, "assertion %s is %t", arg, result.Ok)
-		b.WriteString("\n\t")
-		b.WriteString(indentString(result.Message))
-
-		out.Message += b.String()
+	ok := initial
+	for _, result := range results {
+		ok = apply(ok, result.Ok)
 	}
 
-	return out
+	return ghost.Result{
+		Ok: ok,
+		Message: func() string {
+			var b strings.Builder
+			for i, result := range results {
+				if i != 0 {
+					b.WriteString("\n\n")
+				}
+				fmt.Fprintf(&b, "assertion `%s` is %t", args.Get(i), result.Ok)
+				b.WriteString("\n\t")
+				b.WriteString(indentString(result.Message()))
+			}
+			return b.String()
+		},
+	}
 }
 
 var reWhitespaceLine = regexp.MustCompile(`\n[ \t]+\n`)
@@ -93,7 +97,6 @@ func Eventually(
 	interval time.Duration,
 ) ghost.Result {
 	args := ghostlib.ArgsFromAST(f, timeout, interval)
-	argF := args[0]
 
 	timer := time.NewTimer(timeout)
 	defer timer.Stop()
@@ -102,8 +105,10 @@ func Eventually(
 	defer ticker.Stop()
 
 	lastRun := ghost.Result{
-		Ok:      false,
-		Message: fmt.Sprintf("%s did not return value within %s timeout", argF, timeout),
+		Ok: false,
+		Message: func() string {
+			return fmt.Sprintf("%s did not return value within %s timeout", args.Get(0), timeout)
+		},
 	}
 
 	ch := make(chan ghost.Result, 1)

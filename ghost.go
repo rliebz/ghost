@@ -34,7 +34,7 @@ func (g Ghost) Should(result Result) bool {
 	}
 
 	if !result.Ok {
-		g.t.Log(result.Message)
+		g.t.Log(result.Message())
 		g.t.Fail()
 		return false
 	}
@@ -51,7 +51,7 @@ func (g Ghost) ShouldNot(result Result) bool {
 	}
 
 	if result.Ok {
-		g.t.Log(result.Message)
+		g.t.Log(result.Message())
 		g.t.Fail()
 		return false
 	}
@@ -93,7 +93,7 @@ func (g Ghost) Check(v bool) bool {
 	args := ghostlib.ArgsFromAST(v)
 
 	if !v {
-		g.t.Log(fmt.Sprintf("%s is %t", args[0], v))
+		g.t.Log(fmt.Sprintf("%s is %t", args.Get(0), v))
 		g.t.Fail()
 		return false
 	}
@@ -111,7 +111,7 @@ func (g Ghost) Assert(v bool) {
 	args := ghostlib.ArgsFromAST(v)
 
 	if !v {
-		g.t.Log(fmt.Sprintf("%s is %t", args[0], v))
+		g.t.Log(fmt.Sprintf("%s is %t", args.Get(0), v))
 		g.t.FailNow()
 	}
 }
@@ -125,7 +125,7 @@ func (g Ghost) NoError(err error) {
 	args := ghostlib.ArgsFromAST(err)
 
 	if err != nil {
-		g.t.Log(fmt.Sprintf("%s has error value: %s", args[0], err))
+		g.t.Log(fmt.Sprintf("%s has error value: %s", args.Get(0), err))
 		g.t.FailNow()
 	}
 }
@@ -139,5 +139,5 @@ type Result struct {
 	//
 	// A message should be present regardless of whether or not the assertion was
 	// successful.
-	Message string
+	Message func() string
 }

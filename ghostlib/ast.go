@@ -2,7 +2,6 @@ package ghostlib
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -11,25 +10,55 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 )
+
+// Args captures the call site information for deferred AST lookup.
+type Args struct {
+	once func() []string
+}
+
+// Get the string representation of the argument in the specified position.
+// Panics on out-of-bounds lookups. Safe for concurrent use.
+func (a Args) Get(index int) string {
+	return a.once()[index]
+}
 
 // ArgsFromAST gets the string representation of the caller's arguments from
 // the AST. To handle situations where this cannot be done reliably, the raw
 // arguments should be passed so their values can be used as a backup.
-func ArgsFromAST(unformatted ...any) []string {
-	return argsFromASTSkip(1, unformatted...)
+//
+// This function must be called directly from an assertion function to ensure
+// that the intended arguments are captured.
+func ArgsFromAST(unformatted ...any) Args {
+	pc, _, _, _ := runtime.Caller(1)
+	_, file, line, _ := runtime.Caller(2)
+	return Args{
+		once: sync.OnceValue(func() []string {
+			return argsFromAST(pc, findSystemFilepath(file), line, unformatted...)
+		}),
+	}
 }
 
-// argsFromASTSkip gets the string representation of the caller's arguments
-// from the AST, skipping the number specified.
-func argsFromASTSkip(skip int, unformatted ...any) []string {
-	args, err := callExprArgs(2 + skip)
+func argsFromAST(pc uintptr, filename string, line int, unformatted ...any) []string {
+	wantFunc := runtime.FuncForPC(pc)
+	if wantFunc == nil {
+		return mapString(unformatted)
+	}
+
+	fset := token.NewFileSet()
+	astFile, err := parser.ParseFile(fset, filename, nil, parser.AllErrors)
 	if err != nil {
 		return mapString(unformatted)
 	}
 
-	out := make([]string, 0, len(args))
-	for _, arg := range args {
+	node := callExprForFunc(wantFunc, fset, astFile, line)
+	if node == nil {
+		return mapString(unformatted)
+	}
+
+	out := make([]string, 0, len(node.Args))
+	for _, arg := range node.Args {
 		out = append(out, nodeToString(arg))
 	}
 
@@ -42,35 +71,6 @@ func mapString(s []any) []string {
 		out = append(out, fmt.Sprint(ss))
 	}
 	return out
-}
-
-func callExprArgs(skip int) ([]ast.Expr, error) {
-	pc, _, _, ok := runtime.Caller(skip)
-	if !ok {
-		return nil, errors.New("failed to get file/line")
-	}
-
-	_, filename, line, ok := runtime.Caller(skip + 1)
-	if !ok {
-		return nil, errors.New("failed to get file/line")
-	}
-
-	filename = findSystemFilepath(filename)
-
-	wantFunc := runtime.FuncForPC(pc)
-
-	fset := token.NewFileSet()
-	astFile, err := parser.ParseFile(fset, filename, nil, parser.AllErrors)
-	if err != nil {
-		return nil, err
-	}
-
-	node := callExprForFunc(wantFunc, fset, astFile, line)
-	if node == nil {
-		return nil, errors.New("no node found at line")
-	}
-
-	return node.Args, nil
 }
 
 // Passing the -trimpath flag will prevent looking up filepaths directly.

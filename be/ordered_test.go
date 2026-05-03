@@ -16,11 +16,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is not greater than b (4)`))
+		g.Should(be.Equal(result.Message(), `a (3) is not greater than b (4)`))
 
 		result = be.Greater(3, 4)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3 is not greater than 4`))
+		g.Should(be.Equal(result.Message(), `3 is not greater than 4`))
 	})
 
 	t.Run("int greater", func(t *testing.T) {
@@ -31,11 +31,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (4) is greater than b (3)`))
+		g.Should(be.Equal(result.Message(), `a (4) is greater than b (3)`))
 
 		result = be.Greater(4, 3)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `4 is greater than 3`))
+		g.Should(be.Equal(result.Message(), `4 is greater than 3`))
 	})
 
 	t.Run("int equal", func(t *testing.T) {
@@ -46,11 +46,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is not greater than b (3)`))
+		g.Should(be.Equal(result.Message(), `a (3) is not greater than b (3)`))
 
 		result = be.Greater(3, 3)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3 is not greater than 3`))
+		g.Should(be.Equal(result.Message(), `3 is not greater than 3`))
 	})
 
 	t.Run("float less", func(t *testing.T) {
@@ -61,11 +61,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is not greater than b (4.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is not greater than b (4.1)`))
 
 		result = be.Greater(3.1, 4.1)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is not greater than 4.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is not greater than 4.1`))
 	})
 
 	t.Run("float greater", func(t *testing.T) {
@@ -76,11 +76,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (4.1) is greater than b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (4.1) is greater than b (3.1)`))
 
 		result = be.Greater(4.1, 3.1)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `4.1 is greater than 3.1`))
+		g.Should(be.Equal(result.Message(), `4.1 is greater than 3.1`))
 	})
 
 	t.Run("float equal", func(t *testing.T) {
@@ -91,11 +91,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is not greater than b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is not greater than b (3.1)`))
 
 		result = be.Greater(3.1, 3.1)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is not greater than 3.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is not greater than 3.1`))
 	})
 
 	t.Run("string less", func(t *testing.T) {
@@ -106,11 +106,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a ("bar") is not greater than b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("bar") is not greater than b ("foo")`))
 
 		result = be.Greater("bar", "foo")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `"bar" is not greater than "foo"`))
+		g.Should(be.Equal(result.Message(), `"bar" is not greater than "foo"`))
 	})
 
 	t.Run("string greater", func(t *testing.T) {
@@ -121,11 +121,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is greater than b ("bar")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is greater than b ("bar")`))
 
 		result = be.Greater("foo", "bar")
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is greater than "bar"`))
+		g.Should(be.Equal(result.Message(), `"foo" is greater than "bar"`))
 	})
 
 	t.Run("string equal", func(t *testing.T) {
@@ -136,11 +136,11 @@ func TestGreater(t *testing.T) {
 
 		result := be.Greater(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is not greater than b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is not greater than b ("foo")`))
 
 		result = be.Greater("foo", "foo")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is not greater than "foo"`))
+		g.Should(be.Equal(result.Message(), `"foo" is not greater than "foo"`))
 	})
 }
 
@@ -153,11 +153,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is not greater than or equal to b (4)`))
+		g.Should(be.Equal(result.Message(), `a (3) is not greater than or equal to b (4)`))
 
 		result = be.GreaterOrEqual(3, 4)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3 is not greater than or equal to 4`))
+		g.Should(be.Equal(result.Message(), `3 is not greater than or equal to 4`))
 	})
 
 	t.Run("int greater", func(t *testing.T) {
@@ -168,11 +168,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (4) is greater than b (3)`))
+		g.Should(be.Equal(result.Message(), `a (4) is greater than b (3)`))
 
 		result = be.GreaterOrEqual(4, 3)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `4 is greater than 3`))
+		g.Should(be.Equal(result.Message(), `4 is greater than 3`))
 	})
 
 	t.Run("int equal", func(t *testing.T) {
@@ -183,11 +183,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is equal to b (3)`))
+		g.Should(be.Equal(result.Message(), `a (3) is equal to b (3)`))
 
 		result = be.GreaterOrEqual(3, 3)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3 is equal to 3`))
+		g.Should(be.Equal(result.Message(), `3 is equal to 3`))
 	})
 
 	t.Run("float less", func(t *testing.T) {
@@ -198,11 +198,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is not greater than or equal to b (4.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is not greater than or equal to b (4.1)`))
 
 		result = be.GreaterOrEqual(3.1, 4.1)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is not greater than or equal to 4.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is not greater than or equal to 4.1`))
 	})
 
 	t.Run("float greater", func(t *testing.T) {
@@ -213,11 +213,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (4.1) is greater than b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (4.1) is greater than b (3.1)`))
 
 		result = be.GreaterOrEqual(4.1, 3.1)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `4.1 is greater than 3.1`))
+		g.Should(be.Equal(result.Message(), `4.1 is greater than 3.1`))
 	})
 
 	t.Run("float equal", func(t *testing.T) {
@@ -228,11 +228,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is equal to b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is equal to b (3.1)`))
 
 		result = be.GreaterOrEqual(3.1, 3.1)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is equal to 3.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is equal to 3.1`))
 	})
 
 	t.Run("string less", func(t *testing.T) {
@@ -243,11 +243,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a ("bar") is not greater than or equal to b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("bar") is not greater than or equal to b ("foo")`))
 
 		result = be.GreaterOrEqual("bar", "foo")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `"bar" is not greater than or equal to "foo"`))
+		g.Should(be.Equal(result.Message(), `"bar" is not greater than or equal to "foo"`))
 	})
 
 	t.Run("string greater", func(t *testing.T) {
@@ -258,11 +258,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is greater than b ("bar")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is greater than b ("bar")`))
 
 		result = be.GreaterOrEqual("foo", "bar")
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is greater than "bar"`))
+		g.Should(be.Equal(result.Message(), `"foo" is greater than "bar"`))
 	})
 
 	t.Run("string equal", func(t *testing.T) {
@@ -273,11 +273,11 @@ func TestGreaterOrEqual(t *testing.T) {
 
 		result := be.GreaterOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is equal to b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is equal to b ("foo")`))
 
 		result = be.GreaterOrEqual("foo", "foo")
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is equal to "foo"`))
+		g.Should(be.Equal(result.Message(), `"foo" is equal to "foo"`))
 	})
 }
 
@@ -290,11 +290,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is less than b (4)`))
+		g.Should(be.Equal(result.Message(), `a (3) is less than b (4)`))
 
 		result = be.Less(3, 4)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3 is less than 4`))
+		g.Should(be.Equal(result.Message(), `3 is less than 4`))
 	})
 
 	t.Run("int greater", func(t *testing.T) {
@@ -305,11 +305,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (4) is not less than b (3)`))
+		g.Should(be.Equal(result.Message(), `a (4) is not less than b (3)`))
 
 		result = be.Less(4, 3)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `4 is not less than 3`))
+		g.Should(be.Equal(result.Message(), `4 is not less than 3`))
 	})
 
 	t.Run("int equal", func(t *testing.T) {
@@ -320,11 +320,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is not less than b (3)`))
+		g.Should(be.Equal(result.Message(), `a (3) is not less than b (3)`))
 
 		result = be.Less(3, 3)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3 is not less than 3`))
+		g.Should(be.Equal(result.Message(), `3 is not less than 3`))
 	})
 
 	t.Run("float less", func(t *testing.T) {
@@ -335,11 +335,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is less than b (4.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is less than b (4.1)`))
 
 		result = be.Less(3.1, 4.1)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is less than 4.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is less than 4.1`))
 	})
 
 	t.Run("float greater", func(t *testing.T) {
@@ -350,11 +350,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (4.1) is not less than b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (4.1) is not less than b (3.1)`))
 
 		result = be.Less(4.1, 3.1)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `4.1 is not less than 3.1`))
+		g.Should(be.Equal(result.Message(), `4.1 is not less than 3.1`))
 	})
 
 	t.Run("float equal", func(t *testing.T) {
@@ -365,11 +365,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is not less than b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is not less than b (3.1)`))
 
 		result = be.Less(3.1, 3.1)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is not less than 3.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is not less than 3.1`))
 	})
 
 	t.Run("string less", func(t *testing.T) {
@@ -380,11 +380,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a ("bar") is less than b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("bar") is less than b ("foo")`))
 
 		result = be.Less("bar", "foo")
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `"bar" is less than "foo"`))
+		g.Should(be.Equal(result.Message(), `"bar" is less than "foo"`))
 	})
 
 	t.Run("string greater", func(t *testing.T) {
@@ -395,11 +395,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is not less than b ("bar")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is not less than b ("bar")`))
 
 		result = be.Less("foo", "bar")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is not less than "bar"`))
+		g.Should(be.Equal(result.Message(), `"foo" is not less than "bar"`))
 	})
 
 	t.Run("string equal", func(t *testing.T) {
@@ -410,11 +410,11 @@ func TestLess(t *testing.T) {
 
 		result := be.Less(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is not less than b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is not less than b ("foo")`))
 
 		result = be.Less("foo", "foo")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is not less than "foo"`))
+		g.Should(be.Equal(result.Message(), `"foo" is not less than "foo"`))
 	})
 }
 
@@ -427,11 +427,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is less than b (4)`))
+		g.Should(be.Equal(result.Message(), `a (3) is less than b (4)`))
 
 		result = be.LessOrEqual(3, 4)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3 is less than 4`))
+		g.Should(be.Equal(result.Message(), `3 is less than 4`))
 	})
 
 	t.Run("int greater", func(t *testing.T) {
@@ -442,11 +442,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (4) is not less than or equal to b (3)`))
+		g.Should(be.Equal(result.Message(), `a (4) is not less than or equal to b (3)`))
 
 		result = be.LessOrEqual(4, 3)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `4 is not less than or equal to 3`))
+		g.Should(be.Equal(result.Message(), `4 is not less than or equal to 3`))
 	})
 
 	t.Run("int equal", func(t *testing.T) {
@@ -457,11 +457,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3) is equal to b (3)`))
+		g.Should(be.Equal(result.Message(), `a (3) is equal to b (3)`))
 
 		result = be.LessOrEqual(3, 3)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3 is equal to 3`))
+		g.Should(be.Equal(result.Message(), `3 is equal to 3`))
 	})
 
 	t.Run("float less", func(t *testing.T) {
@@ -472,11 +472,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is less than b (4.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is less than b (4.1)`))
 
 		result = be.LessOrEqual(3.1, 4.1)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is less than 4.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is less than 4.1`))
 	})
 
 	t.Run("float greater", func(t *testing.T) {
@@ -487,11 +487,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a (4.1) is not less than or equal to b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (4.1) is not less than or equal to b (3.1)`))
 
 		result = be.LessOrEqual(4.1, 3.1)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `4.1 is not less than or equal to 3.1`))
+		g.Should(be.Equal(result.Message(), `4.1 is not less than or equal to 3.1`))
 	})
 
 	t.Run("float equal", func(t *testing.T) {
@@ -502,11 +502,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a (3.1) is equal to b (3.1)`))
+		g.Should(be.Equal(result.Message(), `a (3.1) is equal to b (3.1)`))
 
 		result = be.LessOrEqual(3.1, 3.1)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `3.1 is equal to 3.1`))
+		g.Should(be.Equal(result.Message(), `3.1 is equal to 3.1`))
 	})
 
 	t.Run("string less", func(t *testing.T) {
@@ -517,11 +517,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a ("bar") is less than b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("bar") is less than b ("foo")`))
 
 		result = be.LessOrEqual("bar", "foo")
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `"bar" is less than "foo"`))
+		g.Should(be.Equal(result.Message(), `"bar" is less than "foo"`))
 	})
 
 	t.Run("string greater", func(t *testing.T) {
@@ -532,11 +532,11 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is not less than or equal to b ("bar")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is not less than or equal to b ("bar")`))
 
 		result = be.LessOrEqual("foo", "bar")
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is not less than or equal to "bar"`))
+		g.Should(be.Equal(result.Message(), `"foo" is not less than or equal to "bar"`))
 	})
 
 	t.Run("string equal", func(t *testing.T) {
@@ -547,10 +547,10 @@ func TestLessOrEqual(t *testing.T) {
 
 		result := be.LessOrEqual(a, b)
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `a ("foo") is equal to b ("foo")`))
+		g.Should(be.Equal(result.Message(), `a ("foo") is equal to b ("foo")`))
 
 		result = be.LessOrEqual("foo", "foo")
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `"foo" is equal to "foo"`))
+		g.Should(be.Equal(result.Message(), `"foo" is equal to "foo"`))
 	})
 }

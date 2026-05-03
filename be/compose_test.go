@@ -16,7 +16,7 @@ func TestAll(t *testing.T) {
 
 		result := be.All()
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, "no assertions were provided"))
+		g.Should(be.Equal(result.Message(), "no assertions were provided"))
 	})
 
 	t.Run("one valid", func(t *testing.T) {
@@ -30,7 +30,7 @@ func TestAll(t *testing.T) {
 
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			fmt.Sprintf(`assertion %s is false
 	1 != 0
 	got:  1
@@ -60,7 +60,7 @@ assertion %s is false
 
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			fmt.Sprintf("assertion %s is true"+`
 	1 == 1
 
@@ -84,7 +84,7 @@ assertion %s is true
 
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			fmt.Sprintf(`assertion %s is false
 	assertion %s is false
 		1 != 0
@@ -109,7 +109,7 @@ func TestAny(t *testing.T) {
 
 		result := be.Any()
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, "no assertions were provided"))
+		g.Should(be.Equal(result.Message(), "no assertions were provided"))
 	})
 
 	t.Run("one valid", func(t *testing.T) {
@@ -123,7 +123,7 @@ func TestAny(t *testing.T) {
 
 		g.Check(result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			fmt.Sprintf(`assertion %s is false
 	1 != 0
 	got:  1
@@ -153,7 +153,7 @@ assertion %s is false
 
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			fmt.Sprintf("assertion %s is false"+`
 	1 != 0
 	got:  1
@@ -181,7 +181,7 @@ assertion %s is false
 
 		g.Check(!result.Ok)
 		g.Should(be.Equal(
-			result.Message,
+			result.Message(),
 			fmt.Sprintf(`assertion %s is false
 	assertion %s is false
 		1 != 0
@@ -211,7 +211,7 @@ func TestEventually(t *testing.T) {
 		}, 100*time.Millisecond, 5*time.Millisecond)
 
 		g.Check(result.Ok)
-		g.Should(be.Equal(result.Message, `count == 3`))
+		g.Should(be.Equal(result.Message(), `count == 3`))
 	})
 
 	t.Run("not ok", func(t *testing.T) {
@@ -228,7 +228,7 @@ func TestEventually(t *testing.T) {
 		matched, err := regexp.MatchString(`count != -1
 got:  \d+
 want: -1
-`, result.Message)
+`, result.Message())
 		g.NoError(err)
 		g.Check(matched)
 	})
@@ -242,7 +242,7 @@ want: -1
 		}, 10*time.Millisecond, 100*time.Millisecond)
 
 		g.Check(!result.Ok)
-		g.Should(be.Equal(result.Message, `func() ghost.Result {
+		g.Should(be.Equal(result.Message(), `func() ghost.Result {
 	time.Sleep(100 * time.Millisecond)
 	return be.True(true)
 } did not return value within 10ms timeout`))
@@ -256,13 +256,14 @@ func TestNot(t *testing.T) {
 
 	result := ghost.Result{
 		Ok:      true,
-		Message: message,
+		Message: func() string { return message },
 	}
 
 	negated := be.Not(result)
 	g.Check(!negated.Ok)
-	g.Should(be.Equal(negated.Message, message))
+	g.Should(be.Equal(negated.Message(), message))
 
 	doubleNegated := be.Not(negated)
-	g.Should(be.Equal(doubleNegated, result))
+	g.Should(be.Equal(doubleNegated.Ok, result.Ok))
+	g.Should(be.Equal(doubleNegated.Message(), result.Message()))
 }

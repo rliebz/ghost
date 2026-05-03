@@ -210,7 +210,9 @@ func BeThirteen(i int) ghost.Result {
 
 	return ghost.Result{
 		Ok:      i == 13,
-		Message: fmt.Sprintf("%v is %d", args[0], i),
+		Message: func() string {
+			return fmt.Sprintf("%v is %d", args.Get(0), i)
+		}
 	}
 }
 ```

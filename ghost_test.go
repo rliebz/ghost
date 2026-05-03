@@ -19,7 +19,7 @@ func TestGhost_Should(t *testing.T) {
 
 		ok := testG.Should(ghost.Result{
 			Ok:      true,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.True(ok))
@@ -37,7 +37,7 @@ func TestGhost_Should(t *testing.T) {
 
 		ok := testG.Should(ghost.Result{
 			Ok:      false,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.False(ok))
@@ -58,7 +58,7 @@ func TestGhost_ShouldNot(t *testing.T) {
 
 		ok := testG.ShouldNot(ghost.Result{
 			Ok:      true,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.False(ok))
@@ -77,7 +77,7 @@ func TestGhost_ShouldNot(t *testing.T) {
 
 		ok := testG.ShouldNot(ghost.Result{
 			Ok:      false,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.True(ok))
@@ -97,7 +97,7 @@ func TestGhost_Must(t *testing.T) {
 
 		testG.Must(ghost.Result{
 			Ok:      true,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.SliceLen(mockT.logCalls, 0))
@@ -114,7 +114,7 @@ func TestGhost_Must(t *testing.T) {
 
 		testG.Must(ghost.Result{
 			Ok:      false,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.DeepEqual(mockT.logCalls, [][]any{{msg}}))
@@ -132,7 +132,7 @@ func TestGhost_MustNot(t *testing.T) {
 
 		testG.MustNot(ghost.Result{
 			Ok:      true,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.DeepEqual(mockT.logCalls, [][]any{{msg}}))
@@ -148,7 +148,7 @@ func TestGhost_MustNot(t *testing.T) {
 
 		testG.MustNot(ghost.Result{
 			Ok:      false,
-			Message: msg,
+			Message: func() string { return msg },
 		})
 
 		g.Should(be.SliceLen(mockT.logCalls, 0))
