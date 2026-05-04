@@ -40,14 +40,15 @@ func ArgsFromAST(unformatted ...any) Args {
 	}
 }
 
+var fset = token.NewFileSet()
+
 func argsFromAST(pc uintptr, filename string, line int, unformatted ...any) []string {
 	wantFunc := runtime.FuncForPC(pc)
 	if wantFunc == nil {
 		return mapString(unformatted)
 	}
 
-	fset := token.NewFileSet()
-	astFile, err := parser.ParseFile(fset, filename, nil, parser.AllErrors)
+	astFile, err := parseFile(filename)
 	if err != nil {
 		return mapString(unformatted)
 	}
@@ -63,6 +64,33 @@ func argsFromAST(pc uintptr, filename string, line int, unformatted ...any) []st
 	}
 
 	return out
+}
+
+var (
+	fileCache = map[string]*ast.File{}
+	fileMu    sync.RWMutex
+)
+
+func parseFile(filename string) (*ast.File, error) {
+	fileMu.RLock()
+	f, ok := fileCache[filename]
+	fileMu.RUnlock()
+	if ok {
+		return f, nil
+	}
+
+	fileMu.Lock()
+	defer fileMu.Unlock()
+	if f, ok = fileCache[filename]; ok {
+		return f, nil
+	}
+
+	f, err := parser.ParseFile(fset, filename, nil, parser.AllErrors)
+	if err != nil {
+		return nil, err
+	}
+	fileCache[filename] = f
+	return f, nil
 }
 
 func mapString(s []any) []string {
