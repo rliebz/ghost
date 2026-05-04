@@ -18,9 +18,8 @@ jobs:
           - ubuntu-latest
           - windows-latest
         go-version:
-          - "1.22"
-          - "1.23"
-          - "1.24"
+          - "1.25"
+          - "1.26"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -43,8 +42,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.24"
+          go-version: "1.26"
       - name: Lint
         uses: golangci/golangci-lint-action@v7
         with:
-          version: v2.0.2
+          version: v2.12.1
