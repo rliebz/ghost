@@ -2,7 +2,6 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/rliebz/ghost.svg)][godoc]
 [![Test Workflow](https://github.com/rliebz/ghost/actions/workflows/test.yml/badge.svg)](https://github.com/rliebz/ghost/actions?query=workflow%3ATest+branch%3Amain++)
-[![Go Report Card](https://goreportcard.com/badge/github.com/rliebz/ghost)](https://goreportcard.com/report/github.com/rliebz/ghost)
 
 Flexible, extensible, and beautiful test assertions in Go that stay out of
 your way.

@@ -249,7 +249,7 @@ func (d *differ) writeValue(v any) {
 	}
 }
 
-// writeValueInline is like [writeValue], but with abbrevations for long
+// writeValueInline is like [differ.writeValue], but with abbrevations for long
 // strings, slices, and maps.
 func (d *differ) writeValueInline(v any) {
 	switch v := v.(type) {
